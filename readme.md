@@ -6,6 +6,10 @@
 
 proof of concept
 
+## demos
+
+* [nixos-config-webui](https://github.com/milahu/nixos-config-webui)
+
 ## nix implementation
 
 implementation details of the original nix interpreter
