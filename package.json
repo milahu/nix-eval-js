@@ -1,0 +1,17 @@
+{
+  "name": "nix-eval-js",
+  "version": "0.0.1",
+  "description": "run nix code in javascript",
+  "main": "src/nix-eval.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "nix",
+    "nixos",
+    "interpreter",
+    "evaluator"
+  ],
+  "author": "Milan Hauth",
+  "license": "MIT"
+}
