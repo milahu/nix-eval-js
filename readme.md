@@ -63,9 +63,9 @@ In interpreters for functional languages based on term rewriting, maximal lazine
 term representing the program is rewritten according to the semantic rules of the
 language until a normal form — the evaluation result — is reached. In fact, maximal
 laziness comes naturally when one implements the interpreter in a term rewriting
-system that has the property of maximal sharing, such as ASF+SDF [23] or the
-Stratego/XT program transformation system [24], both of which rely on the ATerm
-library [20] to implement maximal sharing of terms. In such systems, if two terms
+system that has the property of maximal sharing, such as ASF+SDF \[23] or the
+Stratego/XT program transformation system \[24], both of which rely on the ATerm
+library \[20] to implement maximal sharing of terms. In such systems, if two terms
 are syntactically equal, then they occupy the same location in memory — i.e., any
 term is stored only once (a technique known as hash-consing in Lisp). This makes
 it easy and cheap to add a simple memoisation to the term rewriting code to map
