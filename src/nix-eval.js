@@ -123,6 +123,7 @@ export default class NixEval {
         //'SubExpr': (node) => (node.thunk = () => (node.children[0].thunk() - node.children[2].thunk())),
         //'Sub': null, // '-' // not used? - is parsed as Negative. bug in parser grammar?
         'NegativeExpr': (node) => (node.thunk = () => (- node.children[1].thunk())),
+        'CallNeg': (node) => (node.thunk = () => (- node.children[0].thunk())),
         'Negative': null, // '-'
         // naive apply
         //'ApplyExpr': (node) => (node.thunk = () => node.children[0].thunk()( node.children[1].thunk() )),
