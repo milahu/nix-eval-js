@@ -164,6 +164,12 @@ export default class NixEval {
           }
           return node.data;
         }),
+        // TODO print list in nix-eval-cli.js
+        'List': (node) => (node.thunk = function* (){ // generator function
+          for (const child of node.children) {
+            yield child.thunk;
+          }
+        }),
         // TODO
         'RecAttrSet': (node) => (node.thunk = () => {
           console.log(`RecAttrSet.thunk: node:`); console.dir(node);

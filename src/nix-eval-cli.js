@@ -17,6 +17,13 @@ function main(argv) {
   //console.log(Object.assign({}, result)); // print everything -> too much
   console.log(stringify(result)); // TODO indent
   //console.log(JSON.stringify(result, null, 2)); // print everything -> too much
+
+  // TODO print List generator
+  /*
+  for (const valueThunk of result) {
+    console.log(valueThunk());
+  }
+  */
 }
 
 function log(obj) {
