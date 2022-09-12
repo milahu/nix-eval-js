@@ -79,6 +79,10 @@ achieving maximal laziness.
 * https://github.com/svanderburg/nijs - NiJS: An internal DSL for Nix in JavaScript
   * https://github.com/svanderburg/slasp - library for asynchronous programming
 
+## transpile nix to javascript
+
+* https://github.com/YZITE/nix2js - Nix &rarr; Rust &rarr; JavaScript
+
 ## lazy evaluation
 
 * https://en.wikipedia.org/wiki/Lazy_evaluation
