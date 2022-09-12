@@ -19,15 +19,17 @@ export default class NixEval {
     //console.log(`NixEval.evalTree`);
     const cursor = tree.cursor();
     let depth = 0;
-    const rootNode = {
-      type: null,
-      text: null,
-      parent: null,
-      children: [],
-      depth: null,
-      thunk: null,
-      //value: undefined,
-    };
+
+    const rootNode = {};
+    Object.defineProperties(rootNode, {
+      'type': { value: "Nix", enumerable: true },
+      'text': { value: source, enumerable: true },
+      'thunk': { value: null, writable: true }, // hidden
+      'depth': { value: depth }, // hidden
+      'parent': { value: null }, // hidden
+      'children': { value: [], enumerable: true },
+    });
+
     let parentNode = rootNode;
     let lastNode = null;
     while (true) {
@@ -35,15 +37,15 @@ export default class NixEval {
       const cursorType = cursor.name;
       const cursorTypeId = cursor.type.id;
 
-      const thisNode = {
-        type: cursorType,
-        text: cursorText,
-        parent: parentNode,
-        children: [],
-        depth,
-        thunk: null,
-        //value: undefined,
-      };
+      const thisNode = {};
+      Object.defineProperties(thisNode, {
+        'type': { value: cursorType, enumerable: true },
+        'text': { value: cursorText, enumerable: true },
+        'thunk': { value: null, writable: true }, // hidden
+        'depth': { value: depth }, // hidden
+        'parent': { value: parentNode }, // hidden
+        'children': { value: [], enumerable: true },
+      });
 
       parentNode.children.push(thisNode);
 
@@ -128,7 +130,7 @@ export default class NixEval {
         }),
         'Select': (node) => (node.thunk = () => {
           console.log(`Select.thunk: TODO ... node:`)
-          console.dir(node);
+          console.dir(node, { depth: 10 });
           // FIXME attrpath node is missing -> bug in tree walker
           return "todo";
         }),
