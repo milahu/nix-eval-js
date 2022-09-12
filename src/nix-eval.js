@@ -167,7 +167,7 @@ export default class NixEval {
         // TODO print list in nix-eval-cli.js
         'List': (node) => (node.thunk = function* (){ // generator function
           for (const child of node.children) {
-            yield child.thunk;
+            yield child.thunk();
           }
         }),
         // TODO
