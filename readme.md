@@ -92,6 +92,9 @@ achieving maximal laziness.
 
 * https://github.com/dtao/lazy.js - library for lazy functional programming, 6K stars, [npm](https://www.npmjs.com/package/lazy.js), [npm packages depending on lazy.js](https://www.npmjs.com/browse/depended/lazy.js)
   * https://github.com/wonderlang/wonder - lazy functional programming language
+* https://baconjs.github.io/
+  * Stop working on individual events and work with event-streams instead.
+  * [npm packages depending on baconjs](https://www.npmjs.com/browse/depended/baconjs)
 * https://github.com/ricokahler/lazy 10 stars
 
 ### simple
@@ -121,6 +124,26 @@ lisp interpreter in javascript
 * https://github.com/willurd/js-lisp - 50 stars
 * https://chidiwilliams.com/post/how-to-write-a-lisp-interpreter-in-javascript/#interpreter
   * https://github.com/chidiwilliams/jscheme
+
+## lazy evaluation vs reactive programming
+
+* https://stackoverflow.com/questions/13575498/lazy-evaluation-and-reactive-programming
+  * lazy evaluation is a language facility that allows the existence and manipulation of infinite data
+    * infinite in the sense that you can pull off as much as you want and still have some left over.
+    * you don't "loop forever"
+    * performance gains
+    * only compute as much of an answer as you need to do more work, and then keep around a holder (typically called a "thunk") that will let you do more work when you need it
+  * reactive programming is a programming paradigm oriented around data flows and the propagation of change
+    * express static or dynamic data flows
+      * define ("declare") how data flows will be propagated
+    * the underlying execution model will automatically propagate changes through the data flow
+      * without explicitly having to implement it using callbacks and function pointers
+    * most people will call GUI frameworks reactive.
+      * in language like C or C++, you typically do reactive programming via function pointers or callbacks, without an explicit notion of lazy evaluation
+  * in [functional reactive programming (FRP)](http://en.wikipedia.org/wiki/Functional_reactive_programming), you declaratively specify reactive data
+    * implemented "under the hood" using the laziness of the Haskell language
+  * if you look at libraries like [Bacon.js](https://baconjs.github.io/) or [Lazy.js](https://github.com/dtao/lazy.js), it really seems that under the hood their implementation can easily be realised by using the reactive paradigm (eg, with **streams**)
+    * stream of events
 
 ## keywords
 
