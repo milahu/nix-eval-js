@@ -149,6 +149,10 @@ lisp interpreter in javascript
   * if you look at libraries like [Bacon.js](https://baconjs.github.io/) or [Lazy.js](https://github.com/dtao/lazy.js), it really seems that under the hood their implementation can easily be realised by using the reactive paradigm (eg, with **streams**)
     * stream of events
 
+## NixExpr to Derivation
+
+* https://github.com/Gabriella439/Haskell-Nix-Derivation-Library
+
 ## keywords
 
 * nix evaluator in javascript
