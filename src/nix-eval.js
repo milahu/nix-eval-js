@@ -250,6 +250,12 @@ export default class NixEval {
         else {
           // not moved up
           // done walking all nodes
+
+          if (rootNode.children[0].children.length == 0) {
+            // empty input
+            return undefined;
+          }
+
           const evalResult = rootNode.children[0].thunk();
           //console.log('NixEval.evalTree: evalResult', evalResult);
           return evalResult;
