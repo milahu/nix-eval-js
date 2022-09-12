@@ -22,6 +22,9 @@ export default class NixEval {
 
     //console.log(`NixEval.evalTree`);
 
+    let depth = 0;
+    const cursor = tree.cursor();
+
     const rootNode = {};
     Object.defineProperties(rootNode, {
       'type': { value: "Nix", enumerable: true },
@@ -33,10 +36,18 @@ export default class NixEval {
     });
 
     let parentNode = rootNode;
-    let depth = 0;
-    const cursor = tree.cursor();
+
+
 
     // walk tree of nodes
+
+    // https://en.wikipedia.org/wiki/Tree_traversal#In-order,_LNR
+    // In-order, LNR
+    // 1. Recursively traverse the current node's left subtree. // cursor.firstChild
+    // 2. Visit the current node.
+    // 3. Recursively traverse the current node's right subtree. // cursor.nextSibling
+    // https://rosettacode.org/wiki/Tree_traversal#JavaScript
+    // https://github.com/lezer-parser/common/blob/main/src/tree.ts # TreeCursor.iterate
 
     while (true) {
 
@@ -59,10 +70,15 @@ export default class NixEval {
 
       parentNode.children.push(thisNode);
 
-      //console.log(`NixEval.evalTree: ${'  '.repeat(depth)}${cursorTypeId}=${cursorType}: ${cursorText}`);
+
+
+      // 1. Recursively traverse the current node's left subtree.
+      // case "left": if (this.left) this.left.walk(func, order); break;
+      //console.log(`${'  '.repeat(depth)}1. ${cursorType}: ${cursorText}`);
+      //console.log(`step 1: thisNode:`); console.dir(thisNode);
 
       // deep first
-      // try to move down in the tree
+      // try to move down
       if (cursor.firstChild()) {
         // moved down
         parentNode = thisNode;
@@ -70,12 +86,13 @@ export default class NixEval {
         continue;
       }
 
-      // broad second
-      // try to move right in the tree
-      if (cursor.nextSibling()) {
-        // moved right
-        continue;
-      }
+
+
+      // 2. Visit the current node.
+      // case "this": func(this.value); break;
+
+      //console.log(`step 2: thisNode:`); console.dir(thisNode);
+      //console.log(`${'  '.repeat(depth)}2. ${cursorType}: ${cursorText}`);
 
       // bottom-up
       //console.log(`NixEval.evalTree: ${'  '.repeat(depth)}${cursorTypeId}=${cursorType}: ${cursorText} rootNode`, rootNode, 'parentNode', parentNode);
@@ -114,13 +131,13 @@ export default class NixEval {
         }),
         'AttrSet': (node) => (node.thunk = () => {
           if (!node.data) node.data = {};
-          console.log(`AttrSet.thunk: TODO ... node:`)
+          //console.log(`AttrSet.thunk: TODO ... node:`)
           console.dir(node);
           for (const attr of node.children) {
-            console.log(`AttrSet.thunk: TODO ... attr:`)
+            //console.log(`AttrSet.thunk: TODO ... attr:`)
             console.dir(attr);
             const key = attr.children[0].thunk();
-            console.log(`AttrSet.thunk: key = ${key}`)
+            //console.log(`AttrSet.thunk: key = ${key}`)
             Object.defineProperty(node.data, key, {
               get: attr.children[1].thunk,
               enumerable: true,
@@ -130,7 +147,7 @@ export default class NixEval {
         }),
         // note: only the attr value is lazy
         'Attr': (node) => (node.thunk = () => {
-          console.log(`Attr.thunk: TODO ... node:`)
+          //console.log(`Attr.thunk: TODO ... node:`)
           console.dir(node);
           // TODO handle select, use only first key
           const key = node.children[0].thunk();
@@ -176,19 +193,45 @@ export default class NixEval {
 
       // TODO? continue walking nodes in tree
 
-      // try to move up and right in the tree
+      /*
+      // try to move up and right
       if (cursor.parent() && cursor.nextSibling()) { // TODO verify
         // moved up and right
         parentNode = parentNode.parent;
         continue;
       }
+      */
 
-      // done walking all nodes
 
-      const evalResult = rootNode.children[0].thunk();
-      //console.log('NixEval.evalTree: evalResult', evalResult);
-      return evalResult;
+
+      // 3. Recursively traverse the current node's right subtree.
+      // case "right": if (this.right) this.right.walk(func, order); break;
+
+      //console.log(`step 3: thisNode:`); console.dir(thisNode);
+      //console.log(`${'  '.repeat(depth)}3. ${cursorType}: ${cursorText}`);
+
+      // move right and up
+
+      //console.log(`${'  '.repeat(depth)}4. ${cursorType}: ${cursorText}`);
+
+      while (true) {
+        if (cursor.nextSibling()) {
+          // moved right
+          break
+        }
+        if (cursor.parent()) {
+          // moved up
+          parentNode = parentNode.parent;
+          depth--;
+        }
+        else {
+          // not moved up
+          // done walking all nodes
+          const evalResult = rootNode.children[0].thunk();
+          //console.log('NixEval.evalTree: evalResult', evalResult);
+          return evalResult;
+        }
+      }
     }
-    //console.log(`NixEval.evalTree: done tree walk. depth=${depth}`);
   }
 }
