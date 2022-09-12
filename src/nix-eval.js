@@ -35,6 +35,14 @@ export default class NixEval {
       'children': { value: [], enumerable: true },
     });
 
+    // TODO pretty print
+    /*
+    node.toString = (node) => {
+      return 'hello'
+    }
+    console.log(String(node));
+    */
+
     let parentNode = rootNode;
 
 
@@ -56,7 +64,7 @@ export default class NixEval {
       //const cursorTypeId = cursor.type.id; // TODO use numeric types
 
       // defineProperties:
-      // hide some properties -> prettier output from console.log
+      // hide some properties -> prettier output from console.dir
       // make some properties read-only -> better performance?
       const thisNode = {};
       Object.defineProperties(thisNode, {
@@ -131,11 +139,21 @@ export default class NixEval {
         }),
         'AttrSet': (node) => (node.thunk = () => {
           if (!node.data) node.data = {};
-          //console.log(`AttrSet.thunk: TODO ... node:`)
-          console.dir(node);
+
+          /*
+          // TODO
+          // https://stackoverflow.com/questions/28072671/how-can-i-get-console-log-to-output-the-getter-result-instead-of-the-string-ge
+          // print getter values in util.inspect(result)
+          const customInspectSymbol = Symbol.for('nodejs.util.inspect.custom');
+          node.data[customInspectSymbol] = function(depth, inspectOptions, inspect) {
+            return `{ a=1; b=2; }`;
+          };
+          */
+
+          //console.log(`AttrSet.thunk: node:`); console.dir(node);
+          // TODO cache
           for (const attr of node.children) {
-            //console.log(`AttrSet.thunk: TODO ... attr:`)
-            console.dir(attr);
+            //console.log(`AttrSet.thunk: attr:`); console.dir(attr);
             const key = attr.children[0].thunk();
             //console.log(`AttrSet.thunk: key = ${key}`)
             Object.defineProperty(node.data, key, {
@@ -145,26 +163,13 @@ export default class NixEval {
           }
           return node.data;
         }),
-        // note: only the attr value is lazy
-        'Attr': (node) => (node.thunk = () => {
-          //console.log(`Attr.thunk: TODO ... node:`)
-          console.dir(node);
-          // TODO handle select, use only first key
-          const key = node.children[0].thunk();
-          Object.defineProperty(node.parent.data, key, {
-            get: node.children[1].thunk
-          });
-        }),
-        'Identifier': (node) => (node.thunk = () => {
-          //console.log(`Identifier.thunk: TODO ... node:`)
-          //console.dir(node);
-          return node.text;
-        }),
+        'Attr': false,
+        'Identifier': (node) => (node.thunk = () => node.text),
         'Select': (node) => (node.thunk = () => {
-          console.log(`Select.thunk: TODO ... node:`)
-          console.dir(node, { depth: 10 });
-          // FIXME attrpath node is missing -> bug in tree walker
-          return "todo";
+          //console.log(`Select.thunk: node:`); console.dir(node);
+          //console.log(`Select.thunk: child 0 ->`); console.dir(node.children[0].thunk());
+          //console.log(`Select.thunk: child 1 ->`); console.dir(node.children[1].thunk());
+          return node.children[0].thunk()[ node.children[1].thunk() ];
         }),
       }
 
@@ -174,7 +179,7 @@ export default class NixEval {
           //console.log(`setThunk for token ${node.type}`);
           setThunk(node);
         }
-        else {
+        else if (setThunk === undefined) {
           console.error(`nix-eval.js error: setThunk is empty for token ${node.type}`);
         }
       }

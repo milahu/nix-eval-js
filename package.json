@@ -14,5 +14,8 @@
     "evaluator"
   ],
   "author": "Milan Hauth",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "safe-stable-stringify": "^2.3.1"
+  }
 }
