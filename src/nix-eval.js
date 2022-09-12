@@ -6,7 +6,6 @@
 import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
 
 
-
 export default class NixEval {
 
   constructor() {
@@ -115,6 +114,46 @@ export default class NixEval {
         'Float': (node) => (node.thunk = () => parseFloat(node.text)),
         'ConcatStrings': (node) => (node.thunk = () => (node.children[0].thunk() + node.children[1].thunk())),
         'Add': null,
+        'Primop': (node) => {
+          const setThunk = NixPrimOps[node.text];
+          setThunk(node);
+        },
+        /*
+        'Primop': (node) => {
+          console.log(`Primop: node.text = ${node.text}`);
+          const op = NixPrimOps[node.text];
+          node.thunk = () => op;
+        },
+        */
+
+        /*
+          node ./src/lezer-parser-nix/test/manual-test.js "__add 1 2"
+
+          Nix
+            Call "__add 1 2"
+              Call "__add 1"
+                Primop "__add"
+                Int "1"
+              Int "2"
+        */
+        'Call': (node) => {
+            console.log(`setThunk.Call: node:`); console.dir(node);
+            /*
+            if (node.children.length == 0) {
+              console.log(`Call.thunk: no children -> TODO`); console.dir(node);
+              return 'TODO';
+            }
+            */
+            //return node.children[0].thunk()( node.children[1].thunk() ); // node.children[1] is undef
+            node.thunk = () => {
+              console.log(`Call.thunk: node:`); console.dir(node);
+              return () => {
+                // FIXME never called
+                console.log(`Call.thunk.thunk: node:`); console.dir(node);
+                return node.children[0].thunk()( node.children[1].thunk() )
+              };
+            };
+        },
         'CallSub': (node) => (node.thunk = () => (node.children[0].thunk() - node.children[1].thunk())),
         // SubExpr is not used
         // lezer-parser-nix/src/nix.grammar
@@ -271,3 +310,105 @@ export default class NixEval {
     }
   }
 }
+
+
+
+// primary operations
+
+// cat primops.cc | grep '.name = "__' | cut -d'"' -f2 | sed -E 's/^(.*)$/  "\1": node => TodoPrimOp(node, "\1"),/'
+
+function TodoPrimOp(node, opName) {
+  console.log(`TODO PrimOp ${opName}`);
+  return 'TODO';
+}
+
+export const NixPrimOps = {
+
+  "__typeOf": node => TodoPrimOp(node, "__typeOf"),
+  "__isFunction": node => TodoPrimOp(node, "__isFunction"),
+  "__isInt": node => TodoPrimOp(node, "__isInt"),
+  "__isFloat": node => TodoPrimOp(node, "__isFloat"),
+  "__isString": node => TodoPrimOp(node, "__isString"),
+  "__isBool": node => TodoPrimOp(node, "__isBool"),
+  "__isPath": node => TodoPrimOp(node, "__isPath"),
+  "__genericClosure": node => TodoPrimOp(node, "__genericClosure"),
+  "__addErrorContext": node => TodoPrimOp(node, "__addErrorContext"),
+  "__ceil": node => TodoPrimOp(node, "__ceil"),
+  "__floor": node => TodoPrimOp(node, "__floor"),
+  "__tryEval": node => TodoPrimOp(node, "__tryEval"),
+  "__getEnv": node => TodoPrimOp(node, "__getEnv"),
+  "__seq": node => TodoPrimOp(node, "__seq"),
+  "__deepSeq": node => TodoPrimOp(node, "__deepSeq"),
+  "__trace": node => TodoPrimOp(node, "__trace"),
+  "__toPath": node => TodoPrimOp(node, "__toPath"),
+  "__storePath": node => TodoPrimOp(node, "__storePath"),
+  "__pathExists": node => TodoPrimOp(node, "__pathExists"),
+  "__readFile": node => TodoPrimOp(node, "__readFile"),
+  "__findFile": node => TodoPrimOp(node, "__findFile"),
+  "__hashFile": node => TodoPrimOp(node, "__hashFile"),
+  "__readDir": node => TodoPrimOp(node, "__readDir"),
+  "__toXML": node => TodoPrimOp(node, "__toXML"),
+  "__toJSON": node => TodoPrimOp(node, "__toJSON"),
+  "__fromJSON": node => TodoPrimOp(node, "__fromJSON"),
+  "__toFile": node => TodoPrimOp(node, "__toFile"),
+  "__filterSource": node => TodoPrimOp(node, "__filterSource"),
+  "__path": node => TodoPrimOp(node, "__path"),
+  "__attrNames": node => TodoPrimOp(node, "__attrNames"),
+  "__attrValues": node => TodoPrimOp(node, "__attrValues"),
+  "__getAttr": node => TodoPrimOp(node, "__getAttr"),
+  "__unsafeGetAttrPos": node => TodoPrimOp(node, "__unsafeGetAttrPos"),
+  "__hasAttr": node => TodoPrimOp(node, "__hasAttr"),
+  "__isAttrs": node => TodoPrimOp(node, "__isAttrs"),
+  "__listToAttrs": node => TodoPrimOp(node, "__listToAttrs"),
+  "__intersectAttrs": node => TodoPrimOp(node, "__intersectAttrs"),
+  "__catAttrs": node => TodoPrimOp(node, "__catAttrs"),
+  "__functionArgs": node => TodoPrimOp(node, "__functionArgs"),
+  "__mapAttrs": node => TodoPrimOp(node, "__mapAttrs"),
+  "__zipAttrsWith": node => TodoPrimOp(node, "__zipAttrsWith"),
+  "__isList": node => TodoPrimOp(node, "__isList"),
+  "__elemAt": node => TodoPrimOp(node, "__elemAt"),
+  "__head": node => TodoPrimOp(node, "__head"),
+  "__tail": node => TodoPrimOp(node, "__tail"),
+  "__filter": node => TodoPrimOp(node, "__filter"),
+  "__elem": node => TodoPrimOp(node, "__elem"),
+  "__concatLists": node => TodoPrimOp(node, "__concatLists"),
+  "__length": node => TodoPrimOp(node, "__length"),
+  "__foldl'": node => TodoPrimOp(node, "__foldl'"),
+  "__any": node => TodoPrimOp(node, "__any"),
+  "__all": node => TodoPrimOp(node, "__all"),
+  "__genList": node => TodoPrimOp(node, "__genList"),
+  "__sort": node => TodoPrimOp(node, "__sort"),
+  "__partition": node => TodoPrimOp(node, "__partition"),
+  "__groupBy": node => TodoPrimOp(node, "__groupBy"),
+  "__concatMap": node => TodoPrimOp(node, "__concatMap"),
+  "__add": node => {
+    //TodoPrimOp(node, "__add");
+    //console.dir(node);
+    console.log("setThunk.__add: node:"); console.dir(node);
+    node.thunk = () => {
+      // FIXME never called
+      console.log("__add.thunk: node:"); console.dir(node);
+      return (left, right) => (left + right);
+    }
+  },
+  "__sub": node => TodoPrimOp(node, "__sub"),
+  "__mul": node => TodoPrimOp(node, "__mul"),
+  "__div": node => TodoPrimOp(node, "__div"),
+  "__bitAnd": node => TodoPrimOp(node, "__bitAnd"),
+  "__bitOr": node => TodoPrimOp(node, "__bitOr"),
+  "__bitXor": node => TodoPrimOp(node, "__bitXor"),
+  "__lessThan": node => TodoPrimOp(node, "__lessThan"),
+  "__substring": node => TodoPrimOp(node, "__substring"),
+  "__stringLength": node => TodoPrimOp(node, "__stringLength"),
+  "__hashString": node => TodoPrimOp(node, "__hashString"),
+  "__match": node => TodoPrimOp(node, "__match"),
+  "__split": node => TodoPrimOp(node, "__split"),
+  "__concatStringsSep": node => TodoPrimOp(node, "__concatStringsSep"),
+  "__replaceStrings": node => TodoPrimOp(node, "__replaceStrings"),
+  "__parseDrvName": node => TodoPrimOp(node, "__parseDrvName"),
+  "__compareVersions": node => TodoPrimOp(node, "__compareVersions"),
+  "__splitVersion": node => TodoPrimOp(node, "__splitVersion"),
+  "__traceVerbose": node => TodoPrimOp(node, "__traceVerbose"),
+
+};
+
