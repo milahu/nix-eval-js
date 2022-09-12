@@ -164,7 +164,8 @@ export default class NixEval {
           }
           return node.data;
         }),
-        'List': (node) => (node.thunk = function* (){ // generator function
+        // generator function returns iterator
+        'List': (node) => (node.thunk = function* (){
           for (const child of node.children) {
             yield child.thunk();
           }
