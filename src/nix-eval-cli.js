@@ -13,8 +13,8 @@ function main(argv) {
   const result = nix.eval(argv[1] || '');
   //console.dir(result, { depth: 2 }); // getter values are missing
   //console.log(Object.assign({}, result)); // print everything -> too much
-  //console.log(stringify(result)); // TODO indent
-  console.log(JSON.stringify(result, null, 2)); // print everything -> too much
+  console.log(stringify(result)); // TODO indent
+  //console.log(JSON.stringify(result, null, 2)); // print everything -> too much
 }
 
 function log(obj) {
