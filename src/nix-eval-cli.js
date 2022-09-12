@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 import NixEval from "./nix-eval.js";
 import process from "node:process";
 import { configure as getStringify } from 'safe-stable-stringify'
