@@ -64,18 +64,16 @@ export default class NixEval {
       //console.log(`NixEval.evalTree: ${'  '.repeat(depth)}${cursorTypeId}=${cursorType}: ${cursorText} rootNode`, rootNode, 'parentNode', parentNode);
 
       const setThunkOfNodeType = {
-        'NixExpr': (node) => (node.thunk = () => node.children[0].thunk()), // identity // TODO remove
-        'True': (node) => (node.thunk = () => true),
-        'False': (node) => (node.thunk = () => false),
-        'Null': (node) => (node.thunk = () => null),
-        'IfExpr': (node) => (node.thunk = () => (node.children[1].thunk() ? node.children[3].thunk() : node.children[5].thunk())),
-        'If': null,
-        'Then': null,
-        'Else': null,
+        'Nix': (node) => (node.thunk = () => node.children[0].thunk()), // identity // TODO remove
+        'TRUE': (node) => (node.thunk = () => true),
+        'FALSE': (node) => (node.thunk = () => false),
+        'NULL': (node) => (node.thunk = () => null),
+        'If': (node) => (node.thunk = () => (node.children[0].thunk() ? node.children[1].thunk() : node.children[2].thunk())),
         'Int': (node) => (node.thunk = () => parseInt(node.text)),
         'Float': (node) => (node.thunk = () => parseFloat(node.text)),
-        'AddExpr': (node) => (node.thunk = () => (node.children[0].thunk() + node.children[2].thunk())),
+        'ConcatStrings': (node) => (node.thunk = () => (node.children[0].thunk() + node.children[1].thunk())),
         'Add': null,
+        'CallSub': (node) => (node.thunk = () => (node.children[0].thunk() - node.children[1].thunk())),
         // SubExpr is not used
         // lezer-parser-nix/src/nix.grammar
         // NegativeExpr has higher precedence than SubExpr, so 1-2 -> (1) (-2) -> ApplyExpr
@@ -97,12 +95,53 @@ export default class NixEval {
             return node.children[0].thunk()( node.children[1].thunk() );
           }
         }),
+        'AttrSet': (node) => (node.thunk = () => {
+          if (!node.data) node.data = {};
+          console.log(`AttrSet.thunk: TODO ... node:`)
+          console.dir(node);
+          for (const attr of node.children) {
+            console.log(`AttrSet.thunk: TODO ... attr:`)
+            console.dir(attr);
+            const key = attr.children[0].thunk();
+            console.log(`AttrSet.thunk: key = ${key}`)
+            Object.defineProperty(node.data, key, {
+              get: attr.children[1].thunk,
+              enumerable: true,
+            });
+          }
+          return node.data;
+        }),
+        // note: only the attr value is lazy
+        'Attr': (node) => (node.thunk = () => {
+          console.log(`Attr.thunk: TODO ... node:`)
+          console.dir(node);
+          // TODO handle select, use only first key
+          const key = node.children[0].thunk();
+          Object.defineProperty(node.parent.data, key, {
+            get: node.children[1].thunk
+          });
+        }),
+        'Identifier': (node) => (node.thunk = () => {
+          //console.log(`Identifier.thunk: TODO ... node:`)
+          //console.dir(node);
+          return node.text;
+        }),
+        'Select': (node) => (node.thunk = () => {
+          console.log(`Select.thunk: TODO ... node:`)
+          console.dir(node);
+          // FIXME attrpath node is missing -> bug in tree walker
+          return "todo";
+        }),
       }
 
       function nodeSetThunk(node) {
         const setThunk = setThunkOfNodeType[node.type]; // all node types must be mapped
         if (setThunk) {
+          //console.log(`setThunk for token ${node.type}`);
           setThunk(node);
+        }
+        else {
+          console.error(`nix-eval.js error: setThunk is empty for token ${node.type}`);
         }
       }
 
@@ -111,15 +150,15 @@ export default class NixEval {
         for (const node of currentNode.children) {
           nodeSetThunk(node);
         }
-        //nodeSetThunk(node); // no
+        //nodeSetThunk(currentNode); // no
       }
 
       //console.log('NixEval.evalTree: done convert. rootNode', rootNode); // FIXME this should be Nix
 
-      console.log('NixEval.evalTree: final eval: rootNode.children[0]', rootNode.children[0]); // NixExpr
+      //console.log('NixEval.evalTree: final eval: rootNode.children[0]', rootNode.children[0]); // Nix
 
       const evalResult = rootNode.children[0].thunk();
-      console.log('NixEval.evalTree: evalResult', evalResult);
+      //console.log('NixEval.evalTree: evalResult', evalResult);
       return evalResult;
 
       // TODO? continue walking nodes in tree
