@@ -1,0 +1,3 @@
+[submodule "src/lezer-parser-nix"]
+	path = src/lezer-parser-nix
+	url = https://github.com/milahu/lezer-parser-nix
