@@ -1,3 +1,6 @@
 [submodule "src/lezer-parser-nix"]
 	path = src/lezer-parser-nix
 	url = https://github.com/milahu/lezer-parser-nix
+[submodule "src/safe-stable-stringify"]
+	path = src/safe-stable-stringify
+	url = https://github.com/milahu/safe-stable-stringify
