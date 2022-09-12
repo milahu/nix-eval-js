@@ -96,6 +96,7 @@ achieving maximal laziness.
 
 * https://github.com/dtao/lazy.js - library for lazy functional programming, 6K stars, [npm](https://www.npmjs.com/package/lazy.js), [npm packages depending on lazy.js](https://www.npmjs.com/browse/depended/lazy.js)
   * https://github.com/wonderlang/wonder - lazy functional programming language
+    * [wonder/interpreter.js](https://github.com/wonderlang/wonder/blob/master/interpreter.js)
 * https://github.com/baconjs/bacon.js
   * Stop working on individual events and work with event-streams instead.
   * [npm packages depending on baconjs](https://www.npmjs.com/browse/depended/baconjs)
