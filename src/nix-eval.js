@@ -3,9 +3,16 @@
 
 // TODO sharing = caching of node values, based on semantic equality of nodes
 
+import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
+
 export default class NixEval {
   constructor() {
     //console.log(`NixEval.constructor`);
+  }
+
+  eval(source) {
+    const tree = LezerParserNix.parse(source);
+    return this.evalTree(tree, source);
   }
 
   evalTree(tree, source) {
