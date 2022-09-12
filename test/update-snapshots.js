@@ -27,8 +27,7 @@ for (let file of fs.readdirSync(caseDir)) {
     const newExpected = stringify(result);
 
     //if (name == 'some test name') { console.dir(testData) } // debug
-    const nameLine = (name || configStr) ? `#${name ? ' ' : ''}${name}${(configStr || '')}\n` : '';
-    newTests.push(nameLine + `${text}\n==>\n${newExpected}`)
+    newTests.push(`#${name ? ' ' : ''}${name}${(configStr || '')}\n${text}\n==>\n${newExpected}`)
   }
   const newFileContent = newTests.join("\n\n") + "\n";
   const dryRun = false;
