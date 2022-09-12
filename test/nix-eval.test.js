@@ -25,8 +25,8 @@ for (let file of fs.readdirSync(caseDir)) {
 
     test(`${text}`, t => {
       const nix = new NixEval();
-      const result = nix.eval(text);
-      const actual = stringify(result);
+      const result = nix.eval(JSON.parse(text));
+      const actual = String(stringify(result));
       t.is(actual.trim(), expected.trim());
     });
   }
