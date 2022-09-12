@@ -163,6 +163,11 @@ export default class NixEval {
           }
           return node.data;
         }),
+        // TODO
+        'RecAttrSet': (node) => (node.thunk = () => {
+          console.log(`RecAttrSet.thunk: node:`); console.dir(node);
+          return {};
+        }),
         'Attr': false,
         'Identifier': (node) => (node.thunk = () => node.text),
         'Select': (node) => (node.thunk = () => {
@@ -171,7 +176,20 @@ export default class NixEval {
           //console.log(`Select.thunk: child 1 ->`); console.dir(node.children[1].thunk());
           return node.children[0].thunk()[ node.children[1].thunk() ];
         }),
+
+        // TODO
+        'Var': (node) => (node.thunk = () => {
+          console.log(`Var.thunk: node:`); console.dir(node);
+          return 'TODO';
+        }),
       }
+
+      setThunkOfNodeType.Let = (node) => (node.thunk = () => {
+        // syntax sugar:   let a=1; in a   ->   (rec{a=1;}).a
+        // TODO refactor setThunkOfNodeType to class
+        console.log(`Let.thunk: node:`); console.dir(node);
+        return 'TODO';
+      });
 
       function nodeSetThunk(node) {
         const setThunk = setThunkOfNodeType[node.type]; // all node types must be mapped
