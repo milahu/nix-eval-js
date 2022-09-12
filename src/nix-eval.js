@@ -5,7 +5,10 @@
 
 import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
 
+
+
 export default class NixEval {
+
   constructor() {
     //console.log(`NixEval.constructor`);
   }
@@ -16,9 +19,8 @@ export default class NixEval {
   }
 
   evalTree(tree, source) {
+
     //console.log(`NixEval.evalTree`);
-    const cursor = tree.cursor();
-    let depth = 0;
 
     const rootNode = {};
     Object.defineProperties(rootNode, {
@@ -31,12 +33,20 @@ export default class NixEval {
     });
 
     let parentNode = rootNode;
-    let lastNode = null;
+    let depth = 0;
+    const cursor = tree.cursor();
+
+    // walk tree of nodes
+
     while (true) {
+
       const cursorText = source.slice(cursor.from, cursor.to);
       const cursorType = cursor.name;
-      const cursorTypeId = cursor.type.id;
+      //const cursorTypeId = cursor.type.id; // TODO use numeric types
 
+      // defineProperties:
+      // hide some properties -> prettier output from console.log
+      // make some properties read-only -> better performance?
       const thisNode = {};
       Object.defineProperties(thisNode, {
         'type': { value: cursorType, enumerable: true },
@@ -50,15 +60,20 @@ export default class NixEval {
       parentNode.children.push(thisNode);
 
       //console.log(`NixEval.evalTree: ${'  '.repeat(depth)}${cursorTypeId}=${cursorType}: ${cursorText}`);
+
+      // deep first
+      // try to move down in the tree
       if (cursor.firstChild()) {
-        // deep first
+        // moved down
         parentNode = thisNode;
         depth++;
         continue;
       }
 
+      // broad second
+      // try to move right in the tree
       if (cursor.nextSibling()) {
-        // broad second
+        // moved right
         continue;
       }
 
@@ -159,18 +174,20 @@ export default class NixEval {
 
       //console.log('NixEval.evalTree: final eval: rootNode.children[0]', rootNode.children[0]); // Nix
 
-      const evalResult = rootNode.children[0].thunk();
-      //console.log('NixEval.evalTree: evalResult', evalResult);
-      return evalResult;
-
       // TODO? continue walking nodes in tree
 
+      // try to move up and right in the tree
       if (cursor.parent() && cursor.nextSibling()) { // TODO verify
+        // moved up and right
         parentNode = parentNode.parent;
         continue;
       }
 
-      break; // done all nodes
+      // done walking all nodes
+
+      const evalResult = rootNode.children[0].thunk();
+      //console.log('NixEval.evalTree: evalResult', evalResult);
+      return evalResult;
     }
     //console.log(`NixEval.evalTree: done tree walk. depth=${depth}`);
   }
