@@ -20,8 +20,10 @@ for (let file of fs.readdirSync(caseDir)) {
   const newTests = []
 
   for (let testData of fileTests(fileContent, file)) {
-    const { name, text, expected, configStr, strict } = testData;
+    let { name, text, expected, configStr, strict } = testData;
     //console.dir(testData); // debug
+
+    if (!name) name = `${text} ==> ${expected}`
 
     if (/SKIP/.test(name)) continue;
 
@@ -29,7 +31,7 @@ for (let file of fs.readdirSync(caseDir)) {
       const expectedParts = expected.split(' ');
       const expectedErrorName = expectedParts[1];
       const expectedMessage = expectedParts.slice(2).join(' ');
-      test(`${text}`, t => {
+      test(name, t => {
         const nix = new NixEval();
         let result;
         const error = t.throws(() => {
@@ -45,7 +47,7 @@ for (let file of fs.readdirSync(caseDir)) {
       continue;
     }
 
-    test(`${text}`, t => {
+    test(name, t => {
       const nix = new NixEval();
       const result = nix.eval(JSON.parse(text));
       const actual = String(stringify(result));
