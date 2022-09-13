@@ -71,7 +71,7 @@ undefined
 # SKIP call primop elemAt error 1 TODO implement parens
 "__elemAt [ 1 2 ] (-1)"
 ==>
-ERROR EvalError list index -1 is out of bounds
+ERROR NixEvalError list index -1 is out of bounds
 
 # call primop elemAt error 2
 "__elemAt [ 1 2 ] 2"
