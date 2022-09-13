@@ -147,8 +147,12 @@ function App() {
     const localEcho = new LocalEchoController(null, {
       historySize: 9999, // workaround for https://github.com/wavesoft/local-echo/issues/34
     });
+
     localEcho.history.entries = nixReplHelp.demos.slice();
+    localEcho.history.cursor = localEcho.history.entries.length;
+
     terminal.loadAddon(localEcho);
+
     // note: the main local-echo repo is not maintained
     // TODO pre-fill command history with demo commands
     // TODO autocompletion
