@@ -10,6 +10,9 @@ import { Xterm } from './solidjs-xterm-component/xterm.jsx'
 import LocalEchoController from 'local-echo';
 import { WebLinksAddon } from 'xterm-addon-web-links';
 
+// FIXME not working?
+import { FitAddon } from 'xterm-addon-fit';
+
 // wrapper is not working with vite bundler
 // import { configure as getStringify } from '../../src/safe-stable-stringify/esm/wrapper.js'
 // Uncaught SyntaxError: The requested module safe-stable-stringify/index.js does not provide an export named 'default'
@@ -17,6 +20,7 @@ import { configure as getStringify } from '../../src/safe-stable-stringify/index
 // https://github.com/BridgeAR/safe-stable-stringify/issues/32
 // https://github.com/BridgeAR/safe-stable-stringify/issues/19
 
+import * as nixReplHelp from './nix-repl-help.js'
 
 const stringify = getStringify({
   maximumDepth: 2,
@@ -24,10 +28,7 @@ const stringify = getStringify({
   indent: "  ",
 })
 
-// FIXME not working?
-import { FitAddon } from 'xterm-addon-fit';
 
-import * as nixReplHelp from './nix-repl-help.js'
 
 function App() {
 
@@ -50,9 +51,8 @@ function App() {
     };
     */
 
-    // FIXME div height
-    // fit terminal to container element
-    // fixed by setting Xterm.style?
+    // FIXME not working?
+    // fit terminal to parent size
     const fitAddon = new FitAddon();
     terminal.loadAddon(fitAddon);
 
@@ -77,7 +77,7 @@ function App() {
     //terminal.writeln('click here: https://xtermjs.org/');
 
     // OSC 8 hyperlink escape codes
-    // not working
+    // FIXME not working
     //terminal.writeln('click here: \x1b]8;;https://xtermjs.org\x07OSC 8 hyperlink text\x1b]8;;\x07');
 
     function evalLine(line) {
