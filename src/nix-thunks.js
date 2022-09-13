@@ -142,6 +142,12 @@ export const setThunkOfNodeType = {
     //printNode(node, "Var.thunk");
     return 'TODO';
   }),
+
+  'Parens': (node) => (node.thunk = () => {
+    //printNode(node, "Parens.thunk");
+    return node.children[0].thunk();
+  }),
+
 };
 
 
