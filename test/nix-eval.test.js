@@ -3,7 +3,7 @@ import { configure as getStringify } from 'safe-stable-stringify'
 import * as fs from "fs"
 import * as path from "path"
 import { fileURLToPath } from 'url';
-import NixEval from "../src/nix-eval.js";
+import { NixEval } from "../src/nix-eval.js";
 import { fileTests } from './file-tests.js';
 
 const stringify = getStringify({
