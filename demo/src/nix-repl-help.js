@@ -1,12 +1,21 @@
+// help strings for the Nix repl
+
+
+
 export const main = [
+
   'The following commands are available:',
   '',
   '  <expr>        Evaluate and print expression',
   '  :? e          Show available expressions',
   '  :? o          Show available operations',
+
 ];
 
+
+
 export const expressions = [
+
   'The following expressions are available:',
   '',
   '  null          Null',
@@ -24,9 +33,13 @@ export const expressions = [
   '  [1 2]         List',
   '  {a=1;b=2;}    AttrSet',
   '  {a=1;}.a      Select',
+
 ];
 
+
+
 export const operations = [
+
   'The following operations are available:',
   '',
   '  __add 1 2',
