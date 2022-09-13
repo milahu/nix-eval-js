@@ -423,7 +423,17 @@ export const NixPrimOps = {
         };
     }
   },
-  "__tail": node => TodoPrimOp(node, "__tail"),
+  "__tail": node => {
+    //printNode(node, "setThunk.__tail");
+    node.thunk = () => {
+      //printNode(node, "__tail.thunk");
+        return (arg) => {
+          let value;
+          for (value of arg) { }
+          return value;
+        };
+    }
+  },
   "__filter": node => TodoPrimOp(node, "__filter"),
   "__elem": node => TodoPrimOp(node, "__elem"),
   "__concatLists": node => TodoPrimOp(node, "__concatLists"),

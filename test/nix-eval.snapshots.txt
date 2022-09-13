@@ -57,3 +57,8 @@ undefined
 "__head [ 1 2 ]"
 ==>
 1
+
+# call primop tail
+"__tail [ 1 2 ]"
+==>
+2
