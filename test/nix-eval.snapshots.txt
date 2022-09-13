@@ -58,10 +58,20 @@ undefined
 ==>
 1
 
+# SKIP call primop head empty
+"__head [ ]"
+==>
+ERROR NixEvalError list index 0 is out of bounds
+
 # call primop tail
 "__tail [ 1 2 ]"
 ==>
 2
+
+# SKIP call primop tail empty
+"__tail [ ]"
+==>
+ERROR NixEvalError 'tail' called on an empty list
 
 # call primop elemAt
 "__elemAt [ 1 2 ] 0"
