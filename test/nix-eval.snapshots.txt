@@ -87,3 +87,8 @@ ERROR NixEvalError list index 2 is out of bounds
 "(2+3)*4"
 ==>
 20
+
+#
+"1/2"
+==>
+0.5
