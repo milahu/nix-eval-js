@@ -23,8 +23,24 @@ for (let file of fs.readdirSync(caseDir)) {
     //console.dir(testData); // debug
 
     const nix = new NixEval();
-    const result = nix.eval(JSON.parse(text));
-    const newExpected = String(stringify(result));
+
+    let result;
+    let error;
+    let newExpected;
+
+    try {
+      result = nix.eval(JSON.parse(text));
+    }
+    catch (_error) {
+      error = _error;
+    }
+
+    if (error) {
+      newExpected = `ERROR ${error.name} ${error.message}`;
+    }
+    else {
+      newExpected = String(stringify(result));
+    }
 
     //if (name == 'some test name') { console.dir(testData) } // debug
     newTests.push(`#${name ? ' ' : ''}${name}${(configStr || '')}\n${text}\n==>\n${newExpected}`)
