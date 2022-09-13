@@ -253,6 +253,11 @@ export class NixEval {
               enumerable: true,
             });
           }
+          // FIXME handle missing key
+          // currently returns undefined
+          // should throw:
+          // nix-repl> {a=1;}.b
+          // error: attribute 'b' missing
           return node.data;
         }),
         // generator function returns iterator
