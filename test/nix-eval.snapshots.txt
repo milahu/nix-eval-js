@@ -42,3 +42,8 @@ undefined
 "__sub 1 2"
 ==>
 -1
+
+# call primop mul
+"__mul 1 2"
+==>
+2
