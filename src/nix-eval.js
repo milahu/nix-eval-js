@@ -39,7 +39,7 @@ function printNode(node, label = '') {
 
 
 
-export default class NixEval {
+export class NixEval {
 
   constructor() {
     //console.log(`NixEval.constructor`);
