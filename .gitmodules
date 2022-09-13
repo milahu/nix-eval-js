@@ -4,3 +4,6 @@
 [submodule "src/safe-stable-stringify"]
 	path = src/safe-stable-stringify
 	url = https://github.com/milahu/safe-stable-stringify
+[submodule "demo/src/solidjs-xterm-component"]
+	path = demo/src/solidjs-xterm-component
+	url = https://github.com/milahu/solidjs-xterm-component
