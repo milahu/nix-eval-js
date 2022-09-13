@@ -148,7 +148,9 @@ function App() {
       historySize: 9999, // workaround for https://github.com/wavesoft/local-echo/issues/34
     });
 
-    localEcho.history.entries = nixReplHelp.demos.slice();
+    // prefill command history with demo commands
+
+    localEcho.history.entries = nixReplHelp.demos.slice().reverse();
     localEcho.history.cursor = localEcho.history.entries.length;
 
     // autocomplete commands
