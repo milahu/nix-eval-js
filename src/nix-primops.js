@@ -1,6 +1,7 @@
 // Nix primary operations
 
 import { NixEvalError } from "./nix-errors.js"
+import { printNode } from "./nix-thunks.js"
 
 
 
