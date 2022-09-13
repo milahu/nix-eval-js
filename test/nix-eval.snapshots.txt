@@ -51,47 +51,47 @@ false
 # SKIP call null
 "null 2"
 ==>
-ERROR NixEvalError attempt to call something which is not a function but null
+ERROR EvalError attempt to call something which is not a function but null
 
 # SKIP call bool true
 "true 2"
 ==>
-ERROR NixEvalError attempt to call something which is not a function but a Boolean
+ERROR EvalError attempt to call something which is not a function but a Boolean
 
 # SKIP call bool false
 "false 2"
 ==>
-ERROR NixEvalError attempt to call something which is not a function but a Boolean
+ERROR EvalError attempt to call something which is not a function but a Boolean
 
 # SKIP call list
 "[] 2"
 ==>
-ERROR NixEvalError attempt to call something which is not a function but a list
+ERROR EvalError attempt to call something which is not a function but a list
 
 # SKIP call set
 "{} 2"
 ==>
-ERROR NixEvalError attempt to call something which is not a function but a set
+ERROR EvalError attempt to call something which is not a function but a set
 
 # SKIP call string 1
 "\"\" 2"
 ==>
-ERROR NixEvalError attempt to call something which is not a function but a string
+ERROR EvalError attempt to call something which is not a function but a string
 
 # SKIP call string 2
 "'''' 2"
 ==>
-ERROR NixEvalError attempt to call something which is not a function but a string
+ERROR EvalError attempt to call something which is not a function but a string
 
 # SKIP call integer
 "1 2"
 ==>
-ERROR NixEvalError attempt to call something which is not a function but an integer
+ERROR EvalError attempt to call something which is not a function but an integer
 
 # SKIP call float
 "1.1 2"
 ==>
-ERROR NixEvalError attempt to call something which is not a function but a float
+ERROR EvalError attempt to call something which is not a function but a float
 
 # call primop add
 "__add 1 2"
@@ -121,7 +121,7 @@ ERROR NixEvalError attempt to call something which is not a function but a float
 # SKIP call primop head empty
 "__head [ ]"
 ==>
-ERROR NixEvalError list index 0 is out of bounds
+ERROR EvalError list index 0 is out of bounds
 
 # call primop tail
 "__tail [ 1 2 ]"
@@ -131,7 +131,7 @@ ERROR NixEvalError list index 0 is out of bounds
 # SKIP call primop tail empty
 "__tail [ ]"
 ==>
-ERROR NixEvalError 'tail' called on an empty list
+ERROR EvalError 'tail' called on an empty list
 
 # call primop elemAt
 "__elemAt [ 1 2 ] 0"
@@ -141,12 +141,12 @@ ERROR NixEvalError 'tail' called on an empty list
 # SKIP call primop elemAt error 1 TODO implement parens
 "__elemAt [ 1 2 ] (-1)"
 ==>
-ERROR NixEvalError list index -1 is out of bounds
+ERROR EvalError list index -1 is out of bounds
 
 # call primop elemAt error 2
 "__elemAt [ 1 2 ] 2"
 ==>
-ERROR NixEvalError list index 2 is out of bounds
+ERROR EvalError list index 2 is out of bounds
 
 #
 "2+3*4"
@@ -211,4 +211,4 @@ ERROR NixEvalError list index 2 is out of bounds
 # syntax error ~
 "~"
 ==>
-ERROR NixSyntaxError unexpected invalid token
+ERROR SyntaxError unexpected invalid token
