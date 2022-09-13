@@ -7,6 +7,15 @@ import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
 
 
 
+export class NixEvalError extends EvalError {
+  constructor(message) {
+    super(message);
+    this.name = "NixEvalError";
+  }
+}
+
+
+
 // TODO class Node?
 // pretty print
 // TODO function signature of toString?
@@ -421,7 +430,7 @@ export const NixPrimOps = {
         return (arg2 /** @type index */) => {
           // nix-repl> __elemAt [1] (-1)
           // error: list index -1 is out of bounds
-          if (arg2 < 0) throw EvalError(`list index ${arg2} is out of bounds`);
+          if (arg2 < 0) throw new NixEvalError(`list index ${arg2} is out of bounds`);
           let i = 0;
           for (const value of arg1) {
             if (i == arg2) return value;
@@ -429,7 +438,7 @@ export const NixPrimOps = {
           }
           // nix-repl> __elemAt [1] 1
           // error: list index 1 is out of bounds
-          throw EvalError(`list index ${arg2} is out of bounds`);
+          throw new NixEvalError(`list index ${arg2} is out of bounds`);
         };
       };
     }
