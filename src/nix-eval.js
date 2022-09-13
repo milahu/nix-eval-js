@@ -6,7 +6,7 @@
 import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
 
 import { setThunkOfNodeType } from "./nix-thunks.js"
-export { NixEvalError, NixEvalNotImplemented } from "./nix-errors.js"
+import { NixEvalError, NixEvalNotImplemented } from "./nix-errors.js"
 
 
 
