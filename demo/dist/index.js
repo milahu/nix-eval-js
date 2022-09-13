@@ -3522,7 +3522,6 @@ class NixEvalError extends EvalError {
   }
 }
 
-// FIXME extends Error
 class NixEvalNotImplemented extends EvalError {
   constructor(message) {
     super(message);
@@ -3944,12 +3943,6 @@ class NixEval {
   evalTree(tree, source) {
 
     //console.log(`NixEval.evalTree`);
-/*
-    // TODO check tree for parse errors
-NixEvalNotImplemented
-setThunk is empty for token ⚠
-
-*/
 
     let depth = 0;
     const cursor = tree.cursor();
@@ -5933,7 +5926,7 @@ const demos = [
 
 ];
 
-const _tmpl$ = /*#__PURE__*/template(`<div><main></main></div>`);
+const _tmpl$ = /*#__PURE__*/template(`<div><main><div><a href="https://github.com/milahu/nix-eval-js">src</a></div></main></div>`);
 const stringify = configure({
   maximumDepth: 2,
   maximumBreadth: 10,
@@ -6108,14 +6101,20 @@ function App() {
 
   return (() => {
     const _el$ = _tmpl$.cloneNode(true),
-          _el$2 = _el$.firstChild;
+          _el$2 = _el$.firstChild,
+          _el$3 = _el$2.firstChild,
+          _el$4 = _el$3.firstChild;
 
     insert(_el$2, createComponent(Xterm, {
       onTerminal: onTerminal,
       style: {
         'display': 'flex'
       }
-    }));
+    }), _el$3);
+
+    _el$3.style.setProperty("text-align", "right");
+
+    _el$4.style.setProperty("text-decoration", "none");
 
     createRenderEffect(_p$ => {
       const _v$ = styles.App,
