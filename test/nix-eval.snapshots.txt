@@ -48,6 +48,51 @@ false
 ==>
 1
 
+# SKIP call null
+"null 2"
+==>
+ERROR NixEvalError attempt to call something which is not a function but null
+
+# SKIP call bool true
+"true 2"
+==>
+ERROR NixEvalError attempt to call something which is not a function but a Boolean
+
+# SKIP call bool false
+"false 2"
+==>
+ERROR NixEvalError attempt to call something which is not a function but a Boolean
+
+# SKIP call list
+"[] 2"
+==>
+ERROR NixEvalError attempt to call something which is not a function but a list
+
+# SKIP call set
+"{} 2"
+==>
+ERROR NixEvalError attempt to call something which is not a function but a set
+
+# SKIP call string 1
+"\"\" 2"
+==>
+ERROR NixEvalError attempt to call something which is not a function but a string
+
+# SKIP call string 2
+"'''' 2"
+==>
+ERROR NixEvalError attempt to call something which is not a function but a string
+
+# SKIP call integer
+"1 2"
+==>
+ERROR NixEvalError attempt to call something which is not a function but an integer
+
+# SKIP call float
+"1.1 2"
+==>
+ERROR NixEvalError attempt to call something which is not a function but a float
+
 # call primop add
 "__add 1 2"
 ==>
