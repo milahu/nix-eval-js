@@ -37,21 +37,44 @@ export const operations = [
   '  __head [1 2]',
   '  __tail [1 2]',
   '  __elemAt [1 2] 0',
+  '',
+  '  __typeOf 1',
+
 ];
 
+
+
 export const demos = [
+
+  '-1',
+
   '1+2',
   '1-2',
   '1*2',
   '1/2',
+
+  '2+3*4',
+  '(2+3)*4',
+
   '[1 2]',
+
   '{a=1;b=2;}',
   '{a=1;}.a',
+
   '__add 1 2',
   '__sub 1 2',
   '__mul 1 2',
   '__div 1 2',
+
   '__head [1 2]',
   '__tail [1 2]',
   '__elemAt [1 2] 0',
+
+  '__typeOf null',
+  '__typeOf true',
+  '__typeOf 1',
+  '__typeOf 1.2',
+  '__typeOf (-1)',
+  '__typeOf (1+1)',
+
 ];
