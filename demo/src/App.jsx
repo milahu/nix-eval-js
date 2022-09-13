@@ -56,15 +56,20 @@ function App() {
 
     // FIXME not working?
     // fit terminal to parent size
-    /* * /
+    /* */
     const fitAddon = new FitAddon();
     terminal.loadAddon(fitAddon);
     console.log('fitAddon', fitAddon);
     fitAddon.fit();
+    /* TODO test
     terminalParent.addEventListener('resize', (_event) => {
       fitAddon.fit();
     })
     /* */
+    // simple:
+    window.addEventListener('resize', (_event) => {
+      fitAddon.fit();
+    })
 
     // clickable links
     /*
@@ -243,8 +248,7 @@ function App() {
         <Xterm
           onTerminal={onTerminal}
           style={{
-            'flex-grow': 1, // full height
-            //'display': 'flex',
+            'display': 'flex',
           }}
         />
       </main>
