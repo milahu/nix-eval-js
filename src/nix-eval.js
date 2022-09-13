@@ -422,7 +422,15 @@ export const NixPrimOps = {
       };
     }
   },
-  "__sub": node => TodoPrimOp(node, "__sub"),
+  "__sub": node => {
+    node.thunk = () => {
+      // partial sub function
+      return (arg1) => {
+        // sub function
+        return (arg2) => (arg1 - arg2);
+      };
+    }
+  },
   "__mul": node => TodoPrimOp(node, "__mul"),
   "__div": node => TodoPrimOp(node, "__div"),
   "__bitAnd": node => TodoPrimOp(node, "__bitAnd"),

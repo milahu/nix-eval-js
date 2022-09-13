@@ -37,3 +37,8 @@ undefined
 "__add 1 2"
 ==>
 3
+
+# call primop sub
+"__sub 1 2"
+==>
+-1
