@@ -25,9 +25,30 @@ function TodoPrimOp(node, opName) {
     }
 }
 
+
+
 export const NixPrimOps = {
 
-  "__typeOf": node => TodoPrimOp(node, "__typeOf"),
+  "__typeOf": node => {
+    //printNode(node, "setThunk.__typeOf");
+    node.thunk = () => {
+      //printNode(node, "__typeOf.thunk");
+        return (arg) => {
+          const javascriptType = typeof(arg);
+          if (javascriptType == 'number') { // int or float?
+            if ((arg | 0) == arg) return 'int';
+            return 'float';
+          }
+          if (arg === null) return 'null'; // js: typeof(null) == 'object'
+          if (arg === true || arg === false) return 'bool';
+          if (Symbol.iterator in arg) return 'list';
+          if (arg instanceof Object) return 'set'; // AttrSet
+          // TODO handle more cases?
+          return javascriptType; // string
+        };
+    }
+  },
+
   "__isFunction": node => TodoPrimOp(node, "__isFunction"),
   "__isInt": node => TodoPrimOp(node, "__isInt"),
   "__isFloat": node => TodoPrimOp(node, "__isFloat"),

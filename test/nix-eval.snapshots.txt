@@ -92,3 +92,48 @@ ERROR NixEvalError list index 2 is out of bounds
 "1/2"
 ==>
 0.5
+
+# typeof int
+"__typeOf 1"
+==>
+"int"
+
+# typeof float
+"__typeOf 1.2"
+==>
+"float"
+
+# typeof true
+"__typeOf true"
+==>
+"bool"
+
+# typeof false
+"__typeOf false"
+==>
+"bool"
+
+# typeof null
+"__typeOf null"
+==>
+"null"
+
+# typeof list
+"__typeOf []"
+==>
+"list"
+
+# typeof set
+"__typeOf {}"
+==>
+"set"
+
+# SKIP typeof string 1
+"__typeOf \"\""
+==>
+"string"
+
+# SKIP typeof string 2
+"__typeOf ''''"
+==>
+"string"
