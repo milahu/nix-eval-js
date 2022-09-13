@@ -411,12 +411,15 @@ export const NixPrimOps = {
   "__partition": node => TodoPrimOp(node, "__partition"),
   "__groupBy": node => TodoPrimOp(node, "__groupBy"),
   "__concatMap": node => TodoPrimOp(node, "__concatMap"),
-
   "__add": node => {
     printNode(node, "setThunk.__add");
     node.thunk = () => {
       printNode(node, "__add.thunk");
-      return (left, right) => (left + right);
+      // partial add function
+      return (arg1) => {
+        // add function
+        return (arg2) => (arg1 + arg2);
+      };
     }
   },
   "__sub": node => TodoPrimOp(node, "__sub"),

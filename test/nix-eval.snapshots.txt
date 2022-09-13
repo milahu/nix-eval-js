@@ -33,7 +33,7 @@ undefined
 ==>
 1
 
-# call primop add FIXME
+# call primop add
 "__add 1 2"
 ==>
 3
