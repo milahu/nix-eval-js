@@ -23,6 +23,23 @@ for (let file of fs.readdirSync(caseDir)) {
     const { name, text, expected, configStr, strict } = testData;
     //console.dir(testData); // debug
 
+    if (expected.startsWith('ERROR ')) {
+      const expectedMessage = expected.slice('ERROR '.length);
+      test(`${text}`, t => {
+        const nix = new NixEval();
+        let result;
+        const error = t.throws(() => {
+          result = nix.eval(JSON.parse(text));
+        }, {instanceOf: EvalError});
+        if (!error) {
+          console.log(`expected error, got result:`);
+          console.log(result);
+        }
+        t.is(error.message, expectedMessage);
+      });
+      continue;
+    }
+
     test(`${text}`, t => {
       const nix = new NixEval();
       const result = nix.eval(JSON.parse(text));
