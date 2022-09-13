@@ -212,3 +212,8 @@ ERROR EvalError list index 2 is out of bounds
 "~"
 ==>
 ERROR SyntaxError unexpected invalid token
+
+# SKIP eval error undefined variable
+x
+==>
+ERROR EvalError undefined variable 'x'
