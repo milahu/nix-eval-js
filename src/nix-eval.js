@@ -16,6 +16,15 @@ export class NixEvalError extends EvalError {
 
 
 
+export class NixEvalNotImplemented extends EvalError {
+  constructor(message) {
+    super(message);
+    this.name = "NixEvalNotImplemented";
+  }
+}
+
+
+
 // TODO class Node?
 // pretty print
 // TODO function signature of toString?
@@ -285,7 +294,7 @@ export class NixEval {
           setThunk(node);
         }
         else if (setThunk === undefined) {
-          console.error(`nix-eval.js error: setThunk is empty for token ${node.type}`);
+          throw new NixEvalNotImplemented(`setThunk is empty for token ${node.type}`);
         }
       }
 
