@@ -3522,6 +3522,7 @@ class NixEvalError extends EvalError {
   }
 }
 
+// FIXME extends Error
 class NixEvalNotImplemented extends EvalError {
   constructor(message) {
     super(message);
@@ -3943,6 +3944,12 @@ class NixEval {
   evalTree(tree, source) {
 
     //console.log(`NixEval.evalTree`);
+/*
+    // TODO check tree for parse errors
+NixEvalNotImplemented
+setThunk is empty for token ⚠
+
+*/
 
     let depth = 0;
     const cursor = tree.cursor();
@@ -5832,15 +5839,24 @@ function configure (options) {
   return stringify
 }
 
+// help strings for the Nix repl
+
+
+
 const main = [
+
   'The following commands are available:',
   '',
   '  <expr>        Evaluate and print expression',
   '  :? e          Show available expressions',
   '  :? o          Show available operations',
+
 ];
 
+
+
 const expressions = [
+
   'The following expressions are available:',
   '',
   '  null          Null',
@@ -5858,9 +5874,13 @@ const expressions = [
   '  [1 2]         List',
   '  {a=1;b=2;}    AttrSet',
   '  {a=1;}.a      Select',
+
 ];
 
+
+
 const operations = [
+
   'The following operations are available:',
   '',
   '  __add 1 2',
@@ -5871,23 +5891,46 @@ const operations = [
   '  __head [1 2]',
   '  __tail [1 2]',
   '  __elemAt [1 2] 0',
+  '',
+  '  __typeOf 1',
+
 ];
 
+
+
 const demos = [
+
+  '-1',
+
   '1+2',
   '1-2',
   '1*2',
   '1/2',
+
+  '2+3*4',
+  '(2+3)*4',
+
   '[1 2]',
+
   '{a=1;b=2;}',
   '{a=1;}.a',
+
   '__add 1 2',
   '__sub 1 2',
   '__mul 1 2',
   '__div 1 2',
+
   '__head [1 2]',
   '__tail [1 2]',
   '__elemAt [1 2] 0',
+
+  '__typeOf null',
+  '__typeOf true',
+  '__typeOf 1',
+  '__typeOf 1.2',
+  '__typeOf (-1)',
+  '__typeOf (1+1)',
+
 ];
 
 const _tmpl$ = /*#__PURE__*/template(`<div><main></main></div>`);
@@ -5917,16 +5960,22 @@ function App() {
     // FIXME not working?
     // fit terminal to parent size
 
-    /* * /
-    const fitAddon = new FitAddon();
+    /* */
+
+    const fitAddon = new xtermAddonFit.exports.FitAddon();
     terminal.loadAddon(fitAddon);
     console.log('fitAddon', fitAddon);
     fitAddon.fit();
+    /* TODO test
     terminalParent.addEventListener('resize', (_event) => {
       fitAddon.fit();
     })
     /* */
-    // clickable links
+    // simple:
+
+    window.addEventListener('resize', _event => {
+      fitAddon.fit();
+    }); // clickable links
 
     /*
     function onLinkClick(_event, url) {
@@ -6000,8 +6049,9 @@ function App() {
     const localEcho = new LocalEchoController(null, {
       historySize: 9999 // workaround for https://github.com/wavesoft/local-echo/issues/34
 
-    });
-    localEcho.history.entries = demos.slice();
+    }); // prefill command history with demo commands
+
+    localEcho.history.entries = demos.slice().reverse();
     localEcho.history.cursor = localEcho.history.entries.length; // autocomplete commands
     // https://github.com/wavesoft/local-echo#addautocompletehandlercallback-args
     // TODO https://github.com/wavesoft/local-echo/pull/57
@@ -6063,9 +6113,7 @@ function App() {
     insert(_el$2, createComponent(Xterm, {
       onTerminal: onTerminal,
       style: {
-        'flex-grow': 1 // full height
-        //'display': 'flex',
-
+        'display': 'flex'
       }
     }));
 
