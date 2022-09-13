@@ -24,17 +24,20 @@ for (let file of fs.readdirSync(caseDir)) {
     //console.dir(testData); // debug
 
     if (expected.startsWith('ERROR ')) {
-      const expectedMessage = expected.slice('ERROR '.length);
+      const expectedParts = expected.split(' ');
+      const expectedErrorName = expectedParts[1];
+      const expectedMessage = expectedParts.slice(2).join(' ');
       test(`${text}`, t => {
         const nix = new NixEval();
         let result;
         const error = t.throws(() => {
           result = nix.eval(JSON.parse(text));
-        }, {instanceOf: EvalError});
+        }, { instanceOf: Error });
         if (!error) {
           console.log(`expected error, got result:`);
           console.log(result);
         }
+        t.is(error.name, expectedErrorName);
         t.is(error.message, expectedMessage);
       });
       continue;
