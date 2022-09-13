@@ -29,7 +29,7 @@ export default defineConfig({
     target: 'esnext',
     //polyfillDynamicImport: false,
     //sourcemap: true,
-    //minify: false, // smaller git diffs
+    minify: false, // smaller git diffs
     // example sizes for solidjs app with monaco-editor
     // false: 5396.78 KiB // smaller git diffs
     // 'esbuild': 2027.36 KiB // default
