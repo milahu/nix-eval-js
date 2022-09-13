@@ -8,7 +8,13 @@ import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
 import { setThunkOfNodeType } from "./nix-thunks.js"
 import { NixEvalError, NixEvalNotImplemented } from "./nix-errors.js"
 
-
+// "export { ... } from '...'" is not working in vite
+export {
+  LezerParserNix,
+  setThunkOfNodeType,
+  NixEvalError,
+  NixEvalNotImplemented,
+}
 
 // TODO class Node?
 // pretty print
