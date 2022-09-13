@@ -1,5 +1,9 @@
 // Nix primary operations
 
+import { NixEvalError } from "./nix-errors.js"
+
+
+
 // cat primops.cc | grep '.name = "__' | cut -d'"' -f2 | sed -E 's/^(.*)$/  "\1": node => TodoPrimOp(node, "\1"),/'
 
 function TodoPrimOp(node, opName) {
