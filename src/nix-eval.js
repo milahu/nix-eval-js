@@ -411,7 +411,29 @@ export const NixPrimOps = {
   "__mapAttrs": node => TodoPrimOp(node, "__mapAttrs"),
   "__zipAttrsWith": node => TodoPrimOp(node, "__zipAttrsWith"),
   "__isList": node => TodoPrimOp(node, "__isList"),
-  "__elemAt": node => TodoPrimOp(node, "__elemAt"),
+  "__elemAt": node => {
+    //printNode(node, "setThunk.__elemAt");
+    node.thunk = () => {
+      //printNode(node, "__elemAt.thunk");
+      // partial elemAt function
+      return (arg1 /** @type list */) => {
+        // elemAt function
+        return (arg2 /** @type index */) => {
+          // nix-repl> __elemAt [1] (-1)
+          // error: list index -1 is out of bounds
+          if (arg2 < 0) throw EvalError(`list index ${arg2} is out of bounds`);
+          let i = 0;
+          for (const value of arg1) {
+            if (i == arg2) return value;
+            i++;
+          }
+          // nix-repl> __elemAt [1] 1
+          // error: list index 1 is out of bounds
+          throw EvalError(`list index ${arg2} is out of bounds`);
+        };
+      };
+    }
+  },
   "__head": node => {
     //printNode(node, "setThunk.__head");
     node.thunk = () => {
