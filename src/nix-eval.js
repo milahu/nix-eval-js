@@ -182,11 +182,8 @@ export default class NixEval {
             //return node.children[0].thunk()( node.children[1].thunk() ); // node.children[1] is undef
             node.thunk = () => {
               printNode(node, "Call.thunk");
-              return () => {
-                // FIXME never called
-                printNode(node, "Call.thunk.thunk");
-                return node.children[0].thunk()( node.children[1].thunk() )
-              };
+              // FIXME TypeError: node.children[0].thunk(...) is not a function
+              return node.children[0].thunk()( node.children[1].thunk() );
             };
         },
         'CallSub': (node) => (node.thunk = () => (node.children[0].thunk() - node.children[1].thunk())),
@@ -416,13 +413,9 @@ export const NixPrimOps = {
   "__concatMap": node => TodoPrimOp(node, "__concatMap"),
 
   "__add": node => {
-    //TodoPrimOp(node, "__add");
-    //console.dir(node);
     printNode(node, "setThunk.__add");
-
     node.thunk = () => {
-      // FIXME never called
-      console.log("__add.thunk: node:"); console.dir(node);
+      printNode(node, "__add.thunk");
       return (left, right) => (left + right);
     }
   },
