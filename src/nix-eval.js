@@ -28,11 +28,13 @@ function nodeToString(depth = 0, maxDepth = 5, indent = "  ", extraDepth = 0) {
 
 
 function printNode(node, label = '') {
+  let extraDepth = 0;
   if (label) {
-    console.log(`\n${label}: node:`);
+    console.log(label);
+    extraDepth = 1; // indent the node
   }
-  // set extraDepth = 1 to indent the node
-  process.stdout.write(node.toString(0, 5, "  ", 1));
+  // note: this will print a trailing newline
+  console.log(node.toString(0, 5, "  ", extraDepth));
 }
 
 
