@@ -151,6 +151,34 @@ function App() {
     localEcho.history.entries = nixReplHelp.demos.slice();
     localEcho.history.cursor = localEcho.history.entries.length;
 
+    // autocomplete commands
+
+    // https://github.com/wavesoft/local-echo#addautocompletehandlercallback-args
+    // TODO https://github.com/wavesoft/local-echo/pull/57
+
+    function autocompleteCommands(index, tokens) {
+        if (index == 0) {
+          return [
+            "assert", "with",
+            "let", "in", // too short?
+            "null", "true", "false",
+            "__add", "__sub", "__mul", "__div",
+            "__tail", "__head", "__elemAt",
+            "__typeOf",
+          ];
+        }
+        return [];
+    }
+    localEcho.addAutocompleteHandler(autocompleteCommands);
+
+    /*
+    function autocompleteFiles(index, tokens) {
+        if (index == 0) return [];
+        return [ ".git", ".gitignore", "package.json" ];
+    }
+    localEcho.addAutocompleteHandler(autocompleteFiles);
+    */
+
     terminal.loadAddon(localEcho);
 
     // note: the main local-echo repo is not maintained
