@@ -32,3 +32,8 @@ undefined
 "{a=1;}.a"
 ==>
 1
+
+# call primop add FIXME
+"__add 1 2"
+==>
+3
