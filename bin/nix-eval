@@ -1,0 +1,5 @@
+#! /bin/sh
+
+cd "$(dirname "$0")/.."
+
+exec node src/nix-eval-cli.js "$@"
