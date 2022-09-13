@@ -3518,21 +3518,21 @@ const parser = LRParser.deserialize({
 class NixEvalError extends EvalError {
   constructor(message) {
     super(message);
-    this.name = "NixEvalError";
+    this.name = "EvalError";
   }
 }
 
 class NixEvalNotImplemented extends EvalError {
   constructor(message) {
     super(message);
-    this.name = "NixEvalNotImplemented";
+    this.name = "NotImplemented";
   }
 }
 
 class NixSyntaxError extends SyntaxError {
   constructor(message) {
     super(message);
-    this.name = "NixSyntaxError";
+    this.name = "SyntaxError";
   }
 }
 
