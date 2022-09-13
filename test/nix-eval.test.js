@@ -23,6 +23,8 @@ for (let file of fs.readdirSync(caseDir)) {
     const { name, text, expected, configStr, strict } = testData;
     //console.dir(testData); // debug
 
+    if (/SKIP/.test(name)) continue;
+
     if (expected.startsWith('ERROR ')) {
       const expectedParts = expected.split(' ');
       const expectedErrorName = expectedParts[1];
