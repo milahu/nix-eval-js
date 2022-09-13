@@ -76,4 +76,4 @@ ERROR EvalError list index -1 is out of bounds
 # call primop elemAt error 2
 "__elemAt [ 1 2 ] 2"
 ==>
-ERROR EvalError list index 2 is out of bounds
+ERROR NixEvalError list index 2 is out of bounds
