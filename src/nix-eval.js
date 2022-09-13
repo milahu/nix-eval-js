@@ -6,6 +6,37 @@
 import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
 
 
+
+// TODO class Node?
+// pretty print
+// TODO function signature of toString?
+// NOTE this will add a trailing newline,
+// so instead of console.log(String(node))
+// use process.stdout.write(String(node))
+
+function nodeToString(depth = 0, maxDepth = 5, indent = "  ", extraDepth = 0) {
+  const thisIndent = indent.repeat(extraDepth + depth);
+  const children = depth < maxDepth ? this.children.map(
+    child => child.toString(depth + 1, maxDepth, indent, extraDepth)
+  ).join('') : '[Children]\n';
+  const thisString = `${thisIndent}${this.type}: ${this.text}\n${children}`;
+  // debug
+  //if (this.type == 'Primop' && this.text == '__add') console.log(); console.dir({ depth, extraDepth, type: this.type, text: this.text, thisIndent, children, thisString }); console.log();
+  return thisString;
+};
+
+
+
+function printNode(node, label = '') {
+  if (label) {
+    console.log(`\n${label}: node:`);
+  }
+  // set extraDepth = 1 to indent the node
+  process.stdout.write(node.toString(0, 5, "  ", 1));
+}
+
+
+
 export default class NixEval {
 
   constructor() {
@@ -24,7 +55,10 @@ export default class NixEval {
     let depth = 0;
     const cursor = tree.cursor();
 
+
+
     const rootNode = {};
+
     Object.defineProperties(rootNode, {
       'type': { value: "Nix", enumerable: true },
       'text': { value: source, enumerable: true },
@@ -34,13 +68,7 @@ export default class NixEval {
       'children': { value: [], enumerable: true },
     });
 
-    // TODO pretty print
-    /*
-    node.toString = (node) => {
-      return 'hello'
-    }
-    console.log(String(node));
-    */
+    rootNode.toString = nodeToString;
 
     let parentNode = rootNode;
 
@@ -65,7 +93,9 @@ export default class NixEval {
       // defineProperties:
       // hide some properties -> prettier output from console.dir
       // make some properties read-only -> better performance?
+
       const thisNode = {};
+
       Object.defineProperties(thisNode, {
         'type': { value: cursorType, enumerable: true },
         'text': { value: cursorText, enumerable: true },
@@ -74,6 +104,8 @@ export default class NixEval {
         'parent': { value: parentNode }, // hidden
         'children': { value: [], enumerable: true },
       });
+
+      thisNode.toString = nodeToString;
 
       parentNode.children.push(thisNode);
 
@@ -136,8 +168,11 @@ export default class NixEval {
                 Int "1"
               Int "2"
         */
+
+        // TODO setThunk.__add: node
+
         'Call': (node) => {
-            console.log(`setThunk.Call: node:`); console.dir(node);
+            printNode(node, "setThunk.Call");
             /*
             if (node.children.length == 0) {
               console.log(`Call.thunk: no children -> TODO`); console.dir(node);
@@ -146,10 +181,10 @@ export default class NixEval {
             */
             //return node.children[0].thunk()( node.children[1].thunk() ); // node.children[1] is undef
             node.thunk = () => {
-              console.log(`Call.thunk: node:`); console.dir(node);
+              printNode(node, "Call.thunk");
               return () => {
                 // FIXME never called
-                console.log(`Call.thunk.thunk: node:`); console.dir(node);
+                printNode(node, "Call.thunk.thunk");
                 return node.children[0].thunk()( node.children[1].thunk() )
               };
             };
@@ -211,21 +246,19 @@ export default class NixEval {
         }),
         // TODO
         'RecAttrSet': (node) => (node.thunk = () => {
-          console.log(`RecAttrSet.thunk: node:`); console.dir(node);
+          printNode(node, "RecAttrSet.thunk");
           return {};
         }),
         'Attr': false,
         'Identifier': (node) => (node.thunk = () => node.text),
         'Select': (node) => (node.thunk = () => {
-          //console.log(`Select.thunk: node:`); console.dir(node);
-          //console.log(`Select.thunk: child 0 ->`); console.dir(node.children[0].thunk());
-          //console.log(`Select.thunk: child 1 ->`); console.dir(node.children[1].thunk());
+          //printNode(node, "Select.thunk");
           return node.children[0].thunk()[ node.children[1].thunk() ];
         }),
 
         // TODO
         'Var': (node) => (node.thunk = () => {
-          console.log(`Var.thunk: node:`); console.dir(node);
+          printNode(node, "Var.thunk");
           return 'TODO';
         }),
       }
@@ -233,7 +266,7 @@ export default class NixEval {
       setThunkOfNodeType.Let = (node) => (node.thunk = () => {
         // syntax sugar:   let a=1; in a   ->   (rec{a=1;}).a
         // TODO refactor setThunkOfNodeType to class
-        console.log(`Let.thunk: node:`); console.dir(node);
+        printNode(node, "Let.thunk");
         return 'TODO';
       });
 
@@ -381,10 +414,12 @@ export const NixPrimOps = {
   "__partition": node => TodoPrimOp(node, "__partition"),
   "__groupBy": node => TodoPrimOp(node, "__groupBy"),
   "__concatMap": node => TodoPrimOp(node, "__concatMap"),
+
   "__add": node => {
     //TodoPrimOp(node, "__add");
     //console.dir(node);
-    console.log("setThunk.__add: node:"); console.dir(node);
+    printNode(node, "setThunk.__add");
+
     node.thunk = () => {
       // FIXME never called
       console.log("__add.thunk: node:"); console.dir(node);
