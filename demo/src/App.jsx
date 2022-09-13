@@ -251,6 +251,12 @@ function App() {
             'display': 'flex',
           }}
         />
+        <div style={{ 'text-align': 'right' }}>
+          <a
+            href="https://github.com/milahu/nix-eval-js"
+            style={{ 'text-decoration': 'none' }}
+          >src</a>
+        </div>
       </main>
     </div>
   );
