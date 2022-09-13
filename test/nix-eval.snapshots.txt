@@ -77,3 +77,8 @@ ERROR NixEvalError list index -1 is out of bounds
 "__elemAt [ 1 2 ] 2"
 ==>
 ERROR NixEvalError list index 2 is out of bounds
+
+#
+"2+3*4"
+==>
+14
