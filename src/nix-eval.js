@@ -348,8 +348,21 @@ export default class NixEval {
 // cat primops.cc | grep '.name = "__' | cut -d'"' -f2 | sed -E 's/^(.*)$/  "\1": node => TodoPrimOp(node, "\1"),/'
 
 function TodoPrimOp(node, opName) {
-  console.log(`TODO PrimOp ${opName}`);
-  return 'TODO';
+    printNode(node, `setThunk.${opName} # TODO implement`);
+    node.thunk = () => {
+      printNode(node, `${opName}.thunk # TODO implement`);
+
+      // function with 1 argument
+      // TODO function
+      return (arg) => (arg); // identity function
+
+      // function with 2 arguments
+      // partial TODO function
+      return (arg1) => {
+        // TODO function
+        return (arg2) => (arg1 + arg2); // add function
+      };
+    }
 }
 
 export const NixPrimOps = {
