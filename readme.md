@@ -8,6 +8,7 @@ proof of concept
 
 ## demos
 
+* [nix repl](https://milahu.github.io/nix-eval-js/demo/dist/)
 * [nixos-config-webui](https://github.com/milahu/nixos-config-webui)
 
 ## nix implementation
