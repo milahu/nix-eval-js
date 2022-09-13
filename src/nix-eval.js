@@ -172,7 +172,7 @@ export default class NixEval {
         // TODO setThunk.__add: node
 
         'Call': (node) => {
-            printNode(node, "setThunk.Call");
+            //printNode(node, "setThunk.Call");
             /*
             if (node.children.length == 0) {
               console.log(`Call.thunk: no children -> TODO`); console.dir(node);
@@ -181,7 +181,7 @@ export default class NixEval {
             */
             //return node.children[0].thunk()( node.children[1].thunk() ); // node.children[1] is undef
             node.thunk = () => {
-              printNode(node, "Call.thunk");
+              //printNode(node, "Call.thunk");
               // FIXME TypeError: node.children[0].thunk(...) is not a function
               return node.children[0].thunk()( node.children[1].thunk() );
             };
@@ -243,19 +243,19 @@ export default class NixEval {
         }),
         // TODO
         'RecAttrSet': (node) => (node.thunk = () => {
-          printNode(node, "RecAttrSet.thunk");
+          //printNode(node, "RecAttrSet.thunk");
           return {};
         }),
         'Attr': false,
         'Identifier': (node) => (node.thunk = () => node.text),
         'Select': (node) => (node.thunk = () => {
-          //printNode(node, "Select.thunk");
+          ////printNode(node, "Select.thunk");
           return node.children[0].thunk()[ node.children[1].thunk() ];
         }),
 
         // TODO
         'Var': (node) => (node.thunk = () => {
-          printNode(node, "Var.thunk");
+          //printNode(node, "Var.thunk");
           return 'TODO';
         }),
       }
@@ -263,7 +263,7 @@ export default class NixEval {
       setThunkOfNodeType.Let = (node) => (node.thunk = () => {
         // syntax sugar:   let a=1; in a   ->   (rec{a=1;}).a
         // TODO refactor setThunkOfNodeType to class
-        printNode(node, "Let.thunk");
+        //printNode(node, "Let.thunk");
         return 'TODO';
       });
 
@@ -412,9 +412,9 @@ export const NixPrimOps = {
   "__groupBy": node => TodoPrimOp(node, "__groupBy"),
   "__concatMap": node => TodoPrimOp(node, "__concatMap"),
   "__add": node => {
-    printNode(node, "setThunk.__add");
+    //printNode(node, "setThunk.__add");
     node.thunk = () => {
-      printNode(node, "__add.thunk");
+      //printNode(node, "__add.thunk");
       // partial add function
       return (arg1) => {
         // add function
