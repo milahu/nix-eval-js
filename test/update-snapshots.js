@@ -1,4 +1,4 @@
-import NixEval from "../src/nix-eval.js";
+import { NixEval } from "../src/nix-eval.js";
 import { configure as getStringify } from 'safe-stable-stringify'
 import { fileTests } from './file-tests.js';
 
