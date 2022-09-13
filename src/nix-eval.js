@@ -440,7 +440,15 @@ export const NixPrimOps = {
       };
     }
   },
-  "__div": node => TodoPrimOp(node, "__div"),
+  "__div": node => {
+    node.thunk = () => {
+      // partial div function
+      return (arg1) => {
+        // div function
+        return (arg2) => (arg1 / arg2);
+      };
+    }
+  },
   "__bitAnd": node => TodoPrimOp(node, "__bitAnd"),
   "__bitOr": node => TodoPrimOp(node, "__bitOr"),
   "__bitXor": node => TodoPrimOp(node, "__bitXor"),

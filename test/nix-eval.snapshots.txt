@@ -47,3 +47,8 @@ undefined
 "__mul 1 2"
 ==>
 2
+
+# call primop div
+"__div 1 2"
+==>
+0.5
