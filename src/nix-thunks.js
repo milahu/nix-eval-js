@@ -64,6 +64,7 @@ export const setThunkOfNodeType = {
         return node.children[0].thunk()( node.children[1].thunk() );
       };
   },
+  // CallAdd is ConcatStrings
   'CallSub': (node) => (node.thunk = () => (node.children[0].thunk() - node.children[1].thunk())),
   'CallMul': (node) => (node.thunk = () => (node.children[0].thunk() * node.children[1].thunk())),
   'CallDiv': (node) => (node.thunk = () => (node.children[0].thunk() / node.children[1].thunk())),
