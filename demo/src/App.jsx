@@ -3,7 +3,8 @@ import { createSignal, onMount, For } from "solid-js";
 //import logo from './logo.svg';
 import styles from './App.module.css';
 
-import { NixEval, NixEvalError } from "../../src/nix-eval.js";
+// TODO parse incremental
+import { NixEval, NixEvalError, NixSyntaxError } from "../../src/nix-eval.js";
 
 //import { Xterm } from './xterm.jsx'
 import { Xterm } from './solidjs-xterm-component/xterm.jsx'
@@ -11,6 +12,7 @@ import LocalEchoController from 'local-echo';
 import { WebLinksAddon } from 'xterm-addon-web-links';
 
 // FIXME not working?
+// -> must call fitAddon.fit();
 import { FitAddon } from 'xterm-addon-fit';
 
 // wrapper is not working with vite bundler
@@ -39,6 +41,7 @@ function App() {
     nixEval = new NixEval();
   })
 
+  //function onTerminal({ terminal: _terminal, ref: terminalParent }) {
   function onTerminal(_terminal) {
     terminal = _terminal;
 
@@ -53,8 +56,15 @@ function App() {
 
     // FIXME not working?
     // fit terminal to parent size
+    /* * /
     const fitAddon = new FitAddon();
     terminal.loadAddon(fitAddon);
+    console.log('fitAddon', fitAddon);
+    fitAddon.fit();
+    terminalParent.addEventListener('resize', (_event) => {
+      fitAddon.fit();
+    })
+    /* */
 
     // clickable links
     /*
@@ -99,15 +109,16 @@ function App() {
       if (line == ':?') {
         return nixReplHelp.main.join('\r\n');
       }
-      if (line == ':? e') {
+      if (/^:\?\s*[eE]\s*/.test(line)) { // :?e
         return nixReplHelp.expressions.join('\r\n');
       }
-      if (line == ':? o') {
+      if (/^:\?\s*[oO]\s*/.test(line)) { // :?o
         return nixReplHelp.operations.join('\r\n');
       }
 
       // eval nix
       try {
+        console.log(`user input :`, line);
         const result = nixEval.eval(line);
         console.log(`eval result:`, result);
         if (result === undefined) return '';
@@ -117,6 +128,10 @@ function App() {
       catch (error) {
         if (error instanceof NixEvalError) {
           return `${redbold}error:${reset} ${error.message}`;
+        }
+        else if (error instanceof NixSyntaxError) {
+          // TODO error format?
+          return `${redbold}error:${reset} syntax error, ${error.message}`;
         }
         else {
           console.log(error);
@@ -147,7 +162,6 @@ function App() {
       // Read a single line from the user
       localEcho.read(promptString)
         .then(line => {
-          console.log(`user input : ${line}`);
           const result = evalLine(line);
           if (result !== undefined) {
             //console.log(`Result: ${result}`);
@@ -155,7 +169,14 @@ function App() {
           }
           readLine(); // read next line
         })
-        .catch(error => console.log(`Error reading line: ${error}`))
+        .catch(error => {
+          console.log(`Error reading line: ${error}`);
+          console.log(error);
+          console.log("stopping the readLine loop");
+        })
+        // TODO also print error to gui terminal
+        // TODO call readLine in catch branch? risk: infinite loop
+        // -> dont use errors for control flow
       ;
     }
     readLine(); // start loop
@@ -189,7 +210,7 @@ function App() {
           onTerminal={onTerminal}
           style={{
             'flex-grow': 1, // full height
-            'display': 'flex',
+            //'display': 'flex',
           }}
         />
       </main>
