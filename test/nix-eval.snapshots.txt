@@ -207,3 +207,8 @@ ERROR NixEvalError list index 2 is out of bounds
 "__typeOf ''''"
 ==>
 "string"
+
+# syntax error ~
+"~"
+==>
+ERROR NixSyntaxError unexpected invalid token

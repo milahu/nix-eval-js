@@ -6,13 +6,14 @@
 import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
 
 import { setThunkOfNodeType } from "./nix-thunks.js"
-import { NixEvalError, NixEvalNotImplemented } from "./nix-errors.js"
+import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from "./nix-errors.js"
 
 // "export { ... } from '...'" is not working in vite
 export {
   LezerParserNix,
   setThunkOfNodeType,
   NixEvalError,
+  NixSyntaxError,
   NixEvalNotImplemented,
 }
 
@@ -43,7 +44,23 @@ export class NixEval {
   }
 
   eval(source) {
-    const tree = LezerParserNix.parse(source);
+
+    // default: strict is false
+    //tree = LezerParserNix.parse(source);
+
+    const strictParser = LezerParserNix.configure({
+      strict: true, // throw on parse error
+    });
+    let tree;
+    try {
+      tree = strictParser.parse(source);
+    }
+    catch (error) {
+      if (error instanceof SyntaxError) {
+        // TODO error message?
+        throw new NixSyntaxError('unexpected invalid token');
+      }
+    }
     return this.evalTree(tree, source);
   }
 

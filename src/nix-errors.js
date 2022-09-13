@@ -11,3 +11,10 @@ export class NixEvalNotImplemented extends EvalError {
     this.name = "NixEvalNotImplemented";
   }
 }
+
+export class NixSyntaxError extends SyntaxError {
+  constructor(message) {
+    super(message);
+    this.name = "NixSyntaxError";
+  }
+}
