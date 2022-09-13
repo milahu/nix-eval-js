@@ -1,5 +1,19 @@
 import { NixPrimOps } from "./nix-primops.js"
 
+
+
+export function printNode(node, label = '') {
+  let extraDepth = 0;
+  if (label) {
+    console.log(label);
+    extraDepth = 1; // indent the node
+  }
+  // note: this will print a trailing newline
+  console.log(node.toString(0, 5, "  ", extraDepth));
+}
+
+
+
 export const setThunkOfNodeType = {
   'Nix': (node) => (node.thunk = () => node.children[0].thunk()), // identity // TODO remove
   'TRUE': (node) => (node.thunk = () => true),

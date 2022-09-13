@@ -30,18 +30,6 @@ function nodeToString(depth = 0, maxDepth = 5, indent = "  ", extraDepth = 0) {
 
 
 
-function printNode(node, label = '') {
-  let extraDepth = 0;
-  if (label) {
-    console.log(label);
-    extraDepth = 1; // indent the node
-  }
-  // note: this will print a trailing newline
-  console.log(node.toString(0, 5, "  ", extraDepth));
-}
-
-
-
 export class NixEval {
 
   constructor() {
