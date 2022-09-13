@@ -52,3 +52,8 @@ undefined
 "__div 1 2"
 ==>
 0.5
+
+# call primop head
+"__head [ 1 2 ]"
+==>
+1

@@ -412,7 +412,17 @@ export const NixPrimOps = {
   "__zipAttrsWith": node => TodoPrimOp(node, "__zipAttrsWith"),
   "__isList": node => TodoPrimOp(node, "__isList"),
   "__elemAt": node => TodoPrimOp(node, "__elemAt"),
-  "__head": node => TodoPrimOp(node, "__head"),
+  "__head": node => {
+    //printNode(node, "setThunk.__head");
+    node.thunk = () => {
+      //printNode(node, "__head.thunk");
+        return (arg) => {
+          for (const value of arg) {
+            return value; // stop loop after first value
+          }
+        };
+    }
+  },
   "__tail": node => TodoPrimOp(node, "__tail"),
   "__filter": node => TodoPrimOp(node, "__filter"),
   "__elem": node => TodoPrimOp(node, "__elem"),
