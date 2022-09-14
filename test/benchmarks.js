@@ -58,7 +58,7 @@ function fibonaciSuite(name) {
           recmemo(num - 2, memo)
       return memo[num]
   }
-  suite(`fibonaci ${name}`, () => {
+  suite(`fibonacci ${name}`, () => {
       const input = 20
       scenario('loop', () => { loop(input) })
       scenario('recursive', () => { recursive(input) })
@@ -68,28 +68,7 @@ function fibonaciSuite(name) {
 
 
 
-// workaround to print suite name
-// FIXME name of first suite is not printed
-suite('before before benchmarks', () => {
-    const input = 20;
-    function loop(input) {
-        let num = input
-        let a = 1
-        let b = 0
-        let temp
-        while (num >= 0) {
-            temp = a
-            a += b
-            b = temp
-            num -= 1
-        }
-        return b
-    }
-    scenario('loop', () => { loop(input) })
-})
-
-
-
+// note: the first suite name ist not printed to console
 fibonaciSuite('before benchmarks')
 
 
