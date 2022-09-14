@@ -19,3 +19,7 @@ Error: tree is empty
 $ ./bin/nix-eval "$(dd if=/dev/zero bs=1 count=3390 status=none | tr '\0' '!')true"
 Error: tree is empty
 ```
+
+## github pages takes forever to upload
+
+todo: upload only when demo/dist/ was changed
