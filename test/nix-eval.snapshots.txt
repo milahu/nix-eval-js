@@ -217,3 +217,13 @@ ERROR SyntaxError unexpected invalid token
 x
 ==>
 ERROR EvalError undefined variable 'x'
+
+#
+"!true"
+==>
+false
+
+#
+"!!true"
+==>
+true

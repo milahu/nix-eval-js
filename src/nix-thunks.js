@@ -68,6 +68,7 @@ export const setThunkOfNodeType = {
   'CallSub': (node) => (node.thunk = () => (node.children[0].thunk() - node.children[1].thunk())),
   'CallMul': (node) => (node.thunk = () => (node.children[0].thunk() * node.children[1].thunk())),
   'CallDiv': (node) => (node.thunk = () => (node.children[0].thunk() / node.children[1].thunk())),
+  'OpNot': (node) => (node.thunk = () => (! node.children[0].thunk())),
   // SubExpr is not used
   // lezer-parser-nix/src/nix.grammar
   // NegativeExpr has higher precedence than SubExpr, so 1-2 -> (1) (-2) -> ApplyExpr
