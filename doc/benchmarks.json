@@ -1,0 +1,91 @@
+{
+  "suites": [
+    {
+      "name": "fibonacci before benchmarks",
+      "scenarios": [
+        {
+          "name": "loop",
+          "executions": 1000000,
+          "time": 137.764706,
+          "error": 15.936594814426337
+        },
+        {
+          "name": "recursive",
+          "executions": 52991,
+          "time": 94354.01822951068,
+          "error": 0.04513636116931535
+        },
+        {
+          "name": "recmemo",
+          "executions": 1000000,
+          "time": 1476.929382,
+          "error": 0.7266363900174118
+        }
+      ]
+    },
+    {
+      "name": "nots",
+      "scenarios": [
+        {
+          "name": "1 nots",
+          "executions": 267,
+          "time": 18705032.367041197,
+          "error": 3.5602711172237864
+        },
+        {
+          "name": "10 nots",
+          "executions": 283,
+          "time": 17677080.120141342,
+          "error": 2.4024832527500517
+        },
+        {
+          "name": "100 nots",
+          "executions": 285,
+          "time": 17485863.494736843,
+          "error": 2.3627062947142057
+        },
+        {
+          "name": "1000 nots",
+          "executions": 285,
+          "time": 17541114.978947368,
+          "error": 2.4941246109537976
+        },
+        {
+          "name": "2000 nots",
+          "executions": 284,
+          "time": 17548549.221830986,
+          "error": 2.3962656754776988
+        },
+        {
+          "name": "3000 nots",
+          "executions": 285,
+          "time": 17494032.719298247,
+          "error": 2.33852001778811
+        }
+      ]
+    },
+    {
+      "name": "fibonacci after benchmarks",
+      "scenarios": [
+        {
+          "name": "loop",
+          "executions": 1000000,
+          "time": 126.738273,
+          "error": 0.4007037304490628
+        },
+        {
+          "name": "recursive",
+          "executions": 39747,
+          "time": 125795.6275693763,
+          "error": 0.02999490171317583
+        },
+        {
+          "name": "recmemo",
+          "executions": 1000000,
+          "time": 1520.874581,
+          "error": 0.43990909683256535
+        }
+      ]
+    }
+  ]
+}
