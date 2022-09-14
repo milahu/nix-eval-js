@@ -8,7 +8,7 @@ proof of concept
 
 ## demos
 
-* [nix-repl](https://milahu.github.io/nix-eval-js/demo/dist/) - live demo
+* [nix repl](https://milahu.github.io/nix-eval-js/demo/dist/) - live demo
 
 ## goals
 
