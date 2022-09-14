@@ -13,3 +13,6 @@
 [submodule "demo/src/solidjs-resizable-splitter-component"]
 	path = demo/src/solidjs-resizable-splitter-component
 	url = https://github.com/milahu/solidjs-resizable-splitter-component
+[submodule "demo/src/solid-codemirror"]
+	path = demo/src/solid-codemirror
+	url = https://github.com/nimeshnayaju/solid-codemirror
