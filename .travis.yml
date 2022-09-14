@@ -1,0 +1,31 @@
+language: node_js
+script: echo "node version $(node -v)"
+env:
+    - GIT_MAIN_BRANCH=main
+    - BENCHMARKS_JSON=doc/benchmarks.json
+    - CAN_FAIL=false
+jobs:
+  allow_failures: 
+    - env:
+      - CAN_FAIL=true
+  include:
+    - stage: "npm run test"
+      script:
+      - npm run test
+    - stage: "npm run test:perf"
+      if: branch != $GIT_MAIN_BRANCH
+      env: CAN_FAIL=true
+      script:
+        - npm run test:perf
+    - stage: "npm run test:perf:save"
+      if: branch == $GIT_MAIN_BRANCH
+      env: CAN_FAIL=true
+      script:
+        - npm run test:perf:save
+        - echo "update $BENCHMARKS_JSON"
+        #- git clone --depth 1 https://${GH_REPO}
+        - git config user.email "travis@travis.org"
+        - git config user.name "Travis CI"
+        - git add $BENCHMARKS_JSON
+        - git commit -m "update $BENCHMARKS_JSON"
+        - git push https://${GITHUB_API_KEY}@${GH_REPO}
