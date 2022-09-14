@@ -1,7 +1,30 @@
 import { createSignal, onMount, For } from "solid-js";
+import { createStore } from "solid-js/store";
 
 //import logo from './logo.svg';
 import styles from './App.module.css';
+
+
+
+// layout
+
+//import { Tab, TabContainer, Tabs } from "solid-blocks";
+import { Tab, TabContainer, Tabs } from "./solid-blocks";
+//import { GridResizer } from './solid-blocks/src/splitter.jsx';
+//import { SplitY, SplitX } from './solid-blocks/src/splitter.jsx';
+
+import {SplitRoot, SplitY, SplitX, SplitItem} from './solidjs-resizable-splitter-component'
+
+
+
+// editor
+
+//import { CodeMirror } from "@solid-codemirror/codemirror";
+import { CodeMirror } from "./codemirror.jsx";
+
+
+
+// eval
 
 // TODO parse incremental
 import { NixEval, NixEvalError, NixSyntaxError } from "../../src/nix-eval.js";
@@ -32,10 +55,22 @@ const stringify = getStringify({
 
 
 
-function App() {
+// TODO why was sleep needed in frontend
+const sleep = ms => new Promise(res => setTimeout(res, ms));
+
+
+
+export default function App() {
 
   let nixEval;
   let terminal;
+
+  const [store, setStore] = createStore({
+    // TODO
+    options: [],
+    config: null, // syntax tree, parsed by tree-sitter-nix
+    fileSelected: '',
+  });
 
   onMount(async () => {
     nixEval = new NixEval();
@@ -221,8 +256,89 @@ function App() {
     readLine(); // start loop
   }
 
+
+
   return (
-    <div class={styles.App}>
+    <div class={styles.App} style={{
+      'display': 'flex',
+      'flex-grow': '1',
+    }}>
+
+      <SplitRoot>
+        <SplitX>
+          <SplitY>
+            <SplitItem size="80%">
+              <Tabs>
+                <Tab>Parse Tree</Tab>
+                <TabContainer>
+                  <div style="height: 100%; overflow: auto">
+                    <Show when={store.tree} fallback={"no tree"}>
+                      <div>(FIXME remove the first 2 nodes)</div>
+                      <Show when={store.tree.rootNode /* tree-sitter */}>
+                        <TreeViewTreeSitter node={store.tree.rootNode} depth={0} />
+                      </Show>
+                      <Show when={store.tree.topNode /* lezer-parser */}>
+                        <TreeViewLezerParser
+                          cursor={(() => {
+                            const cursor = store.tree.cursor(
+                              //IterMode.IncludeAnonymous // this breaks the parse tree rendering
+                            );
+                            // skip topNode, dont show the root "Nix" node in parse tree
+                            // FIXME this breaks for simple sources like "1" or "x"
+                            //cursor.firstChild();
+                            // FIXME this breaks on empty source ""
+                            // -> parse tree shows "x"
+                            // fixed after hot reload ...
+                            return cursor;
+                          })()}
+                          depth={0}
+                          source={store.source} //// TODO setState ??
+                        />
+                      </Show>
+                    </Show>
+                  </div>
+                </TabContainer>
+                <Tab>todo</Tab>
+                <TabContainer>todo</TabContainer>
+              </Tabs>
+            </SplitItem>
+            <SplitItem>
+              <Tabs>
+                <Tab>Eval Result</Tab>
+                <TabContainer>
+                  <div style="height: 100%; overflow: auto">
+                    <Show when={store.tree} fallback={"no eval"}>
+                      <pre>{JSON.stringify(nixEval.evalTree(store.tree, store.source), null, 2)}</pre>
+                    </Show>
+                  </div>
+                </TabContainer>
+                <Tab>todo</Tab>
+                <TabContainer>todo</TabContainer>
+              </Tabs>
+            </SplitItem>
+          </SplitY>
+          <SplitItem>
+            <div>(warning: the evaluator breaks on syntax errors)</div>
+            <CodeMirror
+              value="if true\nthen 1\nelse 2"
+              //value="if true then true else\n{ pkgs ? import <nixpkgs> {} }:\npkgs.mkShell {\n  buildInputs = [ pkgs.nodejs ];\n}\n"
+              onEditorMount={() => null}
+              onValueChange={() => null}
+              showLineNumbers={true}
+              wrapLine={false}
+              //theme={null}
+              //extensions={[]}
+            />
+          </SplitItem>
+        </SplitX>
+      </SplitRoot>
+
+
+
+      {/* nix repl */}
+
+      <Show when={false}>
+
       {/*
       <header class={styles.header}>
         <img src={logo} class={styles.logo} alt="logo" />
@@ -258,8 +374,9 @@ function App() {
           >src</a>
         </div>
       </main>
+      </Show>
+
     </div>
   );
 }
 
-export default App;

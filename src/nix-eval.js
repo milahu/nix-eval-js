@@ -67,6 +67,12 @@ export class NixEval {
   evalTree(tree, source) {
 
     //console.log(`NixEval.evalTree`);
+/*
+    // TODO check tree for parse errors
+NixEvalNotImplemented
+setThunk is empty for token ⚠
+
+*/
 
     let depth = 0;
     const cursor = tree.cursor();

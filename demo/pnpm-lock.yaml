@@ -1,6 +1,15 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@codemirror/autocomplete': ^6.2.0
+  '@codemirror/commands': ^6.1.0
+  '@codemirror/language': ^6.2.1
+  '@codemirror/lint': ^6.0.0
+  '@codemirror/search': ^6.2.0
+  '@codemirror/state': ^6.1.1
+  '@codemirror/view': ^6.2.3
+  '@lezer/highlight': ^1.0.0
+  '@solid-codemirror/core': ^1.0.1
   local-echo: github:wavesoft/local-echo
   solid-js: ^1.5.1
   vite: ^3.0.9
@@ -13,6 +22,15 @@ dependencies:
   solid-js: 1.5.1
 
 devDependencies:
+  '@codemirror/autocomplete': 6.2.0_wnvejgzqjpkjrm4uqn22pasz3i
+  '@codemirror/commands': 6.1.0
+  '@codemirror/language': 6.2.1
+  '@codemirror/lint': 6.0.0
+  '@codemirror/search': 6.2.0
+  '@codemirror/state': 6.1.1
+  '@codemirror/view': 6.2.3
+  '@lezer/highlight': 1.0.0
+  '@solid-codemirror/core': 1.0.1_d2xrxl4llszd6sauuhkftcwgzq
   local-echo: github.com/wavesoft/local-echo/8d0b7f55c5cf4b0b5f7c5132825dc5bd984bf017
   vite: 3.0.9
   vite-plugin-solid: 2.3.0_solid-js@1.5.1+vite@3.0.9
@@ -329,6 +347,67 @@ packages:
       to-fast-properties: 2.0.0
     dev: true
 
+  /@codemirror/autocomplete/6.2.0_wnvejgzqjpkjrm4uqn22pasz3i:
+    resolution: {integrity: sha512-yNCm2CEE4kE4L2Sf7WeyCej1Q3951ccaCWfomrlBkoERKCss+TzuEeqGe5VnAJTEybLy1yzf1BdMUY/988bfpg==}
+    peerDependencies:
+      '@codemirror/language': ^6.0.0
+      '@codemirror/state': ^6.0.0
+      '@codemirror/view': ^6.0.0
+    dependencies:
+      '@codemirror/language': 6.2.1
+      '@codemirror/state': 6.1.1
+      '@codemirror/view': 6.2.3
+      '@lezer/common': 1.0.1
+    dev: true
+
+  /@codemirror/commands/6.1.0:
+    resolution: {integrity: sha512-qCj2YqmbBjj0P1iumnlL5lBqZvJPzT+t2UvgjcaXErp5ZvMqFRVgQyrEfdXX6SX5UcvcHKBjXqno+MkUp0aYvQ==}
+    dependencies:
+      '@codemirror/language': 6.2.1
+      '@codemirror/state': 6.1.1
+      '@codemirror/view': 6.2.3
+      '@lezer/common': 1.0.1
+    dev: true
+
+  /@codemirror/language/6.2.1:
+    resolution: {integrity: sha512-MC3svxuvIj0MRpFlGHxLS6vPyIdbTr2KKPEW46kCoCXw2ktb4NTkpkPBI/lSP/FoNXLCBJ0mrnUi1OoZxtpW1Q==}
+    dependencies:
+      '@codemirror/state': 6.1.1
+      '@codemirror/view': 6.2.3
+      '@lezer/common': 1.0.1
+      '@lezer/highlight': 1.0.0
+      '@lezer/lr': 1.2.3
+      style-mod: 4.0.0
+    dev: true
+
+  /@codemirror/lint/6.0.0:
+    resolution: {integrity: sha512-nUUXcJW1Xp54kNs+a1ToPLK8MadO0rMTnJB8Zk4Z8gBdrN0kqV7uvUraU/T2yqg+grDNR38Vmy/MrhQN/RgwiA==}
+    dependencies:
+      '@codemirror/state': 6.1.1
+      '@codemirror/view': 6.2.3
+      crelt: 1.0.5
+    dev: true
+
+  /@codemirror/search/6.2.0:
+    resolution: {integrity: sha512-FVhpUvPFUJe8lg2EQJTTcF4RNI9d/OC3PVitvOfhv5OuY7ZgtMfJl22o5eMkzOEsUY2Wxe7BKGLpe2UI5Wq3PQ==}
+    dependencies:
+      '@codemirror/state': 6.1.1
+      '@codemirror/view': 6.2.3
+      crelt: 1.0.5
+    dev: true
+
+  /@codemirror/state/6.1.1:
+    resolution: {integrity: sha512-2s+aXsxmAwnR3Rd+JDHPG/1lw0YsA9PEwl7Re88gHJHGfxyfEzKBmsN4rr53RyPIR4lzbbhJX0DCq0WlqlBIRw==}
+    dev: true
+
+  /@codemirror/view/6.2.3:
+    resolution: {integrity: sha512-cgN9gWS9+kv9+eOgVJWMrGUk4EwYKBZpuFYvxIlu4CmMye3+U+gMzuZhBgtPDOCbCp30hxFIOO0MENhGfnaC/g==}
+    dependencies:
+      '@codemirror/state': 6.1.1
+      style-mod: 4.0.0
+      w3c-keyname: 2.2.6
+    dev: true
+
   /@esbuild/linux-loong64/0.14.54:
     resolution: {integrity: sha512-bZBrLAIX1kpWelV0XemxBZllyRmM6vgFQQG2GdNb+r3Fkp0FOh1NJSvekXDs7jq70k4euu1cryLMfU+mTXlEpw==}
     engines: {node: '>=12'}
@@ -374,6 +453,34 @@ packages:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.0
       '@jridgewell/sourcemap-codec': 1.4.14
+    dev: true
+
+  /@lezer/common/1.0.1:
+    resolution: {integrity: sha512-8TR5++Q/F//tpDsLd5zkrvEX5xxeemafEaek7mUp7Y+bI8cKQXdSqhzTOBaOogETcMOVr0pT3BBPXp13477ciw==}
+    dev: true
+
+  /@lezer/highlight/1.0.0:
+    resolution: {integrity: sha512-nsCnNtim90UKsB5YxoX65v3GEIw3iCHw9RM2DtdgkiqAbKh9pCdvi8AWNwkYf10Lu6fxNhXPpkpHbW6mihhvJA==}
+    dependencies:
+      '@lezer/common': 1.0.1
+    dev: true
+
+  /@lezer/lr/1.2.3:
+    resolution: {integrity: sha512-qpB7rBzH8f6Mzjv2AVZRahcm+2Cf7nbIH++uXbvVOL1yIRvVWQ3HAM/saeBLCyz/togB7LGo76qdJYL1uKQlqA==}
+    dependencies:
+      '@lezer/common': 1.0.1
+    dev: true
+
+  /@solid-codemirror/core/1.0.1_d2xrxl4llszd6sauuhkftcwgzq:
+    resolution: {integrity: sha512-xs3bxYmECtci+kaZB81HQt/s0SFqbZXGNpyG4a7k8H9mZdFr4yMzJIPNruTTWYcdOvM+u5HkL6Zi3JNzJf+nhQ==}
+    peerDependencies:
+      '@codemirror/state': ^6.0.0
+      '@codemirror/view': ^6.0.0
+      solid-js: ^1.4.2
+    dependencies:
+      '@codemirror/state': 6.1.1
+      '@codemirror/view': 6.2.3
+      solid-js: 1.5.1
     dev: true
 
   /ansi-styles/3.2.1:
@@ -442,6 +549,10 @@ packages:
     resolution: {integrity: sha512-+OQdjP49zViI/6i7nIJpA8rAl4sV/JdPfU9nZs3VqOwGIgizICvuN2ru6fMd+4llL0tar18UYJXfZ/TWtmhUjA==}
     dependencies:
       safe-buffer: 5.1.2
+    dev: true
+
+  /crelt/1.0.5:
+    resolution: {integrity: sha512-+BO9wPPi+DWTDcNYhr/W90myha8ptzftZT+LwcmUbbok0rcP/fequmFYCw8NMoH7pkAZQzU78b3kYrlua5a9eA==}
     dev: true
 
   /csstype/3.1.0:
@@ -837,6 +948,10 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
+  /style-mod/4.0.0:
+    resolution: {integrity: sha512-OPhtyEjyyN9x3nhPsu76f52yUGXiZcgvsrFVtvTkyGRQJ0XK+GPc6ov1z+lRpbeabka+MYEQxOYRnt5nF30aMw==}
+    dev: true
+
   /supports-color/5.5.0:
     resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==}
     engines: {node: '>=4'}
@@ -911,6 +1026,10 @@ packages:
       rollup: 2.77.3
     optionalDependencies:
       fsevents: 2.3.2
+    dev: true
+
+  /w3c-keyname/2.2.6:
+    resolution: {integrity: sha512-f+fciywl1SJEniZHD6H+kUO8gOnwIr7f4ijKA6+ZvJFjeGi1r4PDLl53Ayud9O/rk64RqgoQine0feoeOU0kXg==}
     dev: true
 
   /xterm-addon-fit/0.5.0_xterm@4.19.0:
