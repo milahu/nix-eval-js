@@ -10,3 +10,6 @@
 [submodule "demo/src/solid-blocks"]
 	path = demo/src/solid-blocks
 	url = https://github.com/milahu/solid-blocks
+[submodule "demo/src/solidjs-resizable-splitter-component"]
+	path = demo/src/solidjs-resizable-splitter-component
+	url = https://github.com/milahu/solidjs-resizable-splitter-component
