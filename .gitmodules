@@ -16,3 +16,6 @@
 [submodule "demo/src/solid-codemirror"]
 	path = demo/src/solid-codemirror
 	url = https://github.com/nimeshnayaju/solid-codemirror
+[submodule "demo/src/codemirror-lang-nix"]
+	path = demo/src/codemirror-lang-nix
+	url = https://github.com/milahu/codemirror-lang-nix
