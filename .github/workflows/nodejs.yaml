@@ -1,0 +1,48 @@
+name: nodejs test + benchmark
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        #node-version: [18.x]
+        node-version: ['latest']
+
+    steps:
+
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: install
+      run: npm ci
+
+    - name: build
+      run: npm run build --if-present
+
+    - name: test
+      run: npm test
+
+    - name: benchmark
+      run: npm test:perf:save
+
+    - name: update doc/benchmarks.json
+      # https://github.com/marketplace/actions/add-commit
+      uses: EndBug/add-and-commit@v9.1.0
+      with:
+        add: doc/benchmarks.json
+        author_name: GitHub Actions
+        author_email: actions@github.com
+        message: update doc/benchmarks.json
