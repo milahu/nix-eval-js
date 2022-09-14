@@ -7,3 +7,6 @@
 [submodule "demo/src/solidjs-xterm-component"]
 	path = demo/src/solidjs-xterm-component
 	url = https://github.com/milahu/solidjs-xterm-component
+[submodule "demo/src/solid-blocks"]
+	path = demo/src/solid-blocks
+	url = https://github.com/milahu/solid-blocks
