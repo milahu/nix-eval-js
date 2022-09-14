@@ -152,6 +152,10 @@ reactive frameworks for javascript in a web browser
 
 https://github.com/krausest/js-framework-benchmark
 
+IMHO the clear winner is solidjs
+
+compare: vanillajs fullweb-helpers solid svelte react vue
+
 ### headless
 
 headless reactive frameworks for nodejs
@@ -169,3 +173,38 @@ src: https://github.com/sindresorhus/awesome-nodejs
 #### Marble.js
 
 [Marble.js](https://github.com/marblejs/marble) - Functional reactive framework for building server-side apps, based on TypeScript and RxJS.
+
+## benchmarks
+
+### performance regression testing
+
+"is the new version faster or slower?"
+
+* https://github.com/GitbookIO/bipbip
+
+### not
+
+frameworks for testing of REST API performance
+
+intended to benchmark HTTP requests
+
+* [artillery](https://github.com/artilleryio/artillery)
+* [bench-rest](https://github.com/jeffbski/bench-rest)
+
+## performance
+
+### prototype patching is evil
+
+https://blog.yuzutech.fr/node-investigating-performance-regression/
+
+> Based on this knowledge, we identified a practical JavaScript coding tip that can help boost performance:
+>
+> don’t mess with prototypes
+>
+> (or if you really, really need to, then at least do it before other code runs).
+
+bad:
+
+```js
+Object.setPrototypeOf(Array.prototype, {})
+```
