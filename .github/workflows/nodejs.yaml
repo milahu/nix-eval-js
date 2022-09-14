@@ -7,37 +7,32 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        #node-version: [18.x]
         node-version: ['latest']
 
     steps:
 
-    - uses: actions/checkout@v3
+    - name: checkout
+      uses: actions/checkout@v3
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+    - name: pnpm
+      uses: pnpm/action-setup@v2.2.2
 
     - name: install
-      #run: npm ci # needs package-lock.json
-      run: npm install
+      #run: pnpm ci # needs package-lock.json
+      run: pnpm install
 
     - name: build
-      run: npm run build --if-present
+      run: pnpm run build --if-present
 
     - name: test
-      run: npm test
+      run: pnpm run test
 
     - name: benchmark
-      run: npm test:perf:save
+      run: pnpm run test:perf:save
 
     - name: update doc/benchmarks.json
       # https://github.com/marketplace/actions/add-commit
