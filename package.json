@@ -8,7 +8,9 @@
     "nix-eval": "./src/nix-eval-cli.js"
   },
   "scripts": {
-    "test": "ava"
+    "test": "run-s test:unit",
+    "test:unit": "ava",
+    "test:perf": "bipbip test/benchmarks.js"
   },
   "ava": {
     "files": [
@@ -26,6 +28,8 @@
   "license": "MIT",
   "devDependencies": {
     "ava": "^4.3.3",
+    "bipbip": "github:milahu/bipbip",
+    "npm-run-all": "^4.1.5",
     "safe-stable-stringify": "^2.3.1"
   }
 }
