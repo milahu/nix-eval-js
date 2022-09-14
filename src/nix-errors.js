@@ -5,7 +5,7 @@ export class NixEvalError extends EvalError {
   }
 }
 
-export class NixEvalNotImplemented extends EvalError {
+export class NixEvalNotImplemented extends Error {
   constructor(message) {
     super(message);
     this.name = "NotImplemented";
