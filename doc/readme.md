@@ -143,3 +143,29 @@ lisp interpreter in javascript
 ## NixExpr to Derivation
 
 * https://github.com/Gabriella439/Haskell-Nix-Derivation-Library
+
+## reactive programming in javascript
+
+### graphical
+
+reactive frameworks for javascript in a web browser
+
+https://github.com/krausest/js-framework-benchmark
+
+### headless
+
+headless reactive frameworks for nodejs
+
+src: https://github.com/sindresorhus/awesome-nodejs
+
+#### RxJS
+
+[RxJS](https://github.com/reactivex/rxjs) - Functional reactive library for transforming, composing, and querying various kinds of data.
+
+#### Kefir.js
+
+[Kefir.js](https://github.com/kefirjs/kefir) - Reactive library with focus on high performance and low memory usage.
+
+#### Marble.js
+
+[Marble.js](https://github.com/marblejs/marble) - Functional reactive framework for building server-side apps, based on TypeScript and RxJS.
