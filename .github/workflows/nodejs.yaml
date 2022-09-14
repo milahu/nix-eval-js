@@ -17,6 +17,8 @@ jobs:
 
     - name: checkout
       uses: actions/checkout@v3
+      with:
+        submodules: true
 
     - name: pnpm
       uses: pnpm/action-setup@v2.2.2
