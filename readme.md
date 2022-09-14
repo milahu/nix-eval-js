@@ -8,8 +8,7 @@ proof of concept
 
 ## demos
 
-* [nix repl](https://milahu.github.io/nix-eval-js/demo/dist/)
-* [nixos-config-webui](https://github.com/milahu/nixos-config-webui)
+* [nix-repl](https://milahu.github.io/nix-eval-js/demo/dist/) - live demo
 
 ## goals
 
@@ -40,6 +39,12 @@ __head [ 3 ]
 ```
 
 this evaluates to the result `3`
+
+## related
+
+* [lezer-parser-nix](https://github.com/milahu/lezer-parser-nix)
+* [nixos-config-webui](https://github.com/milahu/nixos-config-webui)
+* [nijs](https://github.com/svanderburg/nijs) - Nix bindings for JavaScript
 
 ## keywords
 
