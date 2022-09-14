@@ -30,6 +30,7 @@ export const expressions = [
   '  1*2           Mul',
   '  1/2           Div',
   '',
+  '  (2+3)*4       Parens',
   '  [1 2]         List',
   '  {a=1;b=2;}    AttrSet',
   '  {a=1;}.a      Select',
