@@ -28,7 +28,7 @@ jobs:
       run: pnpm install
 
     - name: build
-      run: pnpm run build --if-present
+      run: pnpm run --if-present build
 
     - name: test
       run: pnpm run test
