@@ -19,3 +19,6 @@
 [submodule "demo/src/codemirror-lang-nix"]
 	path = demo/src/codemirror-lang-nix
 	url = https://github.com/milahu/codemirror-lang-nix
+[submodule "demo/src/@codemirror/view"]
+	path = demo/src/@codemirror/view
+	url = https://github.com/codemirror/view
