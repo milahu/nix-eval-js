@@ -2,6 +2,7 @@
 
 import { NixEval } from "./nix-eval.js";
 import process from "node:process";
+import { readFileSync } from 'node:fs';
 import { configure as getStringify } from './safe-stable-stringify/index.js'
 
 const stringify = getStringify({
@@ -10,14 +11,42 @@ const stringify = getStringify({
   indent: "  ",
 })
 
+
+
 function main(argv) {
+
+  if (process.stdin.isTTY && argv.length < 2) {
+    const name = argv[0].split('/').pop();
+    console.log(`usage:`);
+    console.log(`node ${name} "__add 1 1"`);
+    console.log(`node ${name} -f path/to/input.nix`);
+    process.exit(1);
+  }
+
+  const text = (
+    !process.stdin.isTTY
+      ? readFileSync(0).toString() // read from stdin
+      : (argv[1] == '-f')
+        ? readFileSync(argv[2], 'utf8')
+        : argv[1]
+  );
+
+  if (text === undefined) {
+    throw new Error('text is undefined');
+  }
+
   const nix = new NixEval();
-  const result = nix.eval(argv[1] || '');
+
+  const result = nix.eval(text || '');
+
   //console.dir(result, { depth: 2 }); // getter values are missing
   //console.log(Object.assign({}, result)); // print everything -> too much
   console.log(stringify(result)); // TODO indent
   //console.log(JSON.stringify(result, null, 2)); // print everything -> too much
+
 }
+
+
 
 function log(obj) {
     // Get the names of getter properties defined on the prototype
