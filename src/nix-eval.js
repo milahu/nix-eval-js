@@ -61,6 +61,9 @@ export class NixEval {
         throw new NixSyntaxError('unexpected invalid token');
       }
     }
+    if (tree === undefined) {
+      throw new Error('tree is undefined. FIXME handle large inputs over 3 KByte');
+    }
     return this.evalTree(tree, source);
   }
 
