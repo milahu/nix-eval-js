@@ -4,6 +4,10 @@
 // TODO sharing = caching of node values, based on semantic equality of nodes
 
 import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
+//import { parser as LezerParserNix } from "../demo/src/codemirror-lang-nix/src/lezer-parser-nix/dist/index.js"
+//import { parser as LezerParserNix } from "../demo/src/codemirror-lang-nix/dist/index.js"
+
+
 
 import { setThunkOfNodeType } from "./nix-thunks.js"
 import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from "./nix-errors.js"
