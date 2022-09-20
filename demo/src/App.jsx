@@ -9,11 +9,21 @@ import styles from './App.module.css';
 // layout
 
 //import { Tab, TabContainer, Tabs } from "solid-blocks";
-import { Tab, TabContainer, Tabs } from "./solid-blocks";
+//import { Tab, TabContainer, Tabs } from "./solid-blocks";
+// style is missing
+// https://github.com/atk/solid-blocks/issues/11
+import { Tab, TabContainer, Tabs } from "./atk/solid-blocks";
+
 //import { GridResizer } from './solid-blocks/src/splitter.jsx';
 //import { SplitY, SplitX } from './solid-blocks/src/splitter.jsx';
 
-import {SplitRoot, SplitY, SplitX, SplitItem} from './solidjs-resizable-splitter-component'
+import { SplitRoot, SplitY, SplitX, SplitItem } from './solidjs-resizable-splitter-component'
+
+import {
+  //TreeViewTreeSitter,
+  //TreeViewLezerParser,
+  TreeViewCodeMirror,
+} from './treeview.jsx';
 
 
 
@@ -91,7 +101,7 @@ export default function App() {
 
     // FIXME not working?
     // fit terminal to parent size
-    /* */
+    /** /
     const fitAddon = new FitAddon();
     terminal.loadAddon(fitAddon);
     console.log('fitAddon', fitAddon);
@@ -100,7 +110,7 @@ export default function App() {
     terminalParent.addEventListener('resize', (_event) => {
       fitAddon.fit();
     })
-    /* */
+    /* * /
     // simple:
     window.addEventListener('resize', (_event) => {
       fitAddon.fit();
@@ -258,80 +268,292 @@ export default function App() {
 
 
 
-  return (
-    <div class={styles.App} style={{
-      'display': 'flex',
-      'flex-grow': '1',
-    }}>
+  function onEditorState(editorState) {
+    // handle new tree
+    /*
+    const newCode = editorState.doc.sliceString(0, newState.doc.length);
+    const newTree = editorState.tree;
+    */
+    /*
+    setStore('tree', newTree); // set store.tree
+    setStore('source', newCode); // set store.source
+    */
+    // atomic update: both values (tree, source) are used in TreeViewLezerParser
+    //console.log(`App.onEditorState: editorState`, editorState)
+    setStore('editorState', editorState); // set store.editorState
+    //newTree.topNode // Nix: 1+1
+    //newTree.topNode.firstChild // ConcatStrings: 1+1
 
+    // eval
+    //console.log('eval ...');
+    //console.log('eval', editorState.tree.topNode.type.thunk(editorState.tree.topNode));
+
+    // also in treeview.jsx. dedupe? avoid? (use editorState.doc directly?)
+    const source = editorState.doc.sliceString(0, editorState.doc.length);
+
+    //console.log(`onEditorState: editorState.tree.length`, editorState.tree.length);
+    if (editorState.tree.length == 0) {
+      console.log(`onEditorState: tree is empty`);
+      setStore('evalResult', undefined); // set store.evalResult
+      return;
+    }
+
+    let evalResult;
+    try {
+      //evalResult = editorState.tree.topNode.type.thunk(editorState.tree.topNode, source);
+      evalResult = editorState.tree.topNode.type.thunk(editorState.tree.cursor(), source);
+      NixEvalError, NixSyntaxError
+    }
+    catch (error) {
+      if (error instanceof NixSyntaxError || error instanceof NixEvalError) {
+        evalResult = `# ${error.name}: ${error.message}`;
+      }
+      else {
+        console.error(error);
+        evalResult = `# FIXME unhandled error: ${error.name}: ${error.message}`;
+      }
+    }
+    //console.log('evalResult', evalResult);
+    setStore('evalResult', evalResult); // set store.evalResult
+  }
+
+
+
+  const getCodeMirror = () => (
+    <CodeMirror
+      value={[
+        /*
+        "# hello",
+        "if true",
+        "then 1",
+        "else 2",
+        "/"+"*",
+        "  comment",
+        "*"+"/",
+        '"string ${expr} \\${escaped}"',
+        "''",
+        "  indented string ${expr} ''${escaped}",
+        "''",
+        "[ 1 2 3 4 ]",
+        "{ a = 1; b = 2; }",
+        */
+        "1+1",
+      ].join("\n") + "\n"}
+      mode="nix"
+      //mode="javascript"
+      //value="if true then true else\n{ pkgs ? import <nixpkgs> {} }:\npkgs.mkShell {\n  buildInputs = [ pkgs.nodejs ];\n}\n"
+      //onCodeMirror={(codeMirror) => console.log('codeMirror', codeMirror)}
+      //onValueChange={(newValue) => null}
+      //onValueChange={() => null}
+      //showLineNumbers={true}
+      //wrapLine={false}
+      //theme={null}
+      //extensions={[]}
+
+      //onEditorState={onEditorState}
+      onEditorStateChange={onEditorState}
+      onEditorMount={(view) => onEditorState(view.state)}
+    />
+  )
+
+  /* test solid-blocks
+  return (
+    <div>
+      <Tabs>
+        <Tab>label 1</Tab>
+        <TabContainer>content 1</TabContainer>
+        <Tab>label 2</Tab>
+        <TabContainer>content 2</TabContainer>
+      </Tabs>
+    </div>
+  );
+  */
+
+
+
+  return (
+    <div class={styles.App}>
       <SplitRoot>
         <SplitX>
-          <SplitY>
-            <SplitItem size="80%">
-              <Tabs>
-                <Tab>Parse Tree</Tab>
-                <TabContainer>
-                  <div style="height: 100%; overflow: auto">
-                    <Show when={store.tree} fallback={"no tree"}>
-                      <div>(FIXME remove the first 2 nodes)</div>
-                      <Show when={store.tree.rootNode /* tree-sitter */}>
-                        <TreeViewTreeSitter node={store.tree.rootNode} depth={0} />
-                      </Show>
-                      <Show when={store.tree.topNode /* lezer-parser */}>
-                        <TreeViewLezerParser
-                          cursor={(() => {
-                            const cursor = store.tree.cursor(
-                              //IterMode.IncludeAnonymous // this breaks the parse tree rendering
-                            );
-                            // skip topNode, dont show the root "Nix" node in parse tree
-                            // FIXME this breaks for simple sources like "1" or "x"
-                            //cursor.firstChild();
-                            // FIXME this breaks on empty source ""
-                            // -> parse tree shows "x"
-                            // fixed after hot reload ...
-                            return cursor;
-                          })()}
-                          depth={0}
-                          source={store.source} //// TODO setState ??
-                        />
-                      </Show>
-                    </Show>
-                  </div>
-                </TabContainer>
-                <Tab>todo</Tab>
-                <TabContainer>todo</TabContainer>
-              </Tabs>
-            </SplitItem>
-            <SplitItem>
-              <Tabs>
-                <Tab>Eval Result</Tab>
-                <TabContainer>
-                  <div style="height: 100%; overflow: auto">
-                    <Show when={store.tree} fallback={"no eval"}>
-                      <pre>{JSON.stringify(nixEval.evalTree(store.tree, store.source), null, 2)}</pre>
-                    </Show>
-                  </div>
-                </TabContainer>
-                <Tab>todo</Tab>
-                <TabContainer>todo</TabContainer>
-              </Tabs>
-            </SplitItem>
-          </SplitY>
           <SplitItem>
-            <div>(warning: the evaluator breaks on syntax errors)</div>
-            <CodeMirror
-              value="if true\nthen 1\nelse 2"
-              //value="if true then true else\n{ pkgs ? import <nixpkgs> {} }:\npkgs.mkShell {\n  buildInputs = [ pkgs.nodejs ];\n}\n"
-              onEditorMount={() => null}
-              onValueChange={() => null}
-              showLineNumbers={true}
-              wrapLine={false}
-              //theme={null}
-              //extensions={[]}
-            />
+            <Switch>
+              <Match when={store.editorState}>
+                <TreeViewCodeMirror editorState={store.editorState} />
+              </Match>
+              <Match when={true}>
+                <div>editorState is empty</div>
+              </Match>
+            </Switch>
+          </SplitItem>
+          <SplitItem>
+            <div>Supported: Add, Int</div>
+            {getCodeMirror()}
+            <div>Result: {String(store.evalResult)}</div>
           </SplitItem>
         </SplitX>
       </SplitRoot>
+    </div>
+  );
+
+
+
+  // dead code
+  return (
+    <div class={styles.App}>
+    
+
+    <Tabs classList={{ [styles.flexcolumn]: true }}>
+
+      <Tab>edit</Tab>
+      <TabContainer classList={{ [styles.flexcolumn]: true }}>
+
+        {/* switch shows the first match with (when == true) */}
+        {/* to show the second branch, set the first when to false */}
+        <Switch>
+
+          <Match when={false}>{getCodeMirror()}</Match>
+
+          <Match when={true /* resizable layout - no wrapper */}>
+            <SplitRoot>
+              <SplitX>
+                <SplitItem>
+                  <Switch>
+                    <Match when={store.editorState /* codemirror */}>
+                      <TreeViewCodeMirror editorState={store.editorState} />
+                    </Match>
+                    <Match when={true}>
+                      <div>editorState is empty</div>
+                    </Match>
+                  </Switch>
+                </SplitItem>
+                <SplitItem>
+                  <div>Supported: Add, Int</div>
+                  {getCodeMirror()}
+                  <div>Result: {String(store.evalResult)}</div>
+                </SplitItem>
+              </SplitX>
+            </SplitRoot>
+          </Match>
+
+          <Match when={false /* resizable layout - yes wrapper  */}>
+            <div style={{ 'display': 'flex', }}>
+              <SplitX>
+                <SplitItem>
+                  <Switch>
+                    <Match when={store.editorState /* codemirror */}>
+                      <TreeViewCodeMirror editorState={store.editorState} />
+                    </Match>
+                    <Match when={true}>
+                      <div>editorState is empty</div>
+                    </Match>
+                  </Switch>
+                </SplitItem>
+                <SplitItem>
+                  {getCodeMirror()}
+                </SplitItem>
+              </SplitX>
+            </div>
+          </Match>
+
+          <Match when={true /* fixed layout */}>
+            <div style={{ 'display': 'flex', }}>
+              <div style={{ 'flex-basis': '40%', }}>
+                <Switch>
+                  <Match when={store.editorState /* codemirror */}>
+                    <TreeViewCodeMirror editorState={store.editorState} />
+                  </Match>
+                  <Match when={true}>
+                    <div>editorState is empty</div>
+                  </Match>
+                </Switch>
+              </div>
+              <div style={{ 'flex-grow': '1', }}>
+                {getCodeMirror()}
+              </div>
+              <div style={{ 'flex-basis': '2%', }}></div>
+            </div>
+          </Match>
+
+          {/* FIXME height */}
+          <Match when={false}>
+            <SplitRoot>
+              <SplitX>
+                  <SplitY>
+                    <SplitItem size="80%">
+                      <div>Parse Tree</div>
+                      <div style="height: 100%; overflow: auto">
+                        <Show when={() => (store.tree || store.editorState)} fallback={"no tree"}>
+                          <div>(FIXME remove the first 2 nodes)</div>
+                          <Show when={store.tree.rootNode /* tree-sitter */}>
+                            <TreeViewTreeSitter node={store.tree.rootNode} depth={0} />
+                          </Show>
+                          <Show when={store.editorState /* codemirror */}>
+                            <div>TreeViewCodeMirror:</div>
+                            <TreeViewCodeMirror editorState={store.editorState} />
+                          </Show>
+                          <Show when={store.tree.topNode /* lezer-parser */}>
+                            <TreeViewLezerParser
+                              // FIXME what is TreeViewLezerParser
+                              editorState={store.editorState}
+                              cursor={(() => {
+                                const cursor = store.tree.cursor(
+                                  //IterMode.IncludeAnonymous // this breaks the parse tree rendering
+                                );
+                                // skip topNode, dont show the root "Nix" node in parse tree
+                                // FIXME this breaks for simple sources like "1" or "x"
+                                //cursor.firstChild();
+                                // FIXME this breaks on empty source ""
+                                // -> parse tree shows "x"
+                                // fixed after hot reload ...
+                                return cursor;
+                              })()}
+                              depth={0}
+                              source={store.source} //// TODO setState ??
+                            />
+                          </Show>
+                        </Show>
+                      </div>
+                    </SplitItem>
+                    <SplitItem>
+                      <div>Eval Result</div>
+                      <div style="height: 100%; overflow: auto">
+                        <Show when={store.tree} fallback={"no eval"}>
+                          <pre>{JSON.stringify(nixEval.evalTree(store.tree, store.source), null, 2)}</pre>
+                        </Show>
+                      </div>
+                    </SplitItem>
+                  </SplitY>
+                <SplitItem>
+                  {getCodeMirror()}
+                </SplitItem>
+              </SplitX>
+            </SplitRoot>
+          </Match>
+        </Switch>
+      </TabContainer>
+
+
+
+      <Tab>repl</Tab>
+      <TabContainer classList={{ [styles.flexcolumn]: true }}>
+        <Xterm
+          onTerminal={onTerminal}
+          style={{
+            'display': 'flex',
+          }}
+        />
+      </TabContainer>
+
+
+
+      <Tab>src</Tab>
+      <TabContainer classList={{ [styles.flexcolumn]: true }}>
+        <a
+          href="https://github.com/milahu/nix-eval-js"
+          style={{ 'text-decoration': 'none' }}
+        >github.com/milahu/nix-eval-js</a>
+      </TabContainer>
+    </Tabs>
 
 
 
@@ -361,18 +583,6 @@ export default function App() {
       </main>
       */}
       <main class={styles.main}>
-        <Xterm
-          onTerminal={onTerminal}
-          style={{
-            'display': 'flex',
-          }}
-        />
-        <div style={{ 'text-align': 'right' }}>
-          <a
-            href="https://github.com/milahu/nix-eval-js"
-            style={{ 'text-decoration': 'none' }}
-          >src</a>
-        </div>
       </main>
       </Show>
 

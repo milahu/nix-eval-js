@@ -2,15 +2,38 @@
   /*
   text-align: center;
   */
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  /*align-content:stretch;*/
+}
+
+.flexcolumn {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.flexrow {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
 }
 
 .logo {
   animation: logo-spin infinite 20s linear;
   height: 40vmin;
   pointer-events: none;
+}
+
+.flexgrow1 {
+  flex-grow: 1;
+}
+.displayflex {
+  display: flex;
+}
+.flexdirectioncolumn {
+  flex-direction: column;
 }
 
 .header {
