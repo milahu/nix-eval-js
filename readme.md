@@ -40,6 +40,27 @@ __head [ 3 ]
 
 this evaluates to the result `3`
 
+### intellisense
+
+#### autocompletion
+
+```nix
+let
+  pkgs = {
+    hello = ''
+      #! /bin/sh
+      echo hello
+    '';
+  };
+in
+pkgs.
+#    ^ cursor
+```
+
+at this cursor, i want the autocompletion `hello`
+
+this should also work with `callPackage` and `makeScope`
+
 ## related
 
 * [lezer-parser-nix](https://github.com/milahu/lezer-parser-nix)
