@@ -15,7 +15,7 @@
     "@codemirror/language": "^6.2.1",
     "@codemirror/lint": "^6.0.0",
     "@codemirror/search": "^6.2.0",
-    "@codemirror/state": "^6.1.1",
+    "@codemirror/state": "^6.1.2",
     "@codemirror/view": "^6.2.4",
     "@lezer/highlight": "^1.0.0",
     "@solid-codemirror/core": "^1.0.1",
