@@ -515,18 +515,30 @@ thunkOfNodeType.String = (node, source) => {
     if (!(childNode = nextSibling(childNode))) {
       break;
     }
-    console.log(`thunkOfNodeType.String: next childNode`, childNode);
+    //console.log(`thunkOfNodeType.String: next childNode`, childNode);
     idx++;
   }
 
   return result;
 };
 
+
+
 /** @return {string} */
-thunkOfNodeType.StringContent = (node, source) => {
-  // same as Identifier
-  //console.log('thunkOfNodeType.StringContent: node', node);
-  return nodeText(node, source);
+thunkOfNodeType.StringContent = thunkOfNodeType.Identifier;
+
+
+
+/** @return {string} */
+thunkOfNodeType.PathAbsolute = thunkOfNodeType.Identifier;
+
+
+
+/** @return {string} */
+thunkOfNodeType.PathRelative = (node, source) => {
+  const relativePath = nodeText(node, source);
+  const absolutePath = joinPath('/home/user', relativePath);
+  return absolutePath;
 };
 
 
