@@ -30,5 +30,12 @@
   },
   "dependencies": {
     "solid-js": "^1.5.4"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "rollup"
+      ]
+    }
   }
 }
