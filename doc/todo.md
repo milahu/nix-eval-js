@@ -1,5 +1,9 @@
 # nix-eval-js/doc/todo
 
+## avoid recursion
+
+implement tail call?
+
 ## parser throws on long input
 
 limitation of lezer-parser?
