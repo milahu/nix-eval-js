@@ -16,11 +16,11 @@ import { join as joinPath } from 'node:path'
 export function printNode(node, label = '') {
   let extraDepth = 0;
   if (label) {
-    console.log(label);
+    //console.log(label);
     extraDepth = 1; // indent the node
   }
   // note: this will print a trailing newline
-  console.log(node.toString(0, 5, "  ", extraDepth));
+  //console.log(node.toString(0, 5, "  ", extraDepth));
 }
 
 let infiniteLoopCounter = 0;
@@ -52,11 +52,11 @@ function skipComments(node) {
 /** @type {function(SyntaxNode): SyntaxNode} */
 function firstChild(node) {
   if (!(node = node.firstChild)) {
-    console.log(`firstChild: node.firstChild is empty`);
+    //console.log(`firstChild: node.firstChild is empty`);
     return null;
   }
   if (!(node = skipComments(node))) {
-    console.log(`firstChild: skipComments failed`);
+    //console.log(`firstChild: skipComments failed`);
     return null;
   }
   return node;
@@ -65,11 +65,11 @@ function firstChild(node) {
 /** @type {function(SyntaxNode): SyntaxNode} */
 function nextSibling(node) {
   if (!(node = node.nextSibling)) {
-    console.log(`nextSibling: node.nextSibling is empty`);
+    //console.log(`nextSibling: node.nextSibling is empty`);
     return null;
   }
   if (!(node = skipComments(node))) {
-    console.log(`nextSibling: skipComments failed`);
+    //console.log(`nextSibling: skipComments failed`);
     return null;
   }
   return node;
@@ -116,7 +116,7 @@ const thunkOfNodeType = {};
 /** @return {never} */
 thunkOfNodeType['⚠'] = (node, _source) => {
   checkInfiniteLoop();
-  console.log('thunkOfNodeType.Error: node', node);
+  //console.log('thunkOfNodeType.Error: node', node);
   // add context from _source? mostly not needed -> on demand or debounced
   throw new NixSyntaxError(`error at position ${node.from}`);
 };
@@ -132,7 +132,7 @@ thunkOfNodeType.Nix = (node, source) => {
     // input is empty
     return;
   }
-  console.log(`thunkOfNodeType.Nix: call thunk of node`, childNode);
+  //console.log(`thunkOfNodeType.Nix: call thunk of node`, childNode);
   return callThunk(childNode, source);
 };
 
@@ -398,7 +398,7 @@ thunkOfNodeType.Call = (node, source) => {
     throw new NixEvalError('Call: no childNode1')
   }
   // eval deep first: get value1 now, childNode2 later
-  console.log('thunkOfNodeType.Call: childNode1', childNode1);
+  //console.log('thunkOfNodeType.Call: childNode1', childNode1);
 
   //if (childNode1.type.name == 'Primop' && nodeText(childNode1, source) == '__typeOf') {
     // call primop with syntax tree
@@ -413,13 +413,17 @@ thunkOfNodeType.Call = (node, source) => {
   //}
 
   const value1 = callThunk(childNode1, source);
-  console.log('thunkOfNodeType.Call: value1', value1);
+  //console.log('thunkOfNodeType.Call: value1', value1);
+
+  if (typeof(value1) != 'function') {
+    throw new NixEvalError(`attempt to call something which is not a function but ${nixTypeWithArticle(value1)}`);
+  }
 
   const childNode2 = nextSibling(childNode1);
   if (!childNode2) {
     throw new NixEvalError('Call: no arg2')
   }
-  console.log('thunkOfNodeType.Call: childNode2', childNode2);
+  //console.log('thunkOfNodeType.Call: childNode2', childNode2);
   const value2 = callThunk(childNode2, source);
   //console.log('thunkOfNodeType.Call: arg2', arg2);
 
@@ -469,7 +473,7 @@ thunkOfNodeType.List = (node, source) => {
       // TODO better?
       return () => {
         //console.log('thunkOfNodeType.List value thunk: node', node.type.name, node);
-        console.log(`thunkOfNodeType.List: call thunk of childNode`, childNode);
+        //console.log(`thunkOfNodeType.List: call thunk of childNode`, childNode);
         return callThunk(childNodeCopy, source);
       };
     }
@@ -501,7 +505,7 @@ thunkOfNodeType.String = (node, source) => {
     return result;
   }
 
-  console.log(`thunkOfNodeType.String: first childNode`, childNode);
+  //console.log(`thunkOfNodeType.String: first childNode`, childNode);
   let idx = 0;
 
   while (true) {
@@ -546,9 +550,9 @@ thunkOfNodeType.Set = (node, source) => {
   // TODO lazy object via Proxy, see LazyArray
   const data = {};
 
-  console.log('thunkOfNodeType.Set: typeof(node)', typeof(node));
+  //console.log('thunkOfNodeType.Set: typeof(node)', typeof(node));
 
-  console.log('thunkOfNodeType.Set: typeof(node.firstChild)', typeof(node.firstChild));
+  //console.log('thunkOfNodeType.Set: typeof(node.firstChild)', typeof(node.firstChild));
 
   //if (!node.firstChild) {
   //  throw NixEvalError('Set: node.firstChild is empty. node:', node)
@@ -566,30 +570,30 @@ thunkOfNodeType.Set = (node, source) => {
 
   while (true) {
     checkInfiniteLoop();
-    console.log('thunkOfNodeType.Set: attrNode', attrNode);
+    //console.log('thunkOfNodeType.Set: attrNode', attrNode);
 
     const keyNode = firstChild(attrNode);
     if (!keyNode) {
       throw new NixEvalError('Set Attr: no key');
     }
-    console.log('thunkOfNodeType.Set: keyNode', keyNode);
+    //console.log('thunkOfNodeType.Set: keyNode', keyNode);
 
     const valueNode = nextSibling(keyNode);
     if (!valueNode) {
       throw new NixEvalError('Set Attr: no value');
     }
-    console.log('thunkOfNodeType.Set: valueNode', valueNode);
+    //console.log('thunkOfNodeType.Set: valueNode', valueNode);
 
     //const copyNode = (node) => node;
     //const valueNodeCopy = copyNode(valueNode);
 
     const key = source.slice(keyNode.from, keyNode.to);
-    console.log('thunkOfNodeType.Set: key', key);
+    //console.log('thunkOfNodeType.Set: key', key);
 
     function getThunk(valueNodeCopy) {
       // create local copy of valueNode
       return () => {
-        console.log(`Set value thunk: call thunk of valueNodeCopy`, valueNodeCopy)
+        //console.log(`Set value thunk: call thunk of valueNodeCopy`, valueNodeCopy)
         return valueNodeCopy.type.thunk(
           valueNodeCopy,
           source
