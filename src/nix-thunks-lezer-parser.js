@@ -651,6 +651,11 @@ thunkOfNodeType.Select = (node, source) => {
 
   while (keyNode) {
     const keyValue = callThunk(keyNode, source);
+
+    if (!Object.hasOwn(result, keyValue)) {
+      throw new NixEvalError(`attribute '${keyValue}' missing`)
+    }
+
     result = result[keyValue];
 
     keyNode = nextSibling(keyNode);
