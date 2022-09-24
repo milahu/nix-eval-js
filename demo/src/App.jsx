@@ -51,13 +51,27 @@ import { FitAddon } from 'xterm-addon-fit';
 // wrapper is not working with vite bundler
 // import { configure as getStringify } from '../../src/safe-stable-stringify/esm/wrapper.js'
 // Uncaught SyntaxError: The requested module safe-stable-stringify/index.js does not provide an export named 'default'
-import { configure as getStringify } from '../../src/safe-stable-stringify/index.esm.js'
+//import { configure as getStringify } from '../../src/safe-stable-stringify/index.esm.js'
 // https://github.com/BridgeAR/safe-stable-stringify/issues/32
 // https://github.com/BridgeAR/safe-stable-stringify/issues/19
 
+// SyntaxError: The requested module 'safe-stable-stringify/index.js' does not provide an export named 'default'
+// https://github.com/BridgeAR/safe-stable-stringify/issues/36
+// -> use patched "esm only" version
+//import { configure as getStringifyEvalResult } from '../../src/safe-stable-stringify/esm/wrapper.js'
+import { configure as getStringifyEvalResult } from '../../src/safe-stable-stringify/index.js'
+
 import * as nixReplHelp from './nix-repl-help.js'
 
+/*
 const stringify = getStringify({
+  maximumDepth: 2,
+  maximumBreadth: 10,
+  indent: "  ",
+})
+*/
+
+const stringifyEvalResult = getStringifyEvalResult({
   maximumDepth: 2,
   maximumBreadth: 10,
   indent: "  ",
@@ -67,6 +81,31 @@ const stringify = getStringify({
 
 // TODO why was sleep needed in frontend
 const sleep = ms => new Promise(res => setTimeout(res, ms));
+
+
+
+const exampleInputs = [
+  '1 # int',
+  '1+1+1 # add',
+  '1+1.0 # int + float',
+  '0.1+0.2 # float precision',
+  '0.123456789 # float precision',
+  '2+3*4 # mul',
+  '1.0/ 2 # div',
+  '1.0/2 # path',
+  '1.0 /2 # call',
+  '(2+3)*4 # parens',
+  '[1 2 3] # list',
+  '__typeOf null # call',
+  '__typeOf 1 # call',
+  '__typeOf 1.0 # call',
+  '__head [1 2 3] # call',
+  '__tail [1 2 3] # call',
+  '__elemAt [1 2 3] 1 # nested call',
+  '{a=1;b=2;} # set',
+  '{a=1;b=2;}.a # select',
+  '{a={b=2;};}.a.b # nested select',
+];
 
 
 
@@ -80,6 +119,7 @@ export default function App() {
     options: [],
     config: null, // syntax tree, parsed by tree-sitter-nix
     fileSelected: '',
+    editorText: exampleInputs[0],
   });
 
   onMount(async () => {
@@ -173,7 +213,7 @@ export default function App() {
         console.log(`eval result:`, result);
         if (result === undefined) return '';
         //return String(result).replace(/\n/g, '\r\n'); // TODO implement custom toString
-        return stringify(result).replace(/\n/g, '\r\n');
+        return stringifyEvalResult(result).replace(/\n/g, '\r\n');
       }
       catch (error) {
         if (error instanceof NixEvalError) {
@@ -292,7 +332,7 @@ export default function App() {
     const source = editorState.doc.sliceString(0, editorState.doc.length);
 
     //console.log(`onEditorState: editorState.tree.length`, editorState.tree.length);
-    if (editorState.tree.length == 0) {
+    if (!editorState.tree || editorState.tree.length == 0) {
       console.log(`onEditorState: tree is empty`);
       setStore('evalResult', undefined); // set store.evalResult
       return;
@@ -300,8 +340,11 @@ export default function App() {
 
     let evalResult;
     try {
-      //evalResult = editorState.tree.topNode.type.thunk(editorState.tree.topNode, source);
-      evalResult = editorState.tree.topNode.type.thunk(editorState.tree.cursor(), source);
+      // node interface vs cursor interface. see: nix-eval-js/doc/readme.md
+      // node interface
+      evalResult = editorState.tree.topNode.type.thunk(editorState.tree.topNode, source);
+      // cursor interface. wrong
+      //evalResult = editorState.tree.topNode.type.thunk(editorState.tree.cursor(), source);
       NixEvalError, NixSyntaxError
     }
     catch (error) {
@@ -321,24 +364,7 @@ export default function App() {
 
   const getCodeMirror = () => (
     <CodeMirror
-      value={[
-        /*
-        "# hello",
-        "if true",
-        "then 1",
-        "else 2",
-        "/"+"*",
-        "  comment",
-        "*"+"/",
-        '"string ${expr} \\${escaped}"',
-        "''",
-        "  indented string ${expr} ''${escaped}",
-        "''",
-        "[ 1 2 3 4 ]",
-        "{ a = 1; b = 2; }",
-        */
-        "1+1",
-      ].join("\n") + "\n"}
+      value={store.editorText}
       mode="nix"
       //mode="javascript"
       //value="if true then true else\n{ pkgs ? import <nixpkgs> {} }:\npkgs.mkShell {\n  buildInputs = [ pkgs.nodejs ];\n}\n"
@@ -352,7 +378,11 @@ export default function App() {
 
       //onEditorState={onEditorState}
       onEditorStateChange={onEditorState}
-      onEditorMount={(view) => onEditorState(view.state)}
+      onEditorMount={(view) => {
+        // FIXME not called?
+        console.log(`onEditorMount: call onEditorState`)
+        onEditorState(view.state);
+      }}
     />
   )
 
@@ -369,13 +399,31 @@ export default function App() {
   );
   */
 
-
+  /*
+  function stringifyEvalResult(evalResult) {
+    const handleType = {
+      // int
+      bigint: value => parseInt(value),
+      // float
+      // FIXME this returns string "1.0" not float 1.0
+      // -> use patched version of safe-stable-stringify
+      number: value => ((value | 0) == value) ? `${value}.0` : value,
+    }
+    return JSON.stringify(
+      evalResult,
+      // custom type handlers
+      (_key, value) => handleType[typeof value] ? handleType[typeof value](value) : value,
+      // indent
+      1
+    )
+  }
+  */
 
   return (
     <div class={styles.App}>
       <SplitRoot>
         <SplitX>
-          <SplitItem>
+          <SplitItem size="50%">
             <Switch>
               <Match when={store.editorState}>
                 <TreeViewCodeMirror editorState={store.editorState} />
@@ -385,11 +433,27 @@ export default function App() {
               </Match>
             </Switch>
           </SplitItem>
-          <SplitItem>
-            <div>Supported: Add, Int</div>
-            {getCodeMirror()}
-            <div>Result: {String(store.evalResult)}</div>
-          </SplitItem>
+          <SplitY>
+            <SplitItem>
+              {getCodeMirror()}
+              <div>Result:</div>
+              <div>{
+                //JSON.stringify(store.evalResult, null, 1)
+                stringifyEvalResult(store.evalResult)
+              }</div>
+            </SplitItem>
+            <SplitItem>
+              <div>Example inputs:</div>
+              <ul>
+                <For each={exampleInputs}>{input => (
+                  <li class={styles.clickable} onclick={() => {
+                    console.log(`click example input: ${input}`);
+                    setStore('editorText', input);
+                  }}>{input}</li>
+                )}</For>
+              </ul>
+            </SplitItem>
+          </SplitY>
         </SplitX>
       </SplitRoot>
     </div>

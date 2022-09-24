@@ -1,4 +1,4 @@
-import { createSignal, onMount, For } from "solid-js";
+import { createSignal, onMount, For, createEffect, on } from "solid-js";
 import { createStore } from "solid-js/store";
 
 //import 'codemirror/lib/codemirror.css';
@@ -53,13 +53,11 @@ import { nix as codemirrorLangNix } from "./codemirror-lang-nix/dist/index.js";
 import { thunkOfNodeType } from '../../src/nix-thunks-lezer-parser.js';
 
 
-const codeMirrorExtensions = {};
-
-
 
 export function CodeMirror(props) {
 
   let ref;
+  const codeMirrorExtensions = {};
 
   //onMount(() => {
 
@@ -72,13 +70,18 @@ export function CodeMirror(props) {
     //codeMirror = createCodeMirror((() => props)(), () => ref);
     // solid-codemirror/packages/core/src/createCodeMirror.ts
 
+    let view;
+
     const { createExtension } = createCodeMirror({
       //onValueChange: (newValue) => null,
       onEditorMount: props.onCodeMirror,
       onValueChange: props.onValueChange,
       onEditorState: props.onEditorState,
       onEditorStateChange: props.onEditorStateChange,
-      onEditorMount: props.onEditorMount,
+      onEditorMount: (newView) => {
+        view = newView;
+        if (props.onEditorMount) props.onEditorMount(view);
+      },
       /*
       (editorState) => {
         // handle new tree
@@ -93,6 +96,22 @@ export function CodeMirror(props) {
       value: props.value,
       //value: (() => props.value)(),
     }, () => ref);
+
+    // listen for changes in props.value
+    // FIXME deduplicate with createCodeMirror
+    createEffect(on(() => props.value, (value) => {
+        console.log(`CodeMirror: createEffect on props.value: value = ${value}`)
+        if (!view || value === view.state.doc.toString()) {
+            return;
+        }
+        view.dispatch({
+            changes: {
+                from: 0,
+                to: view.state.doc.length,
+                insert: value,
+            },
+        });
+    }, { defer: true }));
 
     const basicSetupSolid = {
 

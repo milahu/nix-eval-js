@@ -67,6 +67,7 @@ export function createCodeMirror(props, ref) {
         });
     });
     createEffect(on(() => props.value, (value) => {
+        console.log(`createCodeMirror: createEffect on props.value: value = ${value}`)
         if (!view || value === view.state.doc.toString()) {
             return;
         }

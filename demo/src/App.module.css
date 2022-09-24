@@ -36,6 +36,15 @@
   flex-direction: column;
 }
 
+.clickable {
+  cursor: pointer;
+  color: blue;
+}
+
+.clickable:hover {
+  color: orange;
+}
+
 .header {
   /*
   background-color: #282c34;

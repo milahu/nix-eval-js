@@ -13,6 +13,8 @@ nixos-config-webui/frontend/src/App.jsx
 
 */
 
+import { stringifyTree } from '../../src/lezer-parser-nix/src/nix-format.js';
+
 // {props.node.text} <span class="comment"># {props.node.type}</span>
 export function TreeViewTreeSitter(props) {
   return (
@@ -155,6 +157,8 @@ export function TreeViewCodeMirror(props) {
 
   const getCursor = () => {
     const cursor = props.editorState.tree.cursor();
+    return cursor;
+
     if (cursor.firstChild()) { // skip topNode
       return cursor;
     } 
@@ -162,39 +166,16 @@ export function TreeViewCodeMirror(props) {
     return null; // fixme dont show empty tree
   }
 
-  // FIXME avoid recursion?
-  // TODO build **list** of nodes, then render in one flush
+
+
+  // avoid recursion
 
   const getTree = () => {
-    const cursor = getCursor();
-    if (!cursor) return '';
     const source = props.editorState.doc.sliceString(0, props.editorState.doc.length);
-    let stack = [];
-    let depth = 0;
-    const indent = () => ' '.repeat(depth);
-    const cursorType = () => cursor.name;
-    const cursorText = () => source.slice(cursor.from, cursor.to);
-    while (true) {
-      // LNR
-      // Left
-      if (cursor.firstChild()) {
-        stack.push(`${indent()}${cursorType()}: ${cursorText()}`)
-        depth++;
-        continue;
-      }
-      // Node
-      stack.push(`${indent()}${cursorType()}: ${cursorText()}`)
-      // Right
-      if (cursor.nextSibling()) {
-        continue;
-      }
-      if (cursor.parent() && cursor.nextSibling()) {
-        depth--;
-        continue;
-      }
-      break;
-    }
-    return stack.join('\n');
+    return stringifyTree(props.editorState.tree, {
+      source,
+      human: true,
+    });
   }
 
   return <pre>{getTree()}</pre>
