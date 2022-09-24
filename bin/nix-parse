@@ -2,4 +2,4 @@
 
 cd "$(dirname "$0")/.."
 
-exec node src/lezer-parser-nix/test/manual-test.js "$@"
+exec src/lezer-parser-nix/bin/nix-parse "$@"
