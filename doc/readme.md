@@ -1,5 +1,199 @@
 # nix-eval-js/doc
 
+## architecture
+
+aka: how does this work?
+
+im trying to build a browser-based editor for the [Nix](https://github.com/NixOS/nix) language
+
+i have not seen something like this (incremental interpreter based on lezer-parser), so im sharing my concept here
+
+my goal is to build something like [figwheel](https://figwheel.org/docs/reloadable_code.html) (live coding in ClojureScript, based on [Google Closure Compiler](https://developers.google.com/closure/compiler/)), but with a more narrow focus on intellisense (autocompletion, introspection of variables in scope)
+
+the main component is [nix-eval-js](https://github.com/milahu/nix-eval-js), which is a Nix interpreter based on lezer-parser
+
+the demo integrates this with codemirror
+
+on every update of EditorState, i call this function:
+
+```js
+// nix-eval-js/demo/src/App.jsx
+
+function onEditorState(editorState) {
+  // handle new tree
+  // eval
+  const source = editorState.doc.sliceString(0, editorState.doc.length);
+  let evalResult;
+  try {
+    // eval magic
+    evalResult = editorState.tree.topNode.type.thunk(editorState.tree.cursor(), source);
+  }
+  catch (error) {
+    console.error(error);
+    evalResult = `# error: ${error.name}: ${error.message}`;
+  }
+  setStore('evalResult', evalResult); // set store.evalResult
+}
+```
+
+onEditorState is called from dispatch
+
+```js
+// nix-eval-js/demo/src/createCodeMirror.js
+// https://github.com/nimeshnayaju/solid-codemirror/pull/8
+
+// Construct a new EditorView instance
+view = new EditorView({
+  state,
+  parent: ref(),
+  dispatch: (tr) => {
+    if (!view)
+      return;
+    view.update([tr]);
+    if (!tr.docChanged) {
+      return;
+    }
+    if (props.onEditorStateChange) {
+      const newEditorState = tr.state; // call: get state
+      props.onEditorStateChange(newEditorState);
+    }
+  },
+});
+```
+
+the eval magic happens in `editorState.tree.topNode.type.thunk`
+
+what is `topNode.type.thunk`?
+
+the `thunk` functions are added in `codemirror.jsx`
+
+```jsx
+// nix-eval-js/demo/src/codemirror.jsx
+import { createCodeMirror } from "./createCodeMirror.js";
+import { nix as codemirrorLangNix } from "./codemirror-lang-nix/dist/index.js";
+import { thunkOfNodeType } from '../../src/nix-thunks-lezer-parser.js';
+
+export function CodeMirror(props) {
+
+  let ref;
+  const codeMirrorExtensions = {};
+
+  const { createExtension } = createCodeMirror({
+    onEditorStateChange: props.onEditorStateChange,
+    value: props.value,
+  }, () => ref);
+
+  // load the nix language extension
+  codeMirrorExtensions.codemirrorLangNix = codemirrorLangNix();
+
+  // add thunks to types
+  const parser = codeMirrorExtensions.codemirrorLangNix.extension.language.parser;
+  for (const nodeType of parser.nodeSet.types) {
+    nodeType.thunk = thunkOfNodeType[nodeType.name];
+  }
+
+  return (
+    <div ref={ref} />
+  );
+}
+```
+
+what are the `thunk` functions?
+
+```js
+// nix-eval-js/src/nix-thunks-lezer-parser.js.txt
+
+function callThunk(cursor, source) {
+  if (!cursor.type.thunk) {
+    throw new NixEvalNotImplemented(`thunk is undefined for type ${cursor.type.name}`);
+  }
+  return cursor.type.thunk(cursor, source);
+}
+
+const thunkOfNodeType = {};
+
+thunkOfNodeType['⚠'] = (cursor, _source) => {
+  throw new NixSyntaxError(`error at position ${cursor.from}`);
+};
+
+thunkOfNodeType.Nix = (cursor, source) => {
+  if (!cursor.firstChild() || !skipComments(cursor) || cursor == null) {
+    // input is empty
+    return;
+  }
+  return callThunk(cursor, source);
+};
+
+thunkOfNodeType.Add = (cursor, source) => {
+  // arithmetic addition or string concat
+  if (!cursor.firstChild() || !skipComments(cursor) || cursor == null) {
+    throw new NixEvalError('ConcatStrings: no firstChild')
+  }
+  const arg1 = callThunk(cursor, source);
+  if (!cursor.nextSibling() || !skipComments(cursor) || cursor == null) {
+    throw new NixEvalError('ConcatStrings: no nextSibling')
+  }
+  const arg2 = callThunk(cursor, source);
+  return arg1 + arg2;
+};
+
+thunkOfNodeType.Int = (cursor, source) => {
+  return parseInt(nodeText(cursor, source));
+};
+
+export { thunkOfNodeType }
+```
+
+### lezer tree: node interface or cursor interface
+
+which is better: node interface or cursor interface?
+
+https://lezer.codemirror.net/docs/ref/#common.Tree
+
+> most client code will want to use the TreeCursor or SyntaxNode interface
+
+https://lezer.codemirror.net/docs/ref/#common.SyntaxNodeRef
+
+> if you need an object that is guaranteed to stay stable in the future,
+> you need to use the node accessor. (not the cursor)
+
+https://lezer.codemirror.net/docs/ref/#common.SyntaxNode
+
+> A syntax node provides an immutable pointer to a given node in a tree.
+>
+> When iterating over large amounts of nodes,
+> you may want to use a mutable cursor instead, which is more efficient.
+
+## float precision
+
+```
+nix-repl> 0.300001 # 6 digits after comma
+0.300001
+
+nix-repl> 0.3000001 # 7 digits after comma
+0.3
+```
+
+### C++
+
+```cc
+#include <stdio.h>
+int main(int argc, char *argv[])
+{
+	double a = 0.1;
+    double b = 0.2;
+    double result = a + b;
+    printf("%.17f", result);
+	return 0;
+}
+```
+
+result:
+
+> 0.30000000000000004
+
+live demo: https://godbolt.org/z/WfxGTbxGa
+
 ## serialize data
 
 * https://www.npmjs.com/package/pretty-format Stringify any JavaScript value.
@@ -11,7 +205,7 @@
 
 https://figwheel.org/docs/reloadable_code.html
 
-powered by: google closure compiler
+powered by: [Google Closure Compiler](https://developers.google.com/closure/compiler/)
 
 send incremental updates to runtime
 
