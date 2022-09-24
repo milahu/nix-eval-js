@@ -28,6 +28,7 @@
   "author": "Milan Hauth",
   "license": "MIT",
   "devDependencies": {
+    "@lezer/common": "^1.0.1",
     "@lezer/lr": "^1.2.3",
     "ava": "^4.3.3",
     "bipbip": "github:milahu/bipbip",
