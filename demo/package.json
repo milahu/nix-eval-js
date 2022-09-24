@@ -9,6 +9,7 @@
     "serve": "vite preview"
   },
   "license": "MIT",
+  "type": "module",
   "devDependencies": {
     "@codemirror/autocomplete": "^6.2.0",
     "@codemirror/commands": "^6.1.0",
