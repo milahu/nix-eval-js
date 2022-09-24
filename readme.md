@@ -14,6 +14,17 @@ proof of concept
 
 see [docs/](docs/)
 
+## install
+
+```sh
+git clone --recurse-submodules https://github.com/milahu/nix-eval-js
+cd nix-eval-js
+pnpm install
+cd demo
+pnpm install
+npm run dev
+```
+
 ## goals
 
 ### incremental evaluator
