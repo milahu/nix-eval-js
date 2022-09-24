@@ -87,6 +87,7 @@ const exampleInputs = [
   '__elemAt [1 2 3] 1 # nested call',
   '{a=1;b=2;} # set',
   '{a=1;b=2;}.a # select',
+  '{a=1;b=2;}.z # select missing attribute',
   '{a={b=2;};}.a.b # nested select',
 ];
 
@@ -322,25 +323,34 @@ export default function App() {
     }
 
     let evalResult;
+    let evalError = '';
     try {
       // node interface vs cursor interface. see: nix-eval-js/doc/readme.md
       // node interface
       evalResult = editorState.tree.topNode.type.thunk(editorState.tree.topNode, source);
       // cursor interface. wrong
       //evalResult = editorState.tree.topNode.type.thunk(editorState.tree.cursor(), source);
-      NixEvalError, NixSyntaxError
     }
     catch (error) {
       if (error instanceof NixSyntaxError || error instanceof NixEvalError) {
-        evalResult = `# ${error.name}: ${error.message}`;
+        evalError = (
+          <div class="eval-error">
+            <span color="red">{error.name}</span> {error.message}
+          </div>
+        );
       }
       else {
         console.error(error);
-        evalResult = `# FIXME unhandled error: ${error.name}: ${error.message}`;
+        evalError = (
+          <div class="eval-error">
+            <span color="red">FIXME</span> unhandled error: {error.name} {error.message}
+          </div>
+        );
       }
     }
     //console.log('evalResult', evalResult);
     setStore('evalResult', evalResult); // set store.evalResult
+    setStore('evalError', evalError); // set store.evalError
   }
 
 
@@ -423,10 +433,11 @@ export default function App() {
             <SplitItem>
               {getCodeMirror()}
               <div>Result:</div>
-              <div>{
+              <div class="eval-result">{
                 //JSON.stringify(store.evalResult, null, 1)
                 stringifyEvalResult(store.evalResult)
               }</div>
+              {store.evalError}
             </SplitItem>
             <SplitItem>
               <div>Example inputs:</div>
