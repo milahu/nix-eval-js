@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@lezer/common': ^1.0.1
   '@lezer/lr': ^1.2.3
   ava: ^4.3.3
   bipbip: github:milahu/bipbip
@@ -8,6 +9,7 @@ specifiers:
   safe-stable-stringify: ^2.3.1
 
 devDependencies:
+  '@lezer/common': 1.0.1
   '@lezer/lr': 1.2.3
   ava: 4.3.3
   bipbip: github.com/milahu/bipbip/68ef6ab60ad8611a05092379a0a98d3634d469c3
