@@ -1,9 +1,9 @@
 [submodule "src/lezer-parser-nix"]
 	path = src/lezer-parser-nix
 	url = https://github.com/milahu/lezer-parser-nix
-[submodule "src/safe-stable-stringify"]
+[submodule "src/nix-eval-stringify"]
 	path = src/nix-eval-stringify
-	url = https://github.com/milahu/safe-stable-stringify
+	url = https://github.com/milahu/nix-eval-stringify
 [submodule "demo/src/solidjs-xterm-component"]
 	path = demo/src/solidjs-xterm-component
 	url = https://github.com/milahu/solidjs-xterm-component
