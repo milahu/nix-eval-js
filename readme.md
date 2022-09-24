@@ -10,6 +10,10 @@ proof of concept
 
 * [nix repl](https://milahu.github.io/nix-eval-js/demo/dist/) - live demo
 
+## documentation
+
+see [docs/](docs/)
+
 ## goals
 
 ### incremental evaluator
