@@ -21,16 +21,12 @@
     "@lezer/highlight": "^1.0.0",
     "@solid-codemirror/core": "^1.0.1",
     "codemirror": "^6.0.1",
-    "local-echo": "github:wavesoft/local-echo",
     "node-stdlib-browser": "^1.2.0",
     "style-mod": "^4.0.0",
     "vite": "^3.1.0",
     "vite-plugin-node-stdlib-browser": "^0.1.1",
     "vite-plugin-solid": "^2.3.0",
-    "w3c-keyname": "^2.2.6",
-    "xterm": "^4.19.0",
-    "xterm-addon-fit": "^0.5.0",
-    "xterm-addon-web-links": "^0.6.0"
+    "w3c-keyname": "^2.2.6"
   },
   "dependencies": {
     "solid-js": "^1.5.4"
