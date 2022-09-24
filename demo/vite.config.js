@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import solidPlugin from 'vite-plugin-solid';
+import nodePolyfills from 'vite-plugin-node-stdlib-browser'
 
 
 
@@ -20,6 +21,7 @@ export default defineConfig({
   base: "./", // generate relative paths in html
   plugins: [
     solidPlugin(),
+    nodePolyfills(),
   ],
   server: {
     //host: 'localhost',

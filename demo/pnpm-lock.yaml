@@ -12,6 +12,7 @@ specifiers:
   '@solid-codemirror/core': ^1.0.1
   codemirror: ^6.0.1
   local-echo: github:wavesoft/local-echo
+  path-browserify: ^1.0.1
   solid-js: ^1.5.4
   style-mod: ^4.0.0
   vite: ^3.1.0
@@ -36,6 +37,7 @@ devDependencies:
   '@solid-codemirror/core': 1.0.1_p7ood6g6b5ijbgalt3i2go4cae
   codemirror: 6.0.1
   local-echo: github.com/wavesoft/local-echo/8d0b7f55c5cf4b0b5f7c5132825dc5bd984bf017
+  path-browserify: 1.0.1
   style-mod: 4.0.0
   vite: 3.1.0
   vite-plugin-solid: 2.3.0_solid-js@1.5.4+vite@3.1.0
@@ -896,6 +898,10 @@ packages:
 
   /node-releases/2.0.6:
     resolution: {integrity: sha512-PiVXnNuFm5+iYkLBNeq5211hvO38y63T0i2KKh2KnUs3RpzJ+JtODFjkD8yjLwnDkTYF1eKXheUwdssR+NRZdg==}
+    dev: true
+
+  /path-browserify/1.0.1:
+    resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==}
     dev: true
 
   /path-parse/1.0.7:
