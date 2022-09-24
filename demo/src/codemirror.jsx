@@ -102,7 +102,7 @@ export function CodeMirror(props) {
     // listen for changes in props.value
     // FIXME deduplicate with createCodeMirror
     createEffect(on(() => props.value, (value) => {
-        console.log(`CodeMirror: createEffect on props.value: value = ${value}`)
+        //console.log(`CodeMirror: createEffect on props.value: value = ${value}`)
         if (!view || value === view.state.doc.toString()) {
             return;
         }

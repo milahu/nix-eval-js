@@ -52,13 +52,7 @@ import { configure as getStringifyEvalResult } from '../../src/nix-eval-stringif
 
 import * as nixReplHelp from './nix-repl-help.js'
 
-/*
-const stringify = getStringify({
-  maximumDepth: 2,
-  maximumBreadth: 10,
-  indent: "  ",
-})
-*/
+
 
 const stringifyEvalResult = getStringifyEvalResult({
   maximumDepth: 2,
@@ -80,10 +74,10 @@ const exampleInputs = [
   '0.1+0.2 # float precision',
   '0.123456789 # float precision',
   '2+3*4 # mul',
+  '(2+3)*4 # parens',
   '1.0/ 2 # div',
   '1.0/2 # path',
   '1.0 /2 # call',
-  '(2+3)*4 # parens',
   '[1 2 3] # list',
   '__typeOf null # call',
   '__typeOf 1 # call',
@@ -368,9 +362,12 @@ export default function App() {
       //onEditorState={onEditorState}
       onEditorStateChange={onEditorState}
       onEditorMount={(view) => {
-        // FIXME not called?
-        console.log(`onEditorMount: call onEditorState`)
-        onEditorState(view.state);
+        //console.log(`onEditorMount: call onEditorState`)
+        // workaround ...
+        //onEditorState(view.state);
+        setTimeout(() => {
+          onEditorState(view.state);
+        }, 0);
       }}
     />
   )
@@ -436,7 +433,7 @@ export default function App() {
               <ul>
                 <For each={exampleInputs}>{input => (
                   <li class={styles.clickable} onclick={() => {
-                    console.log(`click example input: ${input}`);
+                    //console.log(`click example input: ${input}`);
                     setStore('editorText', input);
                   }}>{input}</li>
                 )}</For>
