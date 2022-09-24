@@ -1,8 +1,9 @@
-//import { NixPrimOps } from "./nix-primops.js"
 import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from './nix-errors.js';
-import { dropCursor } from "../demo/cm-view.js";
-import { NixEval } from "./nix-eval.js";
 import { NixPrimops } from './nix-primops-lezer-parser.js';
+
+// https://github.com/voracious/vite-plugin-node-polyfills/issues/4
+import { join as joinPath } from 'node:path'
+//import { join as joinPath } from 'path'
 
 // jsdoc types
 // https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html
