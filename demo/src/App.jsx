@@ -48,18 +48,7 @@ import { WebLinksAddon } from 'xterm-addon-web-links';
 // -> must call fitAddon.fit();
 import { FitAddon } from 'xterm-addon-fit';
 
-// wrapper is not working with vite bundler
-// import { configure as getStringify } from '../../src/safe-stable-stringify/esm/wrapper.js'
-// Uncaught SyntaxError: The requested module safe-stable-stringify/index.js does not provide an export named 'default'
-//import { configure as getStringify } from '../../src/safe-stable-stringify/index.esm.js'
-// https://github.com/BridgeAR/safe-stable-stringify/issues/32
-// https://github.com/BridgeAR/safe-stable-stringify/issues/19
-
-// SyntaxError: The requested module 'safe-stable-stringify/index.js' does not provide an export named 'default'
-// https://github.com/BridgeAR/safe-stable-stringify/issues/36
-// -> use patched "esm only" version
-//import { configure as getStringifyEvalResult } from '../../src/safe-stable-stringify/esm/wrapper.js'
-import { configure as getStringifyEvalResult } from '../../src/safe-stable-stringify/index.js'
+import { configure as getStringifyEvalResult } from '../../src/nix-eval-stringify/index.js'
 
 import * as nixReplHelp from './nix-repl-help.js'
 
