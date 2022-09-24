@@ -78,6 +78,7 @@ this should also work with `callPackage` and `makeScope`
 
 ## related
 
+* [rnix-lsp](https://github.com/nix-community/rnix-lsp) - language server for nix
 * [lezer-parser-nix](https://github.com/milahu/lezer-parser-nix)
 * [nixos-config-webui](https://github.com/milahu/nixos-config-webui)
 * [nijs](https://github.com/svanderburg/nijs) - Nix bindings for JavaScript
