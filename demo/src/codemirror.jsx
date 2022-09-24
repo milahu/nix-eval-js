@@ -12,12 +12,14 @@ import { createCodeMirror } from "./createCodeMirror.js";
 
 // https://github.com/codemirror/basic-setup
 
+/*
 import {
   EditorView,
   keymap, highlightSpecialChars, drawSelection, highlightActiveLine, dropCursor,
   rectangularSelection, crosshairCursor, lineNumbers, highlightActiveLineGutter
-//} from "@codemirror/view"
-} from "./@codemirror/view"
+} from "@codemirror/view"
+//} from "./@codemirror/view"
+*/
 
 // FIXME Uncaught Error: Unrecognized extension value in extension set ([object Object]).
 // This sometimes happens because multiple instances of @codemirror/state are loaded, breaking instanceof checks.
