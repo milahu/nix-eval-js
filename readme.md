@@ -6,9 +6,9 @@
 
 proof of concept
 
-## demos
+## demo
 
-* [nix repl](https://milahu.github.io/nix-eval-js/demo/dist/) - live demo
+[nix-eval-js demo](https://milahu.github.io/nix-eval-js/demo/dist/)
 
 ## documentation
 
@@ -79,8 +79,8 @@ this should also work with `callPackage` and `makeScope`
 ## related
 
 * [rnix-lsp](https://github.com/nix-community/rnix-lsp) - language server for nix
-* [lezer-parser-nix](https://github.com/milahu/lezer-parser-nix)
-* [nixos-config-webui](https://github.com/milahu/nixos-config-webui)
+* [lezer-parser-nix](https://github.com/milahu/lezer-parser-nix) - nix parser in javascript
+* [nixos-config-webui](https://github.com/milahu/nixos-config-webui) - old project
 * [nijs](https://github.com/svanderburg/nijs) - Nix bindings for JavaScript
 
 ## keywords
