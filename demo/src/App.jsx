@@ -88,6 +88,7 @@ export default function App() {
     }
     catch (error) {
       if (error instanceof NixSyntaxError || error instanceof NixEvalError) {
+        console.warn(error);
         evalError = (
           <div class="eval-error">
             <span color="red">{error.name}</span> {error.message}
