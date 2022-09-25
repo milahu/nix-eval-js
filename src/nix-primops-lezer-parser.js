@@ -2,6 +2,8 @@
 cat nix/src/libexpr/primops.cc | grep '.name = "__' | cut -d'"' -f2 | sed -E 's/^(.*)$/  "\1": arg => arg,/'
 */
 
+import { NixEvalError } from "./nix-errors.js";
+
 export const NixPrimops = {
 
   "__typeOf": arg => {
@@ -71,7 +73,16 @@ export const NixPrimops = {
   // TODO verify
   "__isList": arg => Array.isArray(arg),
 
-  "__elemAt": list => (index => list[index]),
+  // TODO check types
+  "__elemAt": list => (index => {
+    if (index < 0 || list.length <= index) {
+      throw new NixEvalError(`list index ${index} is out of bounds`);
+    }
+    return list[index];
+  }),
+
+  // TODO check types
+  // TODO check bounds
   "__head": list => list[0],
   "__tail": list => list[list.length - 1],
   "__filter": list => list[list.length - 1],
@@ -90,17 +101,156 @@ export const NixPrimops = {
   "__concatMap": arg => arg,
   */
 
-  "__add": arg1 => (arg2 => arg1 + arg2),
-  "__sub": arg1 => (arg2 => arg1 - arg2),
-  "__mul": arg1 => (arg2 => arg1 * arg2),
-  // TODO error: division by zero
-  "__div": arg1 => (arg2 => arg1 / arg2),
+  // TODO? refactor binary operators
+  "__add": value1 => (value2 => {
 
+    // int + float -> float
+    if (typeof(value1) == 'bigint' && typeof(value2) == 'number') {
+      return parseFloat(value1) + value2;
+    }
+
+    // float + int -> float
+    if (typeof(value1) == 'number' && typeof(value2) == 'bigint') {
+      return value1 + parseFloat(value2);
+    }
+
+    // float + float -> float
+    if (typeof(value1) == 'number' && typeof(value2) == 'number') {
+      return value1 + value2;
+    }
+
+    // int + int -> int
+    if (typeof(value1) == 'bigint' && typeof(value2) == 'bigint') {
+      return value1 + value2;
+    }
+
+    if (typeof(value1) != 'bigint' && typeof(value1) != 'number') {
+      if (typeof(value2) == 'bigint' || typeof(value2) == 'number') {
+        throw new NixEvalError(`value is ${nixTypeWithArticle(value1)} while ${nixTypeWithArticle(value2)} was expected`)
+      }
+      throw new NixEvalError(`value is ${nixTypeWithArticle(value1)} while an integer was expected`)
+    }
+
+    if (typeof(value2) != 'bigint' && typeof(value2) != 'number') {
+      throw new NixEvalError(`value is ${nixTypeWithArticle(value2)} while ${nixTypeWithArticle(value1)} was expected`)
+    }
+
+  }),
+
+  "__sub": value1 => (value2 => {
+
+    // int - float -> float
+    if (typeof(value1) == 'bigint' && typeof(value2) == 'number') {
+      return parseFloat(value1) - value2;
+    }
+
+    // float - int -> float
+    if (typeof(value1) == 'number' && typeof(value2) == 'bigint') {
+      return value1 - parseFloat(value2);
+    }
+
+    // float - float -> float
+    if (typeof(value1) == 'number' && typeof(value2) == 'number') {
+      return value1 - value2;
+    }
+
+    // int - int -> int
+    if (typeof(value1) == 'bigint' && typeof(value2) == 'bigint') {
+      return value1 - value2;
+    }
+
+    if (typeof(value1) != 'bigint' && typeof(value1) != 'number') {
+      if (typeof(value2) == 'bigint' || typeof(value2) == 'number') {
+        throw new NixEvalError(`value is ${nixTypeWithArticle(value1)} while ${nixTypeWithArticle(value2)} was expected`)
+      }
+      throw new NixEvalError(`value is ${nixTypeWithArticle(value1)} while an integer was expected`)
+    }
+
+    if (typeof(value2) != 'bigint' && typeof(value2) != 'number') {
+      throw new NixEvalError(`value is ${nixTypeWithArticle(value2)} while ${nixTypeWithArticle(value1)} was expected`)
+    }
+
+  }),
+
+  "__mul": value1 => (value2 => {
+
+    // int * float -> float
+    if (typeof(value1) == 'bigint' && typeof(value2) == 'number') {
+      return parseFloat(value1) * value2;
+    }
+
+    // float * int -> float
+    if (typeof(value1) == 'number' && typeof(value2) == 'bigint') {
+      return value1 * parseFloat(value2);
+    }
+
+    // float * float -> float
+    if (typeof(value1) == 'number' && typeof(value2) == 'number') {
+      return value1 * value2;
+    }
+
+    // int * int -> int
+    if (typeof(value1) == 'bigint' && typeof(value2) == 'bigint') {
+      return value1 * value2;
+    }
+
+    if (typeof(value1) != 'bigint' && typeof(value1) != 'number') {
+      if (typeof(value2) == 'bigint' || typeof(value2) == 'number') {
+        throw new NixEvalError(`value is ${nixTypeWithArticle(value1)} while ${nixTypeWithArticle(value2)} was expected`)
+      }
+      throw new NixEvalError(`value is ${nixTypeWithArticle(value1)} while an integer was expected`)
+    }
+
+    if (typeof(value2) != 'bigint' && typeof(value2) != 'number') {
+      throw new NixEvalError(`value is ${nixTypeWithArticle(value2)} while ${nixTypeWithArticle(value1)} was expected`)
+    }
+
+  }),
+
+  // TODO error: division by zero
+  "__div": value1 => (value2 => {
+
+    // int / float -> float
+    if (typeof(value1) == 'bigint' && typeof(value2) == 'number') {
+      return parseFloat(value1) / value2;
+    }
+
+    // float / int -> float
+    if (typeof(value1) == 'number' && typeof(value2) == 'bigint') {
+      return value1 / parseFloat(value2);
+    }
+
+    // float / float -> float
+    if (typeof(value1) == 'number' && typeof(value2) == 'number') {
+      return value1 / value2;
+    }
+
+    // int / int -> int
+    if (typeof(value1) == 'bigint' && typeof(value2) == 'bigint') {
+      return value1 / value2;
+    }
+
+    if (typeof(value1) != 'bigint' && typeof(value1) != 'number') {
+      if (typeof(value2) == 'bigint' || typeof(value2) == 'number') {
+        throw new NixEvalError(`value is ${nixTypeWithArticle(value1)} while ${nixTypeWithArticle(value2)} was expected`)
+      }
+      throw new NixEvalError(`value is ${nixTypeWithArticle(value1)} while an integer was expected`)
+    }
+
+    if (typeof(value2) != 'bigint' && typeof(value2) != 'number') {
+      throw new NixEvalError(`value is ${nixTypeWithArticle(value2)} while ${nixTypeWithArticle(value1)} was expected`)
+    }
+
+  }),
+
+  // TODO check types
+  /*
   "__bitAnd": arg1 => (arg2 => arg1 & arg2),
   "__bitOr": arg1 => (arg2 => arg1 | arg2),
   "__bitXor": arg1 => (arg2 => arg1 ^ arg2),
 
   "__lessThan": arg1 => (arg2 => arg1 < arg2),
+  */
 
   /*
   "__substring": arg => arg,
