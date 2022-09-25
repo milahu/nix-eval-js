@@ -1,5 +1,6 @@
 import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from './nix-errors.js';
 import { NixPrimops, nixTypeWithArticle } from './nix-primops-lezer-parser.js';
+import { configure as getStringify } from './nix-eval-stringify/index.js'
 
 // https://github.com/voracious/vite-plugin-node-polyfills/issues/4
 import { join as joinPath } from 'node:path'
@@ -9,6 +10,14 @@ import { join as joinPath } from 'node:path'
 // https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html
 
 /** @typedef { import("@lezer/common").SyntaxNode } SyntaxNode */
+
+
+
+const stringifyValue = getStringify({
+  maximumDepth: 2,
+  maximumBreadth: 10,
+  indent: "  ",
+})
 
 
  
@@ -713,7 +722,7 @@ thunkOfNodeType.RecSet = (node, source) => {
   //const data = node.data;
   // TODO lazy object via Proxy, see LazyArray
   //const data = {}; // Set -> data is in child scope via Select
-  node.data = {}; // RecSet -> data is in this scope
+  if (!node.data) node.data = {}; // RecSet -> data is in this scope
 
   //console.log('thunkOfNodeType.Set: typeof(node)', typeof(node));
 
@@ -867,16 +876,17 @@ thunkOfNodeType.Var = (node, source) => {
   const debugVar = true;
 
   let parent = node;
-  debugVar && console.log(`thunkOfNodeType.Var ${key}: find scope: node`, node.type?.name, node.from, node); // Var
+  debugVar && console.log(`thunkOfNodeType.Var:${node.from}: getting variable ${key}: find scope: node ${node.type.name}:${node.from} ${stringifyValue(node.data || {})}`); // Var
   while ((parent = parent.parent)) {
-    debugVar && console.log(`thunkOfNodeType.Var ${key}: find scope: parent`, parent.type?.name, parent.from, parent);
+    debugVar && console.log(`thunkOfNodeType.Var:${node.from}: getting variable ${key}: find scope: parent ${parent.type.name}:${parent.from} ${stringifyValue(parent.data || {})}`);
+    
     if (parent.data && Object.hasOwn(parent.data, key)) {
-      debugVar && console.log(`thunkOfNodeType.Var ${key}: find scope: done`);
+      debugVar && console.log(`thunkOfNodeType.Var:${node.from}: done getting variable ${key}: found in parent ${parent.type.name}:${parent.from} ${stringifyValue(parent.data || {})}`);
       return parent.data[key];
     }
   }
 
-  debugVar && console.log(`thunkOfNodeType.Var ${key}: find scope: not found`);
+  debugVar && console.log(`thunkOfNodeType.Var:${node.from} ${key}: find scope: not found`);
 
   throw new NixEvalError(`undefined variable '${key}'`);
 };
@@ -918,7 +928,8 @@ thunkOfNodeType.Lambda = (node, source) => {
 
   //return function call1(argumentNode, source) {
   // note: lambda must be normal function, so this == callNode
-  const lambda = function lambda(argumentValue) {
+  // we need an IIFE closure to copy bodyNode (no?)
+  const lambda = ((bodyNode) => function lambda(argumentValue) {
     // lambda is called from Call
     // value1.apply(callNode, [value2])
     /*
@@ -966,13 +977,42 @@ thunkOfNodeType.Lambda = (node, source) => {
     //const lambdaNode = bodyNode.parent;
     //lambdaNode.data = {}; // reset to empty
     //lambdaNode.data[argumentName] = argumentValue;
+    /*
     lambdaNode.data = {
       [argumentName]: argumentValue,
     };
+    */
+    // bodyNode is not a parent node of nested lambdas
+    /*
+    bodyNode.data = {
+      [argumentName]: argumentValue,
+    };
+    */
+    
+    // TODO
+    // find scope: parent
+
+    const node = bodyNode.parent; // Lambda node
+    //const dataNode = bodyNode.parent; // wrong? fib: undefined variable 'n'
+    const dataNode = bodyNode; // wrong?
+    /* wrong: old variables are removed
+    dataNode.data = {
+      [argumentName]: argumentValue,
+    };
+    */
+
+    console.log(`thunkOfNodeType.Lambda:${node.from}: setting variable ${argumentName}=${stringifyValue(argumentValue)} on ${dataNode.type.name}:${dataNode.from} ${stringifyValue(dataNode.data || {})} for bodyNode ${bodyNode.type.name}:${bodyNode.from} ${stringifyValue(bodyNode.data || {})}`)
+
+    // right: add to scope with other variables
+    if (!dataNode.data) dataNode.data = {};
+    dataNode.data[argumentName] = argumentValue;
+
+    console.log(`thunkOfNodeType.Lambda:${node.from}: setting variable ${argumentName}=${stringifyValue(argumentValue)} on ${dataNode.type.name}:${dataNode.from} ${stringifyValue(dataNode.data || {})} - done`)
+
     // TODO handle complex args: formals, formals-at-binding
 
     return callThunk(bodyNode, source);
-  };
+  })(bodyNode);
 
   // store source location of lambda
   {
@@ -988,7 +1028,8 @@ thunkOfNodeType.Lambda = (node, source) => {
       let lineFrom = 0;
       for (let lineIdx = 0; lineIdx < sourceLines.length; lineIdx++) {
         const line = sourceLines[lineIdx];
-        if (lambdaSource.from >= lineFrom) {
+        const lineTo = lineFrom + line.length;
+        if (lineFrom <= lambdaSource.from && lambdaSource.from <= lineTo) {
           // found line
           lambdaSource._line = lineIdx + 1; // lines are 1 based in Nix
           lambdaSource._column = (lambdaSource.from - lineFrom) + 1; // columns are 1 based in Nix
@@ -1030,7 +1071,7 @@ thunkOfNodeType.Let = (node, source) => {
   checkInfiniteLoop();
 
   //const data = {}; // Set -> data is in child scope via Select
-  node.data = {}; // RecSet -> data is in this scope
+  if (!node.data) node.data = {}; // RecSet -> data is in this scope
 
   //console.log('thunkOfNodeType.Let: node', node);
 

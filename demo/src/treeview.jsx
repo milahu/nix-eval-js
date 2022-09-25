@@ -175,6 +175,9 @@ export function TreeViewCodeMirror(props) {
     return stringifyTree(props.editorState.tree, {
       source,
       human: true,
+      positions: true,
+      firstLine: true,
+      indent: ' ',
     });
   }
 
