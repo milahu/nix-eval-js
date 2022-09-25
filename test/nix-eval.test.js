@@ -23,14 +23,19 @@ for (let file of fs.readdirSync(caseDir)) {
     let { name, text, expected, configStr, strict } = testData;
     //console.dir(testData); // debug
 
-    if (!name) name = `${text} ==> ${expected}`
+    if (name) {
+      name = `${name}: ${text} ==> ${expected}`
+    }
+    else {
+      name = `${text} ==> ${expected}`
+    }
 
     if (/SKIP/.test(name)) continue;
 
     if (expected.startsWith('ERROR ')) {
       const expectedParts = expected.split(' ');
       const expectedErrorName = expectedParts[1];
-      const expectedMessage = expectedParts.slice(2).join(' ');
+      const expectedErrorMessage = expectedParts.slice(2).join(' ');
       test(name, t => {
         const nix = new NixEval();
         let result;
@@ -41,8 +46,19 @@ for (let file of fs.readdirSync(caseDir)) {
           console.log(`expected error, got result:`);
           console.log(result);
         }
+        // debug
+        /*
+        console.dir({
+          errorName: error.name,
+          expectedErrorName,
+        });
+        console.dir({
+          errorMessage: error.message,
+          expectedErrorMessage,
+        });
+        */
         t.is(error.name, expectedErrorName);
-        t.is(error.message, expectedMessage);
+        t.is(error.message, expectedErrorMessage);
       });
       continue;
     }
