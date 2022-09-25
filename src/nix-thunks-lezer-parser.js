@@ -291,6 +291,24 @@ thunkOfNodeType.Add = (node, source) => {
 function get2Numbers(node, source, options) {
   if (!options) options = {};
   if (!options.caller) options.caller = 'get2Numbers';
+
+  let [value1, value2] = get2Values(node, source, options)
+
+  if (typeof(value1) != typeof(value2)) {
+    // float . int -> float
+    value1 = parseFloat(value1)
+    value2 = parseFloat(value2)
+  }
+
+  return [value1, value2];
+}
+
+
+
+/** @type {function(SyntaxNode, string, Record<string, any>): [any, any]} */
+function get2Values(node, source, options) {
+  if (!options) options = {};
+  if (!options.caller) options.caller = 'get2Values';
   checkInfiniteLoop();
   //console.log('thunkOfNodeType.Mul: node', node);
   let childNode1 = firstChild(node);
@@ -326,14 +344,10 @@ function get2Numbers(node, source, options) {
   let value2 = callThunk(childNode2, source);
   //console.log('thunkOfNodeType.Mul: arg2', arg2);
 
-  if (typeof(value1) != typeof(value2)) {
-    // float . int -> float
-    value1 = parseFloat(value1)
-    value2 = parseFloat(value2)
-  }
-
   return [value1, value2];
 }
+
+
 
 /*
 thunkOfNodeType.Add = (node, source) => {
@@ -468,6 +482,24 @@ thunkOfNodeType.If = (node, source) => {
   }
 
   return callThunk(elseNode, source);
+};
+
+
+
+/** @return {boolean} */
+thunkOfNodeType.Eq = (node, source) => {
+  let [value1, value2] = get2Values(node, source, { caller: 'thunkOfNodeType.Eq' })
+  // TODO? types
+  return (value1 == value2);
+};
+
+
+
+/** @return {boolean} */
+thunkOfNodeType.NEq = (node, source) => {
+  let [value1, value2] = get2Values(node, source, { caller: 'thunkOfNodeType.NEq' })
+  // TODO? types
+  return (value1 != value2);
 };
 
 
