@@ -5,7 +5,8 @@ import { printNode } from "./nix-thunks.js"
 
 
 
-// cat primops.cc | grep '.name = "__' | cut -d'"' -f2 | sed -E 's/^(.*)$/  "\1": node => TodoPrimOp(node, "\1"),/'
+// cat nix/src/libexpr/primops.cc | grep '.name = "__' | cut -d'"' -f2 | sed -E 's/^(.*)$/  "\1": node => TodoPrimOp(node, "\1"),/'
+
 
 function TodoPrimOp(node, opName) {
     printNode(node, `setThunk.${opName} # TODO implement`);
@@ -35,8 +36,10 @@ export const NixPrimOps = {
       //printNode(node, "__typeOf.thunk");
         return (arg) => {
           const javascriptType = typeof(arg);
-          if (javascriptType == 'number') { // int or float?
-            if ((arg | 0) == arg) return 'int';
+          if ('bigint') {
+            return 'int';
+          }
+          if (javascriptType == 'number') {
             return 'float';
           }
           if (arg === null) return 'null'; // js: typeof(null) == 'object'
