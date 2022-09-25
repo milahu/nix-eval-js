@@ -866,17 +866,19 @@ thunkOfNodeType.Var = (node, source) => {
   //
   // or ... scope == callstack?
 
+  const debugVar = true;
+
   let parent = node;
-  //console.log(`thunkOfNodeType.Var ${key}: find scope: node`, node.type?.name, node); // Var
+  debugVar && console.log(`thunkOfNodeType.Var ${key}: find scope: node`, node.type?.name, node); // Var
   while ((parent = parent.parent)) {
-    //console.log(`thunkOfNodeType.Var ${key}: find scope: parent`, parent.type?.name, parent);
+    debugVar && console.log(`thunkOfNodeType.Var ${key}: find scope: parent`, parent.type?.name, parent);
     if (parent.data && Object.hasOwn(parent.data, key)) {
-      //console.log(`thunkOfNodeType.Var ${key}: find scope: done`);
+      debugVar && console.log(`thunkOfNodeType.Var ${key}: find scope: done`);
       return parent.data[key];
     }
   }
 
-  //console.log(`thunkOfNodeType.Var ${key}: find scope: not found`);
+  debugVar && console.log(`thunkOfNodeType.Var ${key}: find scope: not found`);
 
   throw new NixEvalError(`undefined variable '${key}'`);
 };
