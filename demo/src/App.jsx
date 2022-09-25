@@ -50,6 +50,13 @@ const exampleInputs = [
   '{a=1;b=2;}.a # select',
   '{a=1;b=2;}.z # select missing attribute',
   '{a={b=2;};}.a.b # nested select',
+  'rec {a=1;b=a;}.b # rec set',
+  'let a=1; in a # let',
+  'let a={b=2;}; in a.b # nested let',
+  'x: x # lambda',
+  '(x: x) 1 # call lambda',
+  '(x: y: x + y) 1 2 # call lambda nested',
+  'let f=x: 2*x; in f 3 # let lambda call',
 ];
 
 
