@@ -98,7 +98,7 @@ function nixTypeWithArticle(value) {
     'null': 'null',
     'set': 'a set',
     'list': 'a list',
-    'integer': 'an integer',
+    'int': 'an integer',
     'float': 'a float',
     'bool': 'a Boolean',
     'string': 'a string',
@@ -200,6 +200,7 @@ thunkOfNodeType.Primop = (node, source) => {
   const name = nodeText(node, source);
   //console.log('thunkOfNodeType.Primop: name', name);
   const func = NixPrimops[name];
+  //console.log('thunkOfNodeType.Primop: func', func);
   if (!func) {
     throw new NixEvalNotImplemented(`primop ${name}`);
   }
@@ -259,52 +260,29 @@ thunkOfNodeType.Add = (node, source) => {
   // nix: 0.1 + 0.2 == 0.3
   // js: 0.1 + 0.2 == 0.30000000000000004
 
-  // ""+1
-  if (typeof(value1) == 'string' && typeof(value2) == 'bigint') {
-    throw new NixEvalError('cannot coerce an integer to a string')
-  }
-
-  // ""+1.0
-  if (typeof(value1) == 'string' && typeof(value2) == 'number') {
-    throw new NixEvalError('cannot coerce a float to a string')
-  }
-
-  // 1+""
-  if (typeof(value1) == 'bigint' && typeof(value2) == 'string') {
-    throw new NixEvalError('cannot add a string to an integer')
-  }
-
-  // 1.0+""
-  if (typeof(value1) == 'number' && typeof(value2) == 'string') {
-    throw new NixEvalError('cannot add a string to a float')
-  }
-
-  // int + float -> float
-  if (typeof(value1) == 'bigint' && typeof(value2) == 'number') {
-    return parseFloat(value1) + value2;
-  }
-
-  // float + int -> float
-  if (typeof(value1) == 'number' && typeof(value2) == 'bigint') {
-    return value1 + parseFloat(value2);
-  }
-
-  // float + float -> float
-  if (typeof(value1) == 'number' && typeof(value2) == 'number') {
-    return value1 + value2;
-  }
-
-  // int + int -> int
-  if (typeof(value1) == 'bigint' && typeof(value2) == 'bigint') {
-    return value1 + value2;
-  }
-
   // string + string -> string
   if (typeof(value1) == 'string' && typeof(value2) == 'string') {
     return value1 + value2;
   }
 
-  throw new NixEvalError(`cannot coerce ${nixTypeWithArticle(value1)} to a string`)
+  // ""+1
+  if (typeof(value1) == 'string' && typeof(value2) == 'bigint') {
+    throw new NixEvalError('cannot coerce an integer to a string')
+  }
+  // ""+1.0
+  if (typeof(value1) == 'string' && typeof(value2) == 'number') {
+    throw new NixEvalError('cannot coerce a float to a string')
+  }
+  // 1+""
+  if (typeof(value1) == 'bigint' && typeof(value2) == 'string') {
+    throw new NixEvalError('cannot add a string to an integer')
+  }
+  // 1.0+""
+  if (typeof(value1) == 'number' && typeof(value2) == 'string') {
+    throw new NixEvalError('cannot add a string to a float')
+  }
+
+  return NixPrimops.__add(value1)(value2);
 };
 
 
@@ -349,7 +327,7 @@ function get2Numbers(node, source, options) {
   //console.log('thunkOfNodeType.Mul: arg2', arg2);
 
   if (typeof(value1) != typeof(value2)) {
-    // float + int -> float
+    // float . int -> float
     value1 = parseFloat(value1)
     value2 = parseFloat(value2)
   }
@@ -380,6 +358,20 @@ thunkOfNodeType.Div = (node, source) => {
     throw NixEvalError('division by zero')
   }
   return value1 / value2;
+};
+
+
+
+/** @return {boolean} */
+thunkOfNodeType.Not = (node, source) => {
+  checkInfiniteLoop();
+  //console.log('thunkOfNodeType.Add: node', node);
+  let childNode = firstChild(node);
+  if (!childNode) {
+    throw new NixEvalError('Not: no childNode')
+  }
+  const value = callThunk(childNode, source);
+  return !value;
 };
 
 
