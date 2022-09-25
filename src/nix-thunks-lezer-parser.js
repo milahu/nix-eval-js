@@ -437,6 +437,41 @@ thunkOfNodeType.Call = (node, source) => {
 
 
 
+/** @return {any} */
+thunkOfNodeType.If = (node, source) => {
+
+  // if condition then expression else alternative
+
+  checkInfiniteLoop();
+  //console.log('thunkOfNodeType.If: node', node);
+
+  let ifNode = firstChild(node);
+  if (!ifNode) {
+    throw new NixEvalError('If: no ifNode')
+  }
+
+  const ifValue = callThunk(ifNode, source);
+  //console.log('thunkOfNodeType.If: ifValue', ifValue);
+
+  const thenNode = nextSibling(ifNode);
+  if (!thenNode) {
+    throw new NixEvalError('If: no thenNode')
+  }
+
+  if (ifValue) {
+    return callThunk(thenNode, source);
+  }
+
+  const elseNode = nextSibling(thenNode);
+  if (!elseNode) {
+    throw new NixEvalError('If: no elseNode')
+  }
+
+  return callThunk(elseNode, source);
+};
+
+
+
 /** @typedef {any[]} LazyArray */
 /** @return {LazyArray} */
 thunkOfNodeType.List = (node, source) => {
