@@ -869,9 +869,9 @@ thunkOfNodeType.Var = (node, source) => {
   const debugVar = true;
 
   let parent = node;
-  debugVar && console.log(`thunkOfNodeType.Var ${key}: find scope: node`, node.type?.name, node); // Var
+  debugVar && console.log(`thunkOfNodeType.Var ${key}: find scope: node`, node.type?.name, node.from, node); // Var
   while ((parent = parent.parent)) {
-    debugVar && console.log(`thunkOfNodeType.Var ${key}: find scope: parent`, parent.type?.name, parent);
+    debugVar && console.log(`thunkOfNodeType.Var ${key}: find scope: parent`, parent.type?.name, parent.from, parent);
     if (parent.data && Object.hasOwn(parent.data, key)) {
       debugVar && console.log(`thunkOfNodeType.Var ${key}: find scope: done`);
       return parent.data[key];
