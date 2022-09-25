@@ -502,6 +502,13 @@ thunkOfNodeType.NEq = (node, source) => {
   return (value1 != value2);
 };
 
+/** @return {boolean} */
+thunkOfNodeType.GT = (node, source) => {
+  let [value1, value2] = get2Values(node, source, { caller: 'thunkOfNodeType.GT' })
+  // TODO? types
+  return (value1 > value2);
+};
+
 
 
 /** @typedef {any[]} LazyArray */
