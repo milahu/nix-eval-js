@@ -105,7 +105,9 @@ export default function App() {
       }
     }
     //console.log('evalResult', evalResult);
-    setStore('evalResult', evalResult); // set store.evalResult
+    //setStore('evalResult', evalResult); // set store.evalResult
+    // hide evalResult in thunk, so solid does not call Nix Lambda
+    setStore('evalResult', () => evalResult); // set store.evalResult
     setStore('evalError', evalError); // set store.evalError
   }
 
