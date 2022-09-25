@@ -90,16 +90,17 @@ export const NixPrimops = {
   "__concatMap": arg => arg,
   */
 
-  "__add": arg => arg,
-  "__sub": arg => arg,
-  "__mul": arg => arg,
-  "__div": arg => arg,
+  "__add": arg1 => (arg2 => arg1 + arg2),
+  "__sub": arg1 => (arg2 => arg1 - arg2),
+  "__mul": arg1 => (arg2 => arg1 * arg2),
+  // TODO error: division by zero
+  "__div": arg1 => (arg2 => arg1 / arg2),
 
-  "__bitAnd": arg => arg,
-  "__bitOr": arg => arg,
-  "__bitXor": arg => arg,
+  "__bitAnd": arg1 => (arg2 => arg1 & arg2),
+  "__bitOr": arg1 => (arg2 => arg1 | arg2),
+  "__bitXor": arg1 => (arg2 => arg1 ^ arg2),
 
-  "__lessThan": arg => arg,
+  "__lessThan": arg1 => (arg2 => arg1 < arg2),
 
   /*
   "__substring": arg => arg,
