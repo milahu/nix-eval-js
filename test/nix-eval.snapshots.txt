@@ -23,7 +23,7 @@ false
 ==>
 1
 
-#
+# SKIP
 "-1"
 ==>
 -1
@@ -108,8 +108,18 @@ ERROR EvalError attempt to call something which is not a function but a float
 ==>
 2
 
-# call primop div
+# call primop div int int
 "__div 1 2"
+==>
+0
+
+# call primop div float int
+"__div 1.0 2"
+==>
+0.5
+
+# call primop div int float
+"__div 1 2.0"
 ==>
 0.5
 
@@ -158,8 +168,23 @@ ERROR EvalError list index 2 is out of bounds
 ==>
 20
 
-#
+# path not div
 "1/2"
+==>
+"/home/user/1/2"
+
+# call not div
+"1 /2"
+==>
+ERROR EvalError attempt to call something which is not a function but an integer
+
+# div int int
+"1/ 2"
+==>
+0
+
+# div float int
+"1.0/ 2"
 ==>
 0.5
 
