@@ -385,14 +385,14 @@ thunkOfNodeType.Call = (node, source) => {
   checkInfiniteLoop();
   //console.log('thunkOfNodeType.Call: node', node);
 
-  let childNode1 = firstChild(node);
-  if (!childNode1) {
-    throw new NixEvalError('Call: no childNode1')
+  let functionNode = firstChild(node);
+  if (!functionNode) {
+    throw new NixEvalError('Call: no functionNode')
   }
-  // eval deep first: get value1 now, childNode2 later
-  //console.log('thunkOfNodeType.Call: childNode1', childNode1.type.name, childNode1);
+  // eval deep first: get functionValue now, childNode2 later
+  //console.log('thunkOfNodeType.Call: functionNode', functionNode.type.name, functionNode);
 
-  //if (childNode1.type.name == 'Primop' && nodeText(childNode1, source) == '__typeOf') {
+  //if (functionNode.type.name == 'Primop' && nodeText(functionNode, source) == '__typeOf') {
     // call primop with syntax tree
     // TODO do more primops need access to syntax tree?
     // special case to handle
@@ -404,34 +404,32 @@ thunkOfNodeType.Call = (node, source) => {
     // let x = 0; in __typeOf (x + 1.0)
   //}
 
-  const value1 = callThunk(childNode1, source);
-  //console.log('thunkOfNodeType.Call: value1', value1);
+  const functionValue = callThunk(functionNode, source);
+  //console.log('thunkOfNodeType.Call: functionValue', functionValue);
 
-  if (typeof(value1) != 'function') {
-    throw new NixEvalError(`attempt to call something which is not a function but ${nixTypeWithArticle(value1)}`);
+  if (typeof(functionValue) != 'function') {
+    throw new NixEvalError(`attempt to call something which is not a function but ${nixTypeWithArticle(functionValue)}`);
   }
 
-  const childNode2 = nextSibling(childNode1);
-  if (!childNode2) {
+  const argumentNode = nextSibling(functionNode);
+  if (!argumentNode) {
     throw new NixEvalError('Call: no arg2')
   }
 
-  //console.log('thunkOfNodeType.Call: childNode2', childNode2.type.name, childNode2);
+  //console.log('thunkOfNodeType.Call: argumentNode', argumentNode.type.name, argumentNode);
 
-  const value2 = callThunk(childNode2, source);
-  //console.log('thunkOfNodeType.Call: value2', value2);
-  const callNode = node;
-  //console.log('thunkOfNodeType.Call: callNode', callNode);
+  const argumentValue = callThunk(argumentNode, source);
+  //console.log('thunkOfNodeType.Call: argumentValue', argumentValue);
 
-  return value1(value2);
+  return functionValue(argumentValue);
 
   /*
   // Lambda. also pass callNode
   // call function lambda(argumentValue)
   // Primop
-  return value1.apply(callNode, [value2]); // this == callNode
-  //return value1(childNode2, source);
-  //return value1.apply(callNode, [childNode2, source]);
+  return functionValue.apply(callNode, [argumentValue]); // this == callNode
+  //return functionValue(argumentNode, source);
+  //return functionValue.apply(callNode, [argumentNode, source]);
   */
 };
 
