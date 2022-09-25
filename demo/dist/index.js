@@ -19773,7 +19773,7 @@ const parser$1 = /*@__PURE__*/LRParser$1.deserialize({
   maxTerm: 221,
   skippedNodes: [0,3,4],
   repeatNodeCount: 7,
-  tokenData: ">f~R!QX^$Xpq$Xqr$|rs%Zst%`tu%kvw%vwx&Rxy&^yz&cz{&h{|&m|})m}!O)r!O!P*i!P!Q.g!Q![1Y![!]2d!]!^2i!^!_2n!_!`4o!`!a4|!a!b5Z!b!c5`!c!}5e!}#O:w#P#Q:|#R#S9n#T#o5e#o#p;R#p#q;W#q#r;c#r#s;l#y#z$X$f$g$X$g#BY:`#BY#BZ<y#BZ$IS:`$IS$I_<y$I_$I|:`$I|$JO<y$JO$JT:`$JT$JU<y$JU$KV:`$KV$KW<y$KW&FU:`&FU&FV<y&FV~:`~$^Y!q~X^$Xpq$X#y#z$X$f$g$X#BY#BZ$X$IS$I_$X$I|$JO$X$JT$JU$X$KV$KW$X&FU&FV$Xo%RP#dP!_!`%Un%ZO#gn~%`O#T~~%eQR~OY%`Z~%`~%nP#o#p%q~%vO#V~~%yPvw%|~&RO#l~~&UPwx&X~&^O%p~~&cO#[~~&hO#]~~&mO#q~~&rW#p~{|'[}!O'y!O!P'y!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'y~'aW#s~{|'y}!O'y!O!P'y!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'yk'|W{|'y}!O'y!O!P'y!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'yk(iV{|)O}!O)O!O!P)O!Q![)O!c!})O#R#S)O#T#o)Ok)TW}k{|)O}!O)O!O!P)O!P!Q(f!Q![)O!c!})O#R#S)O#T#o)O~)rO!w~~)wX#e~{|'y}!O'y!O!P'y!P!Q(f!Q!['y!`!a*d!c!}'y#R#S'y#T#o'y~*iO#n~~*nW#Wk{|'y}!O'y!O!P+W!P!Q(f!Q![,b!c!}'y#R#S'y#T#o'yo+ZW{|'y}!O'y!O!P+s!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'yo+xW!xS{|'y}!O'y!O!P'y!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'y~,g[%k~{|'y}!O'y!O!P'y!P!Q(f!Q![,b!c!g'y!g!h-]!h!}'y#R#S'y#T#X'y#X#Y-]#Y#o'y~-`W{|'y}!O'y!O!P'y!P!Q(f!Q![-x!c!}'y#R#S'y#T#o'y~-}W%k~{|'y}!O'y!O!P'y!P!Q(f!Q![-x!c!}'y#R#S'y#T#o'y~.lX#r~z{/X{|/|}!O/|!O!P/|!P!Q1T!Q![/|!c!}/|#R#S/|#T#o/|~/[ROz/Xz{/e{~/X~/hTOz/Xz{/e{!P/X!P!Q/w!Q~/X~/|OS~~0RW{~{|/|}!O/|!O!P/|!P!Q0k!Q![/|!c!}/|#R#S/|#T#o/|~0nV{|/|}!O/|!O!P/|!Q![/|!c!}/|#R#S/|#T#o/|~1YO#o~~1_W%j~{|'y}!O'y!O!P1w!P!Q(f!Q![1Y!c!}'y#R#S'y#T#o'y~1zW{|'y}!O'y!O!P'y!P!Q(f!Q![,b!c!}'y#R#S'y#T#o'y~2iO!s~~2nO!|~~2sW#h~{|3]}!O3]!O!P3]!Q![3]!_!`4j!c!}3]#R#S3]#T#o3]~3`X{|3]}!O3]!O!P3]!P!Q3{!Q![3]!`!a4e!c!}3]#R#S3]#T#o3]~4OV{|3]}!O3]!O!P3]!Q![3]!c!}3]#R#S3]#T#o3]~4jOz~~4oO#i~o4tP#XP!_!`4wn4|O#fn~5RP#j~!_!`5U~5ZO#k~~5`O!v~~5eO!z~~5jYV~{|6Y}!O5e!O!P'y!P!Q(f!Q![5e![!]6x!c!}5e#R#S9n#T#o5e$g~:`~6]X{|6Y}!O6Y!O!P'y!P!Q(f!Q![6Y![!]6x!c!}6Y#R#S'y#T#o6Y~6{dqr8Ztu8Zuv8Zvw8Zwx8Zz{8Z{|8Z|}8Z}!O8Z!O!P8Z!P!Q8Z!Q![8Z![!]8Z!_!`8Z!a!b8Z!b!c8Z!c!}8Z#R#S8Z#T#o8Z#r#s8Z~8`d!^~qr8Ztu8Zuv8Zvw8Zwx8Zz{8Z{|8Z|}8Z}!O8Z!O!P8Z!P!Q8Z!Q![8Z![!]8Z!_!`8Z!a!b8Z!b!c8Z!c!}8Z#R#S8Z#T#o8Z#r#s8Z~9sXV~{|'y}!O9n!O!P'y!P!Q(f!Q![9n!c!}9n#R#S9n#T#o9n$g~:`~:eUV~}!O:`!Q![:`!c!}:`#R#S:`#T#o:`$g~:`~:|O%s~~;RO%t~~;WO!t~~;ZP#p#q;^~;cO#m~o;lO!ye%qW#UQ~;oP!P!Q;r~;uV{|<[}!O<[!O!P<[!Q![<[!c!}<[#R#S<[#T#o<[~<aW|~{|<[}!O<[!O!P<[!P!Q;r!Q![<[!c!}<[#R#S<[#T#o<[~=QfV~!q~X^$Xpq$X}!O:`!Q![:`!c!}:`#R#S:`#T#o:`#y#z$X$f$g$X$g#BY:`#BY#BZ<y#BZ$IS:`$IS$I_<y$I_$I|:`$I|$JO<y$JO$JT:`$JT$JU<y$JU$KV:`$KV$KW<y$KW&FU:`&FU&FV<y&FV~:`",
+  tokenData: ">r~R!QX^$Xpq$Xqr$|rs%Zst%`tu%kvw%vwx&Rxy&^yz&cz{&h{|&m|})m}!O)r!O!P*i!P!Q.g!Q![1Y![!]2d!]!^2i!^!_2n!_!`4o!`!a4|!a!b5Z!b!c5`!c!}5e!}#O;Q#P#Q;V#R#S:]#T#o5e#o#p;[#p#q;a#q#r;l#r#s;u#y#z$X$f$g$X$g#BY6]#BY#BZ=S#BZ$IS6]$IS$I_=S$I_$I|6]$I|$JO=S$JO$JT6]$JT$JU=S$JU$KV6]$KV$KW=S$KW&FU6]&FU&FV=S&FV~6]~$^Y!q~X^$Xpq$X#y#z$X$f$g$X#BY#BZ$X$IS$I_$X$I|$JO$X$JT$JU$X$KV$KW$X&FU&FV$Xo%RP#dP!_!`%Un%ZO#gn~%`O#T~~%eQR~OY%`Z~%`~%nP#o#p%q~%vO#V~~%yPvw%|~&RO#l~~&UPwx&X~&^O%p~~&cO#[~~&hO#]~~&mO#q~~&rW#p~{|'[}!O'y!O!P'y!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'y~'aW#s~{|'y}!O'y!O!P'y!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'yk'|W{|'y}!O'y!O!P'y!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'yk(iV{|)O}!O)O!O!P)O!Q![)O!c!})O#R#S)O#T#o)Ok)TW}k{|)O}!O)O!O!P)O!P!Q(f!Q![)O!c!})O#R#S)O#T#o)O~)rO!w~~)wX#e~{|'y}!O'y!O!P'y!P!Q(f!Q!['y!`!a*d!c!}'y#R#S'y#T#o'y~*iO#n~~*nW#Wk{|'y}!O'y!O!P+W!P!Q(f!Q![,b!c!}'y#R#S'y#T#o'yo+ZW{|'y}!O'y!O!P+s!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'yo+xW!xS{|'y}!O'y!O!P'y!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'y~,g[%k~{|'y}!O'y!O!P'y!P!Q(f!Q![,b!c!g'y!g!h-]!h!}'y#R#S'y#T#X'y#X#Y-]#Y#o'y~-`W{|'y}!O'y!O!P'y!P!Q(f!Q![-x!c!}'y#R#S'y#T#o'y~-}W%k~{|'y}!O'y!O!P'y!P!Q(f!Q![-x!c!}'y#R#S'y#T#o'y~.lX#r~z{/X{|/|}!O/|!O!P/|!P!Q1T!Q![/|!c!}/|#R#S/|#T#o/|~/[ROz/Xz{/e{~/X~/hTOz/Xz{/e{!P/X!P!Q/w!Q~/X~/|OS~~0RW{~{|/|}!O/|!O!P/|!P!Q0k!Q![/|!c!}/|#R#S/|#T#o/|~0nV{|/|}!O/|!O!P/|!Q![/|!c!}/|#R#S/|#T#o/|~1YO#o~~1_W%j~{|'y}!O'y!O!P1w!P!Q(f!Q![1Y!c!}'y#R#S'y#T#o'y~1zW{|'y}!O'y!O!P'y!P!Q(f!Q![,b!c!}'y#R#S'y#T#o'y~2iO!s~~2nO!|~~2sW#h~{|3]}!O3]!O!P3]!Q![3]!_!`4j!c!}3]#R#S3]#T#o3]~3`X{|3]}!O3]!O!P3]!P!Q3{!Q![3]!`!a4e!c!}3]#R#S3]#T#o3]~4OV{|3]}!O3]!O!P3]!Q![3]!c!}3]#R#S3]#T#o3]~4jOz~~4oO#i~o4tP#XP!_!`4wn4|O#fn~5RP#j~!_!`5U~5ZO#k~~5`O!v~~5eO!z~~5jZV~wx6]{|6w}!O5e!O!P'y!P!Q(f!Q![5e![!]7g!c!}5e#R#S:]#T#o5e$g~6]~6bVV~wx6]}!O6]!Q![6]!c!}6]#R#S6]#T#o6]$g~6]~6zX{|6w}!O6w!O!P'y!P!Q(f!Q![6w![!]7g!c!}6w#R#S'y#T#o6w~7jdqr8xtu8xuv8xvw8xwx8xz{8x{|8x|}8x}!O8x!O!P8x!P!Q8x!Q![8x![!]8x!_!`8x!a!b8x!b!c8x!c!}8x#R#S8x#T#o8x#r#s8x~8}d!^~qr8xtu8xuv8xvw8xwx8xz{8x{|8x|}8x}!O8x!O!P8x!P!Q8x!Q![8x![!]8x!_!`8x!a!b8x!b!c8x!c!}8x#R#S8x#T#o8x#r#s8x~:bYV~wx6]{|'y}!O:]!O!P'y!P!Q(f!Q![:]!c!}:]#R#S:]#T#o:]$g~6]~;VO%s~~;[O%t~~;aO!t~~;dP#p#q;g~;lO#m~o;uO!ye%qW#UQ~;xP!P!Q;{~<OV{|<e}!O<e!O!P<e!Q![<e!c!}<e#R#S<e#T#o<e~<jW|~{|<e}!O<e!O!P<e!P!Q;{!Q![<e!c!}<e#R#S<e#T#o<e~=ZgV~!q~X^$Xpq$Xwx6]}!O6]!Q![6]!c!}6]#R#S6]#T#o6]#y#z$X$f$g$X$g#BY6]#BY#BZ=S#BZ$IS6]$IS$I_=S$I_$I|6]$I|$JO=S$JO$JT6]$JT$JU=S$JU$KV6]$KV$KW=S$KW&FU6]&FU&FV=S&FV~6]",
   tokenizers: [string$1, indentedString$1, 0, 1, 2, 3, 4],
   topRules: {"Nix":[0,5]},
   specialized: [{term: 7, get: value => spec_Identifier$1[value] || -1}],
@@ -20847,7 +20847,7 @@ thunkOfNodeType.Call = (node, source) => {
     throw new NixEvalError('Call: no childNode1')
   }
   // eval deep first: get value1 now, childNode2 later
-  //console.log('thunkOfNodeType.Call: childNode1', childNode1);
+  //console.log('thunkOfNodeType.Call: childNode1', childNode1.type.name, childNode1);
 
   //if (childNode1.type.name == 'Primop' && nodeText(childNode1, source) == '__typeOf') {
     // call primop with syntax tree
@@ -20872,11 +20872,22 @@ thunkOfNodeType.Call = (node, source) => {
   if (!childNode2) {
     throw new NixEvalError('Call: no arg2')
   }
-  //console.log('thunkOfNodeType.Call: childNode2', childNode2);
+
+  //console.log('thunkOfNodeType.Call: childNode2', childNode2.type.name, childNode2);
+
   const value2 = callThunk(childNode2, source);
-  //console.log('thunkOfNodeType.Call: arg2', arg2);
+  //console.log('thunkOfNodeType.Call: callNode', callNode);
 
   return value1(value2);
+
+  /*
+  // Lambda. also pass callNode
+  // call function lambda(argumentValue)
+  // Primop
+  return value1.apply(callNode, [value2]); // this == callNode
+  //return value1(childNode2, source);
+  //return value1.apply(callNode, [childNode2, source]);
+  */
 };
 
 
@@ -21049,7 +21060,7 @@ thunkOfNodeType.Set = (node, source) => {
     function getThunk(valueNodeCopy) {
       // create local copy of valueNode
       return () => {
-        //console.log(`Set value thunk: call thunk of valueNodeCopy`, valueNodeCopy)
+        //console.log(`Set key=${key}: value thunk: call thunk of valueNodeCopy`, valueNodeCopy)
         return valueNodeCopy.type.thunk(
           valueNodeCopy,
           source
@@ -21071,6 +21082,96 @@ thunkOfNodeType.Set = (node, source) => {
   }
 
   return data;
+};
+
+
+
+/** @typedef {Record<string, any>} LazyObject */
+/** @return {LazyObject} */
+thunkOfNodeType.RecSet = (node, source) => {
+
+  // depends on Var
+  // TODO refactor with Set
+
+  checkInfiniteLoop();
+
+  //if (!node) {
+  //  throw NixEvalError('Set: node is null')
+  //}
+
+  // TODO cache. but where? global cache? local context?
+  // node is probably a bad choice
+  //if (!node.data) node.data = {};
+  //const data = node.data;
+  // TODO lazy object via Proxy, see LazyArray
+  //const data = {}; // Set -> data is in child scope via Select
+  node.data = {}; // RecSet -> data is in this scope
+
+  //console.log('thunkOfNodeType.Set: typeof(node)', typeof(node));
+
+  //console.log('thunkOfNodeType.Set: typeof(node.firstChild)', typeof(node.firstChild));
+
+  //if (!node.firstChild) {
+  //  throw NixEvalError('Set: node.firstChild is empty. node:', node)
+  //}
+
+  //console.log('thunkOfNodeType.Set ------------------------');
+  //console.log('thunkOfNodeType.Set: node', node);
+
+  let attrNode;
+
+  if (!(attrNode = firstChild(node))) {
+    // empty set
+    return node.data;
+  }
+
+  while (true) {
+    checkInfiniteLoop();
+    //console.log('thunkOfNodeType.Set: attrNode', attrNode);
+
+    const keyNode = firstChild(attrNode);
+    if (!keyNode) {
+      throw new NixEvalError('Set Attr: no key');
+    }
+    //console.log('thunkOfNodeType.Set: keyNode', keyNode);
+
+    const valueNode = nextSibling(keyNode);
+    if (!valueNode) {
+      throw new NixEvalError('Set Attr: no value');
+    }
+    //console.log('thunkOfNodeType.Set: valueNode', valueNode);
+
+    //const copyNode = (node) => node;
+    //const valueNodeCopy = copyNode(valueNode);
+
+    const key = source.slice(keyNode.from, keyNode.to);
+    //console.log('thunkOfNodeType.Set: key', key);
+
+    function getThunk(valueNodeCopy) {
+      // create local copy of valueNode
+      return () => {
+        //console.log(`Set value thunk: call thunk of valueNodeCopy`, valueNodeCopy)
+        return valueNodeCopy.type.thunk(
+          valueNodeCopy,
+          source
+        );
+      }
+    }
+
+    Object.defineProperty(node.data, key, {
+      get: getThunk(valueNode),
+      enumerable: true,
+      // fix: TypeError: Cannot redefine property: a
+      configurable: true,
+    });
+
+
+    if (!(attrNode = nextSibling(attrNode))) {
+      break;
+    }
+  }
+
+  return node.data;
 };
 
 
@@ -21106,6 +21207,270 @@ thunkOfNodeType.Select = (node, source) => {
   }
 
   return result;
+};
+
+
+
+/** @return {any} */
+thunkOfNodeType.Var = (node, source) => {
+  // input: a
+  // tree:
+  // Nix: a
+  //   Var: a
+  //     Identifier: a
+  checkInfiniteLoop();
+  const keyNode = firstChild(node);
+  if (!keyNode) {
+    throw new NixEvalError('Var: no keyNode')
+  }
+  // FIXME source is undefined when called from Call
+  const key = nodeText(keyNode, source);
+  //console.log(`thunkOfNodeType.Var: key`, key);
+
+  // find scope
+  // wrong. this breaks with
+  // Nix: let f=x: x; in f 1
+  //   Let: let f=x: x; in f 1
+  //     Attr: f=x: x;
+  //       Identifier: f
+  //       Lambda: x: x
+  //         Identifier: x
+  //         Var: x
+  //           Identifier: x
+  //     Call: f 1
+  //       Var: f
+  //         Identifier: f
+  //       Int: 1
+  //
+  // "Var: f" works
+  // because f is stored in Let.data
+  // "Var: x" fails
+  // because x is stored in Call.data
+  // but is searched in
+  //   Lambda.data
+  //   Attr.data
+  //   Let.data
+  //   Nix.data
+  //
+  // TODO explicitly pass scope Call to Lambda
+  //
+  // or ... scope == callstack?
+
+  let parent = node;
+  //console.log(`thunkOfNodeType.Var ${key}: find scope: node`, node.type?.name, node); // Var
+  while ((parent = parent.parent)) {
+    //console.log(`thunkOfNodeType.Var ${key}: find scope: parent`, parent.type?.name, parent);
+    if (parent.data && Object.hasOwn(parent.data, key)) {
+      //console.log(`thunkOfNodeType.Var ${key}: find scope: done`);
+      return parent.data[key];
+    }
+  }
+
+  //console.log(`thunkOfNodeType.Var ${key}: find scope: not found`);
+
+  throw new NixEvalError(`undefined variable '${key}'`);
+};
+
+
+
+/** @return {function} */
+thunkOfNodeType.Lambda = (node, source) => {
+  checkInfiniteLoop();
+  const argumentNode = firstChild(node);
+  if (!argumentNode) {
+    throw new NixEvalError('Lambda: no argumentNode')
+  }
+  //const argumentValue = callThunk(argumentNode, source);
+
+  let bodyNode = nextSibling(argumentNode);
+  if (!bodyNode) {
+    throw new NixEvalError('Lambda: no bodyNode')
+  }
+
+  if (argumentNode.type.name != 'Identifier') {
+    throw new NixEvalNotImplemented('Lambda: argumentNode must be Identifier')
+  }
+
+  // argumentNode.type.name == 'Identifier'
+  // simple function: f = x: (x + 1)
+  const argumentName = nodeText(argumentNode, source);
+
+  const lambdaNode = node;
+  lambdaNode.data = {};
+
+  //return function call1(argumentNode, source) {
+  // note: lambda must be normal function, so this == callNode
+  const lambda = function lambda(argumentValue) {
+    // lambda is called from Call
+    // value1.apply(callNode, [value2])
+    /*
+    const callNode = this;
+    console.log(`thunkOfNodeType.Lambda: call1: should be Call: this`, this)
+    console.log(`thunkOfNodeType.Lambda: call1: argumentValue`, argumentValue)
+    */
+    //return call2;
+    // call2 is called by solid setStore('evalResult', evalResult)
+    // TODO setStore should not call evalResult. -> hide evalResult in thunk?
+    // setStore('evalResult', (() => evalResult))
+    //console.log(`thunkOfNodeType.Lambda: call1: return function call2. args`, arguments, new Error().stack)
+    // find parent Call node
+
+    /*
+    let callNode = node;
+    while (callNode = callNode.parent) {
+      if (callNode.type.name == 'Call') {
+        if (!callNode.data) {
+          callNode.data = {};
+        }
+        callNode.data[argumentName] = callThunk(TODO)
+      }
+    }
+    */
+
+    /*
+    // TODO verify
+    const callNode = argumentNode.parent;
+    console.log(`thunkOfNodeType.Lambda: call1: argumentNode`, argumentNode)
+    console.log(`thunkOfNodeType.Lambda: call1: callNode`, callNode)
+    */
+
+    /* wrong scope. Call != Lambda
+    console.log(`thunkOfNodeType.Lambda: call1: setting data.${argumentName} on callNode ${callNode.type.name}`, callNode)
+    if (!callNode.data) {
+      callNode.data = {};
+    }
+    // argumentNode thunk is called in Call
+    //callNode.data[argumentName] = callThunk(argumentNode, source);
+    callNode.data[argumentName] = argumentValue;
+    */
+
+    // store argument value in Lambda.data
+    //const lambdaNode = bodyNode.parent;
+    //lambdaNode.data = {}; // reset to empty
+    //lambdaNode.data[argumentName] = argumentValue;
+    lambdaNode.data = {
+      [argumentName]: argumentValue,
+    };
+    // TODO handle complex args: formals, formals-at-binding
+
+    return callThunk(bodyNode, source);
+  };
+
+  // store source location of lambda
+  {
+    lambda.source = {
+      file: '(string)', // TODO nix file path
+      from: node.from,
+      to: node.to,
+    };
+    const setLineColumn = (lambdaSource) => {
+      const sourceLines = source.split('\n');
+      //console.log(`setLineColumn lambdaSource`, lambdaSource)
+      //console.log(`setLineColumn sourceLines`, sourceLines)
+      let lineFrom = 0;
+      for (let lineIdx = 0; lineIdx < sourceLines.length; lineIdx++) {
+        const line = sourceLines[lineIdx];
+        if (lambdaSource.from >= lineFrom) {
+          // found line
+          lambdaSource._line = lineIdx + 1; // lines are 1 based in Nix
+          lambdaSource._column = (lambdaSource.from - lineFrom) + 1; // columns are 1 based in Nix
+          return;
+        }
+        lineFrom += line.length + 1; // +1 for \n
+      }
+      // error
+      lambdaSource._line = 'not';
+      lambdaSource._column = 'found';
+    };
+    Object.defineProperty(lambda.source, 'line', {
+      enumerable: true,
+      get() {
+        if (!this._line) setLineColumn(this);
+        return this._line;
+      },
+    });
+    Object.defineProperty(lambda.source, 'column', {
+      enumerable: true,
+      get() {
+        if (!this._column) setLineColumn(this);
+        return this._column;
+      },
+    });
+  }
+  return lambda;
+};
+
+
+
+thunkOfNodeType.Let = (node, source) => {
+  // syntax sugar: let a=1; in a -> rec {a=1;}.a
+
+  // depends on Var
+  // TODO refactor with Set, RecSet
+
+  checkInfiniteLoop();
+
+  //const data = {}; // Set -> data is in child scope via Select
+  node.data = {}; // RecSet -> data is in this scope
+
+  //console.log('thunkOfNodeType.Let: node', node);
+
+  let childNode;
+
+  if (!(childNode = firstChild(node))) {
+    throw new NixEvalError('Let: no key')
+  }
+
+  while (true) {
+    checkInfiniteLoop();
+    //console.log('thunkOfNodeType.Let: childNode', childNode);
+
+    let nextChildNode = nextSibling(childNode);
+
+    if (nextChildNode) {
+      const attrNode = childNode;
+
+      // copy paste from Set, RecSet
+      const keyNode = firstChild(attrNode);
+      if (!keyNode) {
+        throw new NixEvalError('Let Attr: no key');
+      }
+      //console.log('thunkOfNodeType.Let: keyNode', keyNode);
+
+      const valueNode = nextSibling(keyNode);
+      if (!valueNode) {
+        throw new NixEvalError('Let Attr: no value');
+      }
+      //console.log('thunkOfNodeType.Let: valueNode', valueNode);
+
+      const key = source.slice(keyNode.from, keyNode.to);
+      //console.log('thunkOfNodeType.Let: key', key);
+
+      function getThunk(valueNodeCopy) {
+        // create local copy of valueNode
+        return () => {
+          return valueNodeCopy.type.thunk(
+            valueNodeCopy,
+            source
+          );
+        }
+      }
+
+      Object.defineProperty(node.data, key, {
+        get: getThunk(valueNode),
+        enumerable: true,
+        configurable: true,
+      });
+
+      childNode = nextChildNode;
+    }
+
+    else {
+      // last childNode
+      const keyNode = childNode;
+      return callThunk(keyNode, source);
+    }
+  }
 };
 
 const _tmpl$$1 = /*#__PURE__*/template(`<div><div></div></div>`);
@@ -23313,8 +23678,6 @@ class InputStream {
         }
         return this.next = this.chunk.charCodeAt(this.chunkOff);
     }
-
-
     /// Move the stream forward N (defaults to 1) code units. Returns
     /// the new value of [`next`](#lr.InputStream.next).
     advance(n = 1) {
@@ -24396,7 +24759,7 @@ LRParser.deserialize({
   maxTerm: 221,
   skippedNodes: [0,3,4],
   repeatNodeCount: 7,
-  tokenData: ">f~R!QX^$Xpq$Xqr$|rs%Zst%`tu%kvw%vwx&Rxy&^yz&cz{&h{|&m|})m}!O)r!O!P*i!P!Q.g!Q![1Y![!]2d!]!^2i!^!_2n!_!`4o!`!a4|!a!b5Z!b!c5`!c!}5e!}#O:w#P#Q:|#R#S9n#T#o5e#o#p;R#p#q;W#q#r;c#r#s;l#y#z$X$f$g$X$g#BY:`#BY#BZ<y#BZ$IS:`$IS$I_<y$I_$I|:`$I|$JO<y$JO$JT:`$JT$JU<y$JU$KV:`$KV$KW<y$KW&FU:`&FU&FV<y&FV~:`~$^Y!q~X^$Xpq$X#y#z$X$f$g$X#BY#BZ$X$IS$I_$X$I|$JO$X$JT$JU$X$KV$KW$X&FU&FV$Xo%RP#dP!_!`%Un%ZO#gn~%`O#T~~%eQR~OY%`Z~%`~%nP#o#p%q~%vO#V~~%yPvw%|~&RO#l~~&UPwx&X~&^O%p~~&cO#[~~&hO#]~~&mO#q~~&rW#p~{|'[}!O'y!O!P'y!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'y~'aW#s~{|'y}!O'y!O!P'y!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'yk'|W{|'y}!O'y!O!P'y!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'yk(iV{|)O}!O)O!O!P)O!Q![)O!c!})O#R#S)O#T#o)Ok)TW}k{|)O}!O)O!O!P)O!P!Q(f!Q![)O!c!})O#R#S)O#T#o)O~)rO!w~~)wX#e~{|'y}!O'y!O!P'y!P!Q(f!Q!['y!`!a*d!c!}'y#R#S'y#T#o'y~*iO#n~~*nW#Wk{|'y}!O'y!O!P+W!P!Q(f!Q![,b!c!}'y#R#S'y#T#o'yo+ZW{|'y}!O'y!O!P+s!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'yo+xW!xS{|'y}!O'y!O!P'y!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'y~,g[%k~{|'y}!O'y!O!P'y!P!Q(f!Q![,b!c!g'y!g!h-]!h!}'y#R#S'y#T#X'y#X#Y-]#Y#o'y~-`W{|'y}!O'y!O!P'y!P!Q(f!Q![-x!c!}'y#R#S'y#T#o'y~-}W%k~{|'y}!O'y!O!P'y!P!Q(f!Q![-x!c!}'y#R#S'y#T#o'y~.lX#r~z{/X{|/|}!O/|!O!P/|!P!Q1T!Q![/|!c!}/|#R#S/|#T#o/|~/[ROz/Xz{/e{~/X~/hTOz/Xz{/e{!P/X!P!Q/w!Q~/X~/|OS~~0RW{~{|/|}!O/|!O!P/|!P!Q0k!Q![/|!c!}/|#R#S/|#T#o/|~0nV{|/|}!O/|!O!P/|!Q![/|!c!}/|#R#S/|#T#o/|~1YO#o~~1_W%j~{|'y}!O'y!O!P1w!P!Q(f!Q![1Y!c!}'y#R#S'y#T#o'y~1zW{|'y}!O'y!O!P'y!P!Q(f!Q![,b!c!}'y#R#S'y#T#o'y~2iO!s~~2nO!|~~2sW#h~{|3]}!O3]!O!P3]!Q![3]!_!`4j!c!}3]#R#S3]#T#o3]~3`X{|3]}!O3]!O!P3]!P!Q3{!Q![3]!`!a4e!c!}3]#R#S3]#T#o3]~4OV{|3]}!O3]!O!P3]!Q![3]!c!}3]#R#S3]#T#o3]~4jOz~~4oO#i~o4tP#XP!_!`4wn4|O#fn~5RP#j~!_!`5U~5ZO#k~~5`O!v~~5eO!z~~5jYV~{|6Y}!O5e!O!P'y!P!Q(f!Q![5e![!]6x!c!}5e#R#S9n#T#o5e$g~:`~6]X{|6Y}!O6Y!O!P'y!P!Q(f!Q![6Y![!]6x!c!}6Y#R#S'y#T#o6Y~6{dqr8Ztu8Zuv8Zvw8Zwx8Zz{8Z{|8Z|}8Z}!O8Z!O!P8Z!P!Q8Z!Q![8Z![!]8Z!_!`8Z!a!b8Z!b!c8Z!c!}8Z#R#S8Z#T#o8Z#r#s8Z~8`d!^~qr8Ztu8Zuv8Zvw8Zwx8Zz{8Z{|8Z|}8Z}!O8Z!O!P8Z!P!Q8Z!Q![8Z![!]8Z!_!`8Z!a!b8Z!b!c8Z!c!}8Z#R#S8Z#T#o8Z#r#s8Z~9sXV~{|'y}!O9n!O!P'y!P!Q(f!Q![9n!c!}9n#R#S9n#T#o9n$g~:`~:eUV~}!O:`!Q![:`!c!}:`#R#S:`#T#o:`$g~:`~:|O%s~~;RO%t~~;WO!t~~;ZP#p#q;^~;cO#m~o;lO!ye%qW#UQ~;oP!P!Q;r~;uV{|<[}!O<[!O!P<[!Q![<[!c!}<[#R#S<[#T#o<[~<aW|~{|<[}!O<[!O!P<[!P!Q;r!Q![<[!c!}<[#R#S<[#T#o<[~=QfV~!q~X^$Xpq$X}!O:`!Q![:`!c!}:`#R#S:`#T#o:`#y#z$X$f$g$X$g#BY:`#BY#BZ<y#BZ$IS:`$IS$I_<y$I_$I|:`$I|$JO<y$JO$JT:`$JT$JU<y$JU$KV:`$KV$KW<y$KW&FU:`&FU&FV<y&FV~:`",
+  tokenData: ">r~R!QX^$Xpq$Xqr$|rs%Zst%`tu%kvw%vwx&Rxy&^yz&cz{&h{|&m|})m}!O)r!O!P*i!P!Q.g!Q![1Y![!]2d!]!^2i!^!_2n!_!`4o!`!a4|!a!b5Z!b!c5`!c!}5e!}#O;Q#P#Q;V#R#S:]#T#o5e#o#p;[#p#q;a#q#r;l#r#s;u#y#z$X$f$g$X$g#BY6]#BY#BZ=S#BZ$IS6]$IS$I_=S$I_$I|6]$I|$JO=S$JO$JT6]$JT$JU=S$JU$KV6]$KV$KW=S$KW&FU6]&FU&FV=S&FV~6]~$^Y!q~X^$Xpq$X#y#z$X$f$g$X#BY#BZ$X$IS$I_$X$I|$JO$X$JT$JU$X$KV$KW$X&FU&FV$Xo%RP#dP!_!`%Un%ZO#gn~%`O#T~~%eQR~OY%`Z~%`~%nP#o#p%q~%vO#V~~%yPvw%|~&RO#l~~&UPwx&X~&^O%p~~&cO#[~~&hO#]~~&mO#q~~&rW#p~{|'[}!O'y!O!P'y!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'y~'aW#s~{|'y}!O'y!O!P'y!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'yk'|W{|'y}!O'y!O!P'y!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'yk(iV{|)O}!O)O!O!P)O!Q![)O!c!})O#R#S)O#T#o)Ok)TW}k{|)O}!O)O!O!P)O!P!Q(f!Q![)O!c!})O#R#S)O#T#o)O~)rO!w~~)wX#e~{|'y}!O'y!O!P'y!P!Q(f!Q!['y!`!a*d!c!}'y#R#S'y#T#o'y~*iO#n~~*nW#Wk{|'y}!O'y!O!P+W!P!Q(f!Q![,b!c!}'y#R#S'y#T#o'yo+ZW{|'y}!O'y!O!P+s!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'yo+xW!xS{|'y}!O'y!O!P'y!P!Q(f!Q!['y!c!}'y#R#S'y#T#o'y~,g[%k~{|'y}!O'y!O!P'y!P!Q(f!Q![,b!c!g'y!g!h-]!h!}'y#R#S'y#T#X'y#X#Y-]#Y#o'y~-`W{|'y}!O'y!O!P'y!P!Q(f!Q![-x!c!}'y#R#S'y#T#o'y~-}W%k~{|'y}!O'y!O!P'y!P!Q(f!Q![-x!c!}'y#R#S'y#T#o'y~.lX#r~z{/X{|/|}!O/|!O!P/|!P!Q1T!Q![/|!c!}/|#R#S/|#T#o/|~/[ROz/Xz{/e{~/X~/hTOz/Xz{/e{!P/X!P!Q/w!Q~/X~/|OS~~0RW{~{|/|}!O/|!O!P/|!P!Q0k!Q![/|!c!}/|#R#S/|#T#o/|~0nV{|/|}!O/|!O!P/|!Q![/|!c!}/|#R#S/|#T#o/|~1YO#o~~1_W%j~{|'y}!O'y!O!P1w!P!Q(f!Q![1Y!c!}'y#R#S'y#T#o'y~1zW{|'y}!O'y!O!P'y!P!Q(f!Q![,b!c!}'y#R#S'y#T#o'y~2iO!s~~2nO!|~~2sW#h~{|3]}!O3]!O!P3]!Q![3]!_!`4j!c!}3]#R#S3]#T#o3]~3`X{|3]}!O3]!O!P3]!P!Q3{!Q![3]!`!a4e!c!}3]#R#S3]#T#o3]~4OV{|3]}!O3]!O!P3]!Q![3]!c!}3]#R#S3]#T#o3]~4jOz~~4oO#i~o4tP#XP!_!`4wn4|O#fn~5RP#j~!_!`5U~5ZO#k~~5`O!v~~5eO!z~~5jZV~wx6]{|6w}!O5e!O!P'y!P!Q(f!Q![5e![!]7g!c!}5e#R#S:]#T#o5e$g~6]~6bVV~wx6]}!O6]!Q![6]!c!}6]#R#S6]#T#o6]$g~6]~6zX{|6w}!O6w!O!P'y!P!Q(f!Q![6w![!]7g!c!}6w#R#S'y#T#o6w~7jdqr8xtu8xuv8xvw8xwx8xz{8x{|8x|}8x}!O8x!O!P8x!P!Q8x!Q![8x![!]8x!_!`8x!a!b8x!b!c8x!c!}8x#R#S8x#T#o8x#r#s8x~8}d!^~qr8xtu8xuv8xvw8xwx8xz{8x{|8x|}8x}!O8x!O!P8x!P!Q8x!Q![8x![!]8x!_!`8x!a!b8x!b!c8x!c!}8x#R#S8x#T#o8x#r#s8x~:bYV~wx6]{|'y}!O:]!O!P'y!P!Q(f!Q![:]!c!}:]#R#S:]#T#o:]$g~6]~;VO%s~~;[O%t~~;aO!t~~;dP#p#q;g~;lO#m~o;uO!ye%qW#UQ~;xP!P!Q;{~<OV{|<e}!O<e!O!P<e!Q![<e!c!}<e#R#S<e#T#o<e~<jW|~{|<e}!O<e!O!P<e!P!Q;{!Q![<e!c!}<e#R#S<e#T#o<e~=ZgV~!q~X^$Xpq$Xwx6]}!O6]!Q![6]!c!}6]#R#S6]#T#o6]#y#z$X$f$g$X$g#BY6]#BY#BZ=S#BZ$IS6]$IS$I_=S$I_$I|6]$I|$JO=S$JO$JT6]$JT$JU=S$JU$KV6]$KV$KW=S$KW&FU6]&FU&FV=S&FV~6]",
   tokenizers: [string, indentedString, 0, 1, 2, 3, 4],
   topRules: {"Nix":[0,5]},
   specialized: [{term: 7, get: value => spec_Identifier[value] || -1}],
@@ -25029,6 +25392,14 @@ function configure (options) {
         return value === true ? 'true' : 'false'
       case 'undefined':
         return undefined
+      case 'function':
+        if (value.source) {
+          // :line:column
+          return `«lambda @ ${value.source.file}:${value.source.line}:${value.source.column}»`
+          // +from-to
+          //return `«lambda @ ${value.source.file}+${value.source.from}-${value.source.to}»`
+        }
+        return `«lambda»`
       default:
         return fail ? fail(value) : undefined
     }
@@ -25074,7 +25445,7 @@ const stringifyEvalResult = configure({
   maximumBreadth: 10,
   indent: "  "
 });
-const exampleInputs = ['1 # int', '1+1+1 # add', '1+1.0 # int + float', '0.1+0.2 # float precision', '0.123456789 # float precision', '2+3*4 # mul', '(2+3)*4 # parens', '1.0/ 2 # div', '1.0/2 # path', '1.0 /2 # call', '[1 2 3] # list', '__typeOf null # call', '__typeOf 1 # call', '__typeOf 1.0 # call', '__head [1 2 3] # call', '__tail [1 2 3] # call', '__elemAt [1 2 3] 1 # nested call', '{a=1;b=2;} # set', '{a=1;b=2;}.a # select', '{a=1;b=2;}.z # select missing attribute', '{a={b=2;};}.a.b # nested select'];
+const exampleInputs = ['1 # int', '1+1+1 # add', '1+1.0 # int + float', '0.1+0.2 # float precision', '0.123456789 # float precision', '2+3*4 # mul', '(2+3)*4 # parens', '1.0/ 2 # div', '1.0/2 # path', '1.0 /2 # call', '[1 2 3] # list', '__typeOf null # call', '__typeOf 1 # call', '__typeOf 1.0 # call', '__head [1 2 3] # call', '__tail [1 2 3] # call', '__elemAt [1 2 3] 1 # nested call', '{a=1;b=2;} # set', '{a=1;b=2;}.a # select', '{a=1;b=2;}.z # select missing attribute', '{a={b=2;};}.a.b # nested select', 'rec {a=1;b=a;}.b # rec set', 'let a=1; in a # let', 'let a={b=2;}; in a.b # nested let', 'x: x # lambda', '(x: x) 1 # call lambda', '(x: y: x + y) 1 2 # call lambda nested', 'let f=x: 2*x; in f 3 # let lambda call'];
 function App() {
   const [store, setStore] = createStore({
     editorText: exampleInputs[0],
@@ -25102,6 +25473,8 @@ function App() {
       evalResult = editorState.tree.topNode.type.thunk(editorState.tree.topNode, source);
     } catch (error) {
       if (error instanceof NixSyntaxError || error instanceof NixEvalError) {
+        console.warn(error);
+
         evalError = (() => {
           const _el$ = _tmpl$.cloneNode(true),
                 _el$2 = _el$.firstChild;
@@ -25131,9 +25504,11 @@ function App() {
         })();
       }
     } //console.log('evalResult', evalResult);
+    //setStore('evalResult', evalResult); // set store.evalResult
+    // hide evalResult in thunk, so solid does not call Nix Lambda
 
 
-    setStore('evalResult', evalResult); // set store.evalResult
+    setStore('evalResult', () => evalResult); // set store.evalResult
 
     setStore('evalError', evalError); // set store.evalError
   }
