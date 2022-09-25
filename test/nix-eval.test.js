@@ -1,8 +1,8 @@
 import test from 'ava';
 import { configure as getStringify } from '../src/nix-eval-stringify/index.js'
-import * as fs from "fs"
-import * as path from "path"
-import { fileURLToPath } from 'url';
+import * as fs from "node:fs"
+import * as path from "node:path"
+import { fileURLToPath } from 'node:url';
 import { NixEval } from "../src/nix-eval.js";
 import { fileTests } from './file-tests.js';
 
