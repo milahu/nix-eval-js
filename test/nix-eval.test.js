@@ -1,5 +1,5 @@
 import test from 'ava';
-import { configure as getStringify } from 'safe-stable-stringify'
+import { configure as getStringify } from '../src/nix-eval-stringify/index.js'
 import * as fs from "fs"
 import * as path from "path"
 import { fileURLToPath } from 'url';
