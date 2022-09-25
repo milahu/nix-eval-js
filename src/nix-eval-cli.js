@@ -3,7 +3,7 @@
 import { NixEval } from "./nix-eval.js";
 import process from "node:process";
 import { readFileSync } from 'node:fs';
-import { configure as getStringify } from './safe-stable-stringify/index.js'
+import { configure as getStringify } from '../src/nix-eval-stringify/index.js'
 
 const stringify = getStringify({
   maximumDepth: 2,
