@@ -1,4 +1,4 @@
-name: nodejs test + benchmark
+name: nodejs test
 
 on:
   push:
