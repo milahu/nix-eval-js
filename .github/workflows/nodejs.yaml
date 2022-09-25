@@ -34,15 +34,3 @@ jobs:
 
     - name: test
       run: pnpm run test
-
-    - name: benchmark
-      run: pnpm run test:perf:save
-
-    - name: update doc/benchmarks.json
-      # https://github.com/marketplace/actions/add-commit
-      uses: EndBug/add-and-commit@v9.1.0
-      with:
-        add: doc/benchmarks.json
-        author_name: GitHub Actions
-        author_email: actions@github.com
-        message: update doc/benchmarks.json
