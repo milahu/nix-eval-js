@@ -266,3 +266,19 @@ export const NixPrimops = {
   "__traceVerbose": arg => arg,
   */
 };
+
+
+
+export function nixTypeWithArticle(value) {
+  const typeName = NixPrimops.__typeOf(value);
+  const resultOfType = {
+    'null': 'null',
+    'set': 'a set',
+    'list': 'a list',
+    'int': 'an integer',
+    'float': 'a float',
+    'bool': 'a Boolean',
+    'string': 'a string',
+  };
+  return resultOfType[typeName];
+}

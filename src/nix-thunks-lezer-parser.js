@@ -1,5 +1,5 @@
 import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from './nix-errors.js';
-import { NixPrimops } from './nix-primops-lezer-parser.js';
+import { NixPrimops, nixTypeWithArticle } from './nix-primops-lezer-parser.js';
 
 // https://github.com/voracious/vite-plugin-node-polyfills/issues/4
 import { join as joinPath } from 'node:path'
@@ -91,20 +91,6 @@ function callThunk(node, source) {
 }
 
 
-
-function nixTypeWithArticle(value) {
-  const typeName = NixPrimops.__typeOf(value);
-  const resultOfType = {
-    'null': 'null',
-    'set': 'a set',
-    'list': 'a list',
-    'int': 'an integer',
-    'float': 'a float',
-    'bool': 'a Boolean',
-    'string': 'a string',
-  };
-  return resultOfType[typeName];
-}
 
 
 
