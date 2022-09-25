@@ -20,7 +20,7 @@ export function printNode(node, label = '') {
     extraDepth = 1; // indent the node
   }
   // note: this will print a trailing newline
-  //console.log(node.toString(0, 5, "  ", extraDepth));
+  console.log(node.toString(0, 5, "  ", extraDepth));
 }
 
 let infiniteLoopCounter = 0;
@@ -398,7 +398,7 @@ thunkOfNodeType.Call = (node, source) => {
     throw new NixEvalError('Call: no childNode1')
   }
   // eval deep first: get value1 now, childNode2 later
-  //console.log('thunkOfNodeType.Call: childNode1', childNode1);
+  //console.log('thunkOfNodeType.Call: childNode1', childNode1.type.name, childNode1);
 
   //if (childNode1.type.name == 'Primop' && nodeText(childNode1, source) == '__typeOf') {
     // call primop with syntax tree
@@ -423,11 +423,24 @@ thunkOfNodeType.Call = (node, source) => {
   if (!childNode2) {
     throw new NixEvalError('Call: no arg2')
   }
-  //console.log('thunkOfNodeType.Call: childNode2', childNode2);
+
+  //console.log('thunkOfNodeType.Call: childNode2', childNode2.type.name, childNode2);
+
   const value2 = callThunk(childNode2, source);
-  //console.log('thunkOfNodeType.Call: arg2', arg2);
+  //console.log('thunkOfNodeType.Call: value2', value2);
+  const callNode = node;
+  //console.log('thunkOfNodeType.Call: callNode', callNode);
 
   return value1(value2);
+
+  /*
+  // Lambda. also pass callNode
+  // call function lambda(argumentValue)
+  // Primop
+  return value1.apply(callNode, [value2]); // this == callNode
+  //return value1(childNode2, source);
+  //return value1.apply(callNode, [childNode2, source]);
+  */
 };
 
 
@@ -605,7 +618,7 @@ thunkOfNodeType.Set = (node, source) => {
     function getThunk(valueNodeCopy) {
       // create local copy of valueNode
       return () => {
-        //console.log(`Set value thunk: call thunk of valueNodeCopy`, valueNodeCopy)
+        //console.log(`Set key=${key}: value thunk: call thunk of valueNodeCopy`, valueNodeCopy)
         return valueNodeCopy.type.thunk(
           valueNodeCopy,
           source
@@ -627,6 +640,96 @@ thunkOfNodeType.Set = (node, source) => {
   }
 
   return data;
+};
+
+
+
+/** @typedef {Record<string, any>} LazyObject */
+/** @return {LazyObject} */
+thunkOfNodeType.RecSet = (node, source) => {
+
+  // depends on Var
+  // TODO refactor with Set
+
+  checkInfiniteLoop();
+
+  //if (!node) {
+  //  throw NixEvalError('Set: node is null')
+  //}
+
+  // TODO cache. but where? global cache? local context?
+  // node is probably a bad choice
+  //if (!node.data) node.data = {};
+  //const data = node.data;
+  // TODO lazy object via Proxy, see LazyArray
+  //const data = {}; // Set -> data is in child scope via Select
+  node.data = {}; // RecSet -> data is in this scope
+
+  //console.log('thunkOfNodeType.Set: typeof(node)', typeof(node));
+
+  //console.log('thunkOfNodeType.Set: typeof(node.firstChild)', typeof(node.firstChild));
+
+  //if (!node.firstChild) {
+  //  throw NixEvalError('Set: node.firstChild is empty. node:', node)
+  //}
+
+  //console.log('thunkOfNodeType.Set ------------------------');
+  //console.log('thunkOfNodeType.Set: node', node);
+
+  let attrNode;
+
+  if (!(attrNode = firstChild(node))) {
+    // empty set
+    return node.data;
+  }
+
+  while (true) {
+    checkInfiniteLoop();
+    //console.log('thunkOfNodeType.Set: attrNode', attrNode);
+
+    const keyNode = firstChild(attrNode);
+    if (!keyNode) {
+      throw new NixEvalError('Set Attr: no key');
+    }
+    //console.log('thunkOfNodeType.Set: keyNode', keyNode);
+
+    const valueNode = nextSibling(keyNode);
+    if (!valueNode) {
+      throw new NixEvalError('Set Attr: no value');
+    }
+    //console.log('thunkOfNodeType.Set: valueNode', valueNode);
+
+    //const copyNode = (node) => node;
+    //const valueNodeCopy = copyNode(valueNode);
+
+    const key = source.slice(keyNode.from, keyNode.to);
+    //console.log('thunkOfNodeType.Set: key', key);
+
+    function getThunk(valueNodeCopy) {
+      // create local copy of valueNode
+      return () => {
+        //console.log(`Set value thunk: call thunk of valueNodeCopy`, valueNodeCopy)
+        return valueNodeCopy.type.thunk(
+          valueNodeCopy,
+          source
+        );
+      }
+    }
+
+    Object.defineProperty(node.data, key, {
+      get: getThunk(valueNode),
+      enumerable: true,
+      // fix: TypeError: Cannot redefine property: a
+      configurable: true,
+    });
+
+
+    if (!(attrNode = nextSibling(attrNode))) {
+      break;
+    }
+  }
+
+  return node.data;
 };
 
 
@@ -666,15 +769,276 @@ thunkOfNodeType.Select = (node, source) => {
 
 
 
-// derived from other types
-/*
-getThunkOfNodeType.Let = (node) => (node.thunk = () => {
-  // syntax sugar:   let a=1; in a   ->   (rec{a=1;}).a
-  // TODO refactor setThunkOfNodeType to class
-  //printNode(node, "Let.thunk");
-  return 'TODO';
-});
-*/
+/** @return {any} */
+thunkOfNodeType.Var = (node, source) => {
+  // input: a
+  // tree:
+  // Nix: a
+  //   Var: a
+  //     Identifier: a
+  checkInfiniteLoop();
+  const keyNode = firstChild(node);
+  if (!keyNode) {
+    throw new NixEvalError('Var: no keyNode')
+  }
+  // FIXME source is undefined when called from Call
+  const key = nodeText(keyNode, source);
+  //console.log(`thunkOfNodeType.Var: key`, key);
+
+  // find scope
+  // wrong. this breaks with
+  // Nix: let f=x: x; in f 1
+  //   Let: let f=x: x; in f 1
+  //     Attr: f=x: x;
+  //       Identifier: f
+  //       Lambda: x: x
+  //         Identifier: x
+  //         Var: x
+  //           Identifier: x
+  //     Call: f 1
+  //       Var: f
+  //         Identifier: f
+  //       Int: 1
+  //
+  // "Var: f" works
+  // because f is stored in Let.data
+  // "Var: x" fails
+  // because x is stored in Call.data
+  // but is searched in
+  //   Lambda.data
+  //   Attr.data
+  //   Let.data
+  //   Nix.data
+  //
+  // TODO explicitly pass scope Call to Lambda
+  //
+  // or ... scope == callstack?
+
+  let parent = node;
+  //console.log(`thunkOfNodeType.Var ${key}: find scope: node`, node.type?.name, node); // Var
+  while ((parent = parent.parent)) {
+    //console.log(`thunkOfNodeType.Var ${key}: find scope: parent`, parent.type?.name, parent);
+    if (parent.data && Object.hasOwn(parent.data, key)) {
+      //console.log(`thunkOfNodeType.Var ${key}: find scope: done`);
+      return parent.data[key];
+    }
+  }
+
+  //console.log(`thunkOfNodeType.Var ${key}: find scope: not found`);
+
+  throw new NixEvalError(`undefined variable '${key}'`);
+};
+
+
+
+/** @return {function} */
+thunkOfNodeType.Lambda = (node, source) => {
+  checkInfiniteLoop();
+  const argumentNode = firstChild(node);
+  if (!argumentNode) {
+    throw new NixEvalError('Lambda: no argumentNode')
+  }
+  //const argumentValue = callThunk(argumentNode, source);
+
+  let bodyNode = nextSibling(argumentNode);
+  if (!bodyNode) {
+    throw new NixEvalError('Lambda: no bodyNode')
+  }
+
+  if (argumentNode.type.name != 'Identifier') {
+    throw new NixEvalNotImplemented('Lambda: argumentNode must be Identifier')
+  }
+
+  // argumentNode.type.name == 'Identifier'
+  // simple function: f = x: (x + 1)
+  const argumentName = nodeText(argumentNode, source);
+
+  //console.log(`thunkOfNodeType.Lambda: return function`)
+  function call2(node, source) { // TODO remove
+    //console.log(`thunkOfNodeType.Lambda: function call2 was called. args`, arguments, new Error().stack)
+    //node.data = {'x': 'TODO'};
+    return callThunk(bodyNode, source);
+
+  };
+
+  const lambdaNode = node;
+  lambdaNode.data = {};
+
+  //return function call1(argumentNode, source) {
+  // note: lambda must be normal function, so this == callNode
+  const lambda = function lambda(argumentValue) {
+    // lambda is called from Call
+    // value1.apply(callNode, [value2])
+    /*
+    const callNode = this;
+    console.log(`thunkOfNodeType.Lambda: call1: should be Call: this`, this)
+    console.log(`thunkOfNodeType.Lambda: call1: argumentValue`, argumentValue)
+    */
+    //return call2;
+    // call2 is called by solid setStore('evalResult', evalResult)
+    // TODO setStore should not call evalResult. -> hide evalResult in thunk?
+    // setStore('evalResult', (() => evalResult))
+    //console.log(`thunkOfNodeType.Lambda: call1: return function call2. args`, arguments, new Error().stack)
+    // find parent Call node
+
+    /*
+    let callNode = node;
+    while (callNode = callNode.parent) {
+      if (callNode.type.name == 'Call') {
+        if (!callNode.data) {
+          callNode.data = {};
+        }
+        callNode.data[argumentName] = callThunk(TODO)
+      }
+    }
+    */
+
+    /*
+    // TODO verify
+    const callNode = argumentNode.parent;
+    console.log(`thunkOfNodeType.Lambda: call1: argumentNode`, argumentNode)
+    console.log(`thunkOfNodeType.Lambda: call1: callNode`, callNode)
+    */
+
+    /* wrong scope. Call != Lambda
+    console.log(`thunkOfNodeType.Lambda: call1: setting data.${argumentName} on callNode ${callNode.type.name}`, callNode)
+    if (!callNode.data) {
+      callNode.data = {};
+    }
+    // argumentNode thunk is called in Call
+    //callNode.data[argumentName] = callThunk(argumentNode, source);
+    callNode.data[argumentName] = argumentValue;
+    */
+
+    // store argument value in Lambda.data
+    //const lambdaNode = bodyNode.parent;
+    //lambdaNode.data = {}; // reset to empty
+    //lambdaNode.data[argumentName] = argumentValue;
+    lambdaNode.data = {
+      [argumentName]: argumentValue,
+    };
+    // TODO handle complex args: formals, formals-at-binding
+
+    return callThunk(bodyNode, source);
+  };
+
+  // store source location of lambda
+  {
+    lambda.source = {
+      file: '(string)', // TODO nix file path
+      from: node.from,
+      to: node.to,
+    };
+    const setLineColumn = (lambdaSource) => {
+      const sourceLines = source.split('\n');
+      //console.log(`setLineColumn lambdaSource`, lambdaSource)
+      //console.log(`setLineColumn sourceLines`, sourceLines)
+      let lineFrom = 0;
+      for (let lineIdx = 0; lineIdx < sourceLines.length; lineIdx++) {
+        const line = sourceLines[lineIdx];
+        if (lambdaSource.from >= lineFrom) {
+          // found line
+          lambdaSource._line = lineIdx + 1; // lines are 1 based in Nix
+          lambdaSource._column = (lambdaSource.from - lineFrom) + 1; // columns are 1 based in Nix
+          return;
+        }
+        lineFrom += line.length + 1; // +1 for \n
+      }
+      // error
+      lambdaSource._line = 'not';
+      lambdaSource._column = 'found';
+    }
+    Object.defineProperty(lambda.source, 'line', {
+      enumerable: true,
+      get() {
+        if (!this._line) setLineColumn(this);
+        return this._line;
+      },
+    });
+    Object.defineProperty(lambda.source, 'column', {
+      enumerable: true,
+      get() {
+        if (!this._column) setLineColumn(this);
+        return this._column;
+      },
+    });
+  };
+
+  return lambda;
+};
+
+
+
+thunkOfNodeType.Let = (node, source) => {
+  // syntax sugar: let a=1; in a -> rec {a=1;}.a
+
+  // depends on Var
+  // TODO refactor with Set, RecSet
+
+  checkInfiniteLoop();
+
+  //const data = {}; // Set -> data is in child scope via Select
+  node.data = {}; // RecSet -> data is in this scope
+
+  //console.log('thunkOfNodeType.Let: node', node);
+
+  let childNode;
+
+  if (!(childNode = firstChild(node))) {
+    throw new NixEvalError('Let: no key')
+  }
+
+  while (true) {
+    checkInfiniteLoop();
+    //console.log('thunkOfNodeType.Let: childNode', childNode);
+
+    let nextChildNode = nextSibling(childNode);
+
+    if (nextChildNode) {
+      const attrNode = childNode;
+
+      // copy paste from Set, RecSet
+      const keyNode = firstChild(attrNode);
+      if (!keyNode) {
+        throw new NixEvalError('Let Attr: no key');
+      }
+      //console.log('thunkOfNodeType.Let: keyNode', keyNode);
+
+      const valueNode = nextSibling(keyNode);
+      if (!valueNode) {
+        throw new NixEvalError('Let Attr: no value');
+      }
+      //console.log('thunkOfNodeType.Let: valueNode', valueNode);
+
+      const key = source.slice(keyNode.from, keyNode.to);
+      //console.log('thunkOfNodeType.Let: key', key);
+
+      function getThunk(valueNodeCopy) {
+        // create local copy of valueNode
+        return () => {
+          return valueNodeCopy.type.thunk(
+            valueNodeCopy,
+            source
+          );
+        }
+      }
+
+      Object.defineProperty(node.data, key, {
+        get: getThunk(valueNode),
+        enumerable: true,
+        configurable: true,
+      });
+
+      childNode = nextChildNode;
+    }
+
+    else {
+      // last childNode
+      const keyNode = childNode;
+      return callThunk(keyNode, source);
+    }
+  }
+};
 
 
 
