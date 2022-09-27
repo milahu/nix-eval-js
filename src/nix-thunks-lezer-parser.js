@@ -849,7 +849,6 @@ thunkOfNodeType.Lambda = (node, state, env) => {
   if (!argumentNode) {
     throw new NixEvalError('Lambda: no argumentNode')
   }
-  //const argumentValue = callThunk(argumentNode, state, env);
 
   let bodyNode = nextSibling(argumentNode);
   if (!bodyNode) {
@@ -857,100 +856,25 @@ thunkOfNodeType.Lambda = (node, state, env) => {
   }
 
   if (argumentNode.type.name != 'Identifier') {
-    throw new NixEvalNotImplemented(`Lambda: argumentNode type ${argumentNode.type.name} is not implemented`)
+    throw new NixEvalNotImplemented(`Lambda: argumentNode type ${argumentNode.type.name} is not implemented: ${nodeText(argumentNode, state)}`)
   }
 
   // argumentNode.type.name == 'Identifier'
   // simple function: f = x: (x + 1)
   const argumentName = nodeText(argumentNode, state);
 
-  //return function call1(argumentNode, source) {
-  // note: lambda must be normal function, so this == callNode
-  // we need an IIFE closure to copy bodyNode (no?)
-  const lambda = ((bodyNode) => function lambda(argumentValue) {
+  function lambda(argumentValue) {
     // lambda is called from Call
-    // value1.apply(callNode, [value2])
-    /*
-    const callNode = this;
-    console.log(`thunkOfNodeType.Lambda: call1: should be Call: this`, this)
-    console.log(`thunkOfNodeType.Lambda: call1: argumentValue`, argumentValue)
-    */
-    //return call2;
-    // call2 is called by solid setStore('evalResult', evalResult)
-    // TODO setStore should not call evalResult. -> hide evalResult in thunk?
-    // setStore('evalResult', (() => evalResult))
-    //console.log(`thunkOfNodeType.Lambda: call1: return function call2. args`, arguments, new Error().stack)
-    // find parent Call node
-
-    /*
-    let callNode = node;
-    while (callNode = callNode.parent) {
-      if (callNode.type.name == 'Call') {
-        if (!callNode.data) {
-          callNode.data = {};
-        }
-        callNode.data[argumentName] = callThunk(TODO)
-      }
-    }
-    */
-
-    /*
-    // TODO verify
-    const callNode = argumentNode.parent;
-    console.log(`thunkOfNodeType.Lambda: call1: argumentNode`, argumentNode)
-    console.log(`thunkOfNodeType.Lambda: call1: callNode`, callNode)
-    */
-
-    /* wrong scope. Call != Lambda
-    console.log(`thunkOfNodeType.Lambda: call1: setting data.${argumentName} on callNode ${callNode.type.name}`, callNode)
-    if (!callNode.data) {
-      callNode.data = {};
-    }
-    // argumentNode thunk is called in Call
-    //callNode.data[argumentName] = callThunk(argumentNode, source);
-    callNode.data[argumentName] = argumentValue;
-    */
-
-    // store argument value in Lambda.data
-    //const lambdaNode = bodyNode.parent;
-    //lambdaNode.data = {}; // reset to empty
-    //lambdaNode.data[argumentName] = argumentValue;
-    /*
-    lambdaNode.data = {
-      [argumentName]: argumentValue,
-    };
-    */
-    // bodyNode is not a parent node of nested lambdas
-    /*
-    bodyNode.data = {
-      [argumentName]: argumentValue,
-    };
-    */
-    
-    // TODO
-    // find scope: parent
-
-    const node = bodyNode.parent; // Lambda node
-    //const dataNode = bodyNode.parent; // wrong? fib: undefined variable 'n'
-    const dataNode = bodyNode; // wrong? fib: undefined variable 'i'
-    // wrong??? should be set in Call?
-    /* wrong: old variables are removed
-    dataNode.data = {
-      [argumentName]: argumentValue,
-    };
-    */
-
     // TODO handle complex args: formals, formals-at-binding
-
     const childEnv = new Env(env, {
       [argumentName]: argumentValue,
     });
-
     return callThunk(bodyNode, state, childEnv);
-
-  })(bodyNode);
+  }
 
   // store source location of lambda
+  // TODO move to utils.js
+  //lambda.source = getSourceProp(node, state);
   {
     lambda.source = {
       file: '(string)', // TODO nix file path
