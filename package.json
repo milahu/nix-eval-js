@@ -23,8 +23,19 @@
   "keywords": [
     "nix",
     "nixos",
+    "nixpkgs",
+    "eval",
+    "evaluator",
     "interpreter",
-    "evaluator"
+    "incremental-interpreter",
+    "incremental-evaluator",
+    "incremental-evaluation",
+    "incremental-compiler",
+    "incremental-compilation",
+    "live-coding",
+    "lezer-parser",
+    "vanillajs",
+    "toy-interpreter"
   ],
   "author": "Milan Hauth",
   "license": "MIT",
