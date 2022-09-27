@@ -347,6 +347,23 @@ thunkOfNodeType.Not = (node, state, env) => {
 
 
 
+/** @return {number | bigint} */
+thunkOfNodeType.Neg = (node, state, env) => {
+  checkInfiniteLoop();
+  //console.log('thunkOfNodeType.Neg: node', node);
+  let childNode = firstChild(node);
+  if (!childNode) {
+    throw new NixEvalError('Neg: no childNode')
+  }
+  const value = callThunk(childNode, state, env);
+  // TODO check type
+  // nix-repl> -{}
+  // error: value is a set while an integer was expected
+  return -value;
+};
+
+
+
 const debugCall = false
 
 /** @return {any} */
