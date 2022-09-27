@@ -69,7 +69,7 @@ const exampleInputs = [
   '(2+3)*4 # parens',
   '1.0/ 2 # div',
   '1.0/2 # path',
-  '1.0 /2 # call',
+  '1.0 /2 # call: type error',
 
   '[1 2 3] # list',
 
@@ -86,7 +86,7 @@ const exampleInputs = [
 
   '{a=1;b=2;} # set',
   '{a=1;b=2;}.a # select',
-  '{a=1;b=2;}.z # select missing attribute',
+  '{a=1;b=2;}.z # select: key error',
   '{a={b=2;};}.a.b # nested select',
   'rec {a=1;b=a;}.b # rec set',
 
@@ -103,24 +103,16 @@ const exampleInputs = [
   `let f = x: y: z: x; in f 1 2 3 # lambda multi arg`,
 
   `# recursive call
-let
-f = x: if x > 0 then f (x - 1) else x;
-in
-f 1
-`,
+let f = x: if x > 0 then f (x - 1) else x;
+in f 1`,
   `# call 2 functions nested
-let
-  f = x: y: (g 1 x) + y;
+let f = x: y: (g 1 x) + y;
   g = x: y: x + y;
-in
-f 1 1
-`,
+in f 1 1`,
   `# call 2 functions
-let
-  f1 = x: x + 1;
+let f1 = x: x + 1;
   f2 = x: x + 2;
-in
-f2 (f1 1)
+in f2 (f1 1)
 `,
 
   // fibonacci based on https://medium.com/@MrJamesFisher/nix-by-example-a0063a1a4c55
