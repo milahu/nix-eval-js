@@ -50,8 +50,8 @@ for (let file of fs.readdirSync(caseDir)) {
     else {
       try {
         // not done yet
-        // some errors are triggered by stringify
-        // because lazy eval
+        // some errors are triggered by stringify, because lazy eval
+        // example: "{a=1;b=a;}"
         resultString = String(stringify(result));
       }
       catch (_error) {

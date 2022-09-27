@@ -41,8 +41,14 @@ for (let file of fs.readdirSync(caseDir)) {
       test(name, t => {
         const nix = new NixEval();
         let result;
+        let actual;
         const error = t.throws(() => {
           result = nix.eval(text);
+          // not done yet
+          // some errors are triggered by stringify, because lazy eval
+          // example: "{a=1;b=a;}"
+          actual = stringify(result);
+          actual = String(actual);
         }, { instanceOf: Error });
         if (!error) {
           console.log(`expected error, got result:`);
