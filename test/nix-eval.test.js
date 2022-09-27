@@ -20,17 +20,19 @@ for (let file of fs.readdirSync(caseDir)) {
   const newTests = []
 
   for (let testData of fileTests(fileContent, file)) {
-    let { name, text, expected, configStr, strict } = testData;
+    let { name, text: textJson, expected, configStr, strict } = testData;
     //console.dir(testData); // debug
 
     if (name) {
-      name = `${name}: ${text} ==> ${expected}`
+      name = `${name}: ${textJson} ==> ${expected}`
     }
     else {
-      name = `${text} ==> ${expected}`
+      name = `${textJson} ==> ${expected}`
     }
 
     if (/SKIP/.test(name)) continue;
+
+    const text = JSON.parse(textJson);
 
     if (expected.startsWith('ERROR ')) {
       const expectedParts = expected.split(' ');
@@ -40,14 +42,14 @@ for (let file of fs.readdirSync(caseDir)) {
         const nix = new NixEval();
         let result;
         const error = t.throws(() => {
-          result = nix.eval(JSON.parse(text));
+          result = nix.eval(text);
         }, { instanceOf: Error });
         if (!error) {
           console.log(`expected error, got result:`);
           console.log(result);
         }
         // debug
-        /*
+        /** /
         console.dir({
           errorName: error.name,
           expectedErrorName,
@@ -56,7 +58,7 @@ for (let file of fs.readdirSync(caseDir)) {
           errorMessage: error.message,
           expectedErrorMessage,
         });
-        */
+        /**/
         t.is(error.name, expectedErrorName);
         t.is(error.message, expectedErrorMessage);
       });
@@ -65,7 +67,7 @@ for (let file of fs.readdirSync(caseDir)) {
 
     test(name, t => {
       const nix = new NixEval();
-      const result = nix.eval(JSON.parse(text));
+      const result = nix.eval(text);
       const actual = String(stringify(result));
       t.is(actual.trim(), expected.trim());
     });
