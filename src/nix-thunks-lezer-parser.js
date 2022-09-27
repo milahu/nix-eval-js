@@ -208,56 +208,14 @@ thunkOfNodeType.Primop = (node, state, env) => {
 
 
 
-/** @return {number | bigint} */
+/** @return {number | bigint | string} */
 thunkOfNodeType.Add = (node, state, env) => {
 
   // arithmetic addition or string concat
-  // TODO check types
-
-  // nix-repl> 1+""
-  // error: cannot add a string to an integer
-
-  // nix-repl> ""+1
-  // error: cannot coerce an integer to a string
 
   checkInfiniteLoop();
-  //console.log('thunkOfNodeType.Add: node', node);
-  let childNode1 = firstChild(node);
-  if (!childNode1) {
-    throw new NixEvalError('Add: no childNode1')
-  }
 
-  // TODO eval now or eval later? deep or broad?
-  const evalBroadFirst = true;
-  let value1;
-  let childNode2;
-  if (evalBroadFirst) {
-    childNode2 = nextSibling(childNode1);
-    if (!childNode2) {
-      throw new NixEvalError('Add: no arg2')
-    }
-    //console.log('thunkOfNodeType.Add: arg1 ...');
-    value1 = callThunk(childNode1, state, env);
-    //console.log('thunkOfNodeType.Add: arg1', arg1);
-  }
-  else {
-    // eval deep first
-    //console.log('thunkOfNodeType.Add: arg1 ...');
-    value1 = callThunk(childNode1, state, env);
-    //console.log('thunkOfNodeType.Add: arg1', arg1);
-    childNode2 = nextSibling(childNode1);
-    if (!childNode2) {
-      throw new NixEvalError('Add: no arg2')
-    }
-  }
-
-  //console.log('thunkOfNodeType.Add: arg2 ...');
-  const value2 = callThunk(childNode2, state, env);
-  //console.log('thunkOfNodeType.Add: arg2', arg2);
-
-  // TODO round result of float
-  // nix: 0.1 + 0.2 == 0.3
-  // js: 0.1 + 0.2 == 0.30000000000000004
+  const [value1, value2] = get2Values(node, state, env, { caller: 'Add' })
 
   // string + string -> string
   if (typeof(value1) == 'string' && typeof(value2) == 'string') {
