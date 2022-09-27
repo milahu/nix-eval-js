@@ -26,14 +26,18 @@ const stringifyValue = getStringifyResult({
 
  
 /** @type {(node: SyntaxNode, label: string) => void} */
-export function printNode(node, label = '') {
+export function printNode(node, state, env, options = {}) {
+  if (!options) options = {};
+  const label = options.label || '';
   let extraDepth = 0;
   if (label) {
     //console.log(label);
     extraDepth = 1; // indent the node
   }
   // note: this will print a trailing newline
-  console.log(node.toString(0, 5, "  ", extraDepth));
+  //console.log(node.toString(0, 5, "  ", extraDepth));
+  const nodeSource = state.source.slice(node.from, node.to)
+  console.log((label ? (label + ': ') : '') + `${node.type.name}: ${nodeSource}`);
 }
 
 
@@ -856,26 +860,38 @@ thunkOfNodeType.Lambda = (node, state, env) => {
     throw new NixEvalError('Lambda: no bodyNode')
   }
 
-  if (argumentNode.type.name != 'Identifier') {
+  let lambda;
+
+  if (argumentNode.type.name == 'Identifier') {
+    // simple function: f = x: (x + 1)
+    const argumentName = nodeText(argumentNode, state);
+    lambda = function lambda(argumentValue) {
+      const childEnv = new Env(env, {
+        [argumentName]: argumentValue,
+      });
+      return callThunk(bodyNode, state, childEnv);
+    }
+  }
+  else if (argumentNode.type.name == 'Formals') {
+    printNode(argumentNode, state, env, { label: 'formals' });
+    let formal = firstChild(argumentNode);
+    while (formal) {
+      printNode(formal, state, env, { label: 'formal' });
+      formal = nextSibling(formal);
+    }
+    // TODO
+    throw new NixEvalNotImplemented(`Lambda: argumentNode type ${argumentNode.type.name} is not implemented: ${nodeText(argumentNode, state)}`)
+  }
+  else {
     throw new NixEvalNotImplemented(`Lambda: argumentNode type ${argumentNode.type.name} is not implemented: ${nodeText(argumentNode, state)}`)
   }
 
-  // argumentNode.type.name == 'Identifier'
-  // simple function: f = x: (x + 1)
-  const argumentName = nodeText(argumentNode, state);
+  // TODO handle complex args: formals, formals-at-binding
 
-  function lambda(argumentValue) {
-    // lambda is called from Call
-    // TODO handle complex args: formals, formals-at-binding
-    const childEnv = new Env(env, {
-      [argumentName]: argumentValue,
-    });
-    return callThunk(bodyNode, state, childEnv);
-  }
-
-  // store source location of lambda
+  // store source location
   lambda.source = getSourceProp(node, state);
 
+  // lambda is called from Call
   return lambda;
 };
 
