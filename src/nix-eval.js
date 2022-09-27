@@ -102,6 +102,9 @@ export class Env {
     debugEnv && console.log(`Env.get: key=${key} -> NOT found`)
     return undefined
   }
+  has(key) {
+    return Object.hasOwn(this.data, key);
+  }
 }
 
 // TODO class Node?
