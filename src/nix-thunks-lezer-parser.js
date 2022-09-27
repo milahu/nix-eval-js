@@ -994,7 +994,8 @@ thunkOfNodeType.Lambda = (node, source) => {
 
     const node = bodyNode.parent; // Lambda node
     //const dataNode = bodyNode.parent; // wrong? fib: undefined variable 'n'
-    const dataNode = bodyNode; // wrong?
+    const dataNode = bodyNode; // wrong? fib: undefined variable 'i'
+    // wrong??? should be set in Call?
     /* wrong: old variables are removed
     dataNode.data = {
       [argumentName]: argumentValue,
