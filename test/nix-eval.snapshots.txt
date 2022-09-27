@@ -194,7 +194,7 @@ ERROR EvalError attempt to call something which is not a function but an integer
 "int"
 
 # typeof float
-"__typeOf 1.2"
+"__typeOf 1.0"
 ==>
 "float"
 
