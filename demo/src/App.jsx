@@ -57,7 +57,6 @@ Nix
       Int: 1
 */
 const exampleInputs = [
-  'rec {a=1;b=a;}.b # rec set',
 
   '1 # int',
   '1+1+1 # add',
@@ -97,6 +96,9 @@ const exampleInputs = [
   '(x: x) 1 # call lambda',
   '(x: y: x + y) 1 2 # call lambda nested',
 
+  '({x}: x) {x=1;} # lambda formals',
+  '({...}@args: args.x) {x=1;} # lambda formals binding',
+
   'let f=x: 2*x; in f 3 # let lambda call',
   'let f = a: b: (a+b); in f 1 2 # let lambda call nested',
 
@@ -116,21 +118,29 @@ in f2 (f1 1)
 `,
 
   // fibonacci based on https://medium.com/@MrJamesFisher/nix-by-example-a0063a1a4c55
-  `# Fibonacci
+  `# Fibonacci 9
 let f = i: n: m: if i == 0 then n
     else f (i - 1) m (n + m);
   fib = n: f n 1 1;
 in fib 9`,
 
-  `# bigint vs integer overflow
+  `# Fibonacci 99: bigint vs integer overflow
 let f = i: n: m: if i == 0 then n
     else f (i - 1) m (n + m);
   fib = n: f n 1 1;
 in fib 99
-# original Nix shows different result:
+# original Nix interpreter shows different result:
 # 3736710778780434371`,
 
-  `# Maximum call stack size exceeded
+  `# Fibonacci 999: bigint vs integer overflow
+let f = i: n: m: if i == 0 then n
+    else f (i - 1) m (n + m);
+  fib = n: f n 1 1;
+in fib 999
+# original Nix interpreter shows different result:
+# 817770325994397771`,
+
+  `# Fibonacci 9999: Maximum call stack size exceeded
 let f = i: n: m: if i == 0 then n
     else f (i - 1) m (n + m);
   fib = n: f n 1 1;
