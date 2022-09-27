@@ -857,7 +857,7 @@ thunkOfNodeType.Lambda = (node, state, env) => {
   }
 
   if (argumentNode.type.name != 'Identifier') {
-    throw new NixEvalNotImplemented('Lambda: argumentNode must be Identifier')
+    throw new NixEvalNotImplemented(`Lambda: argumentNode type ${argumentNode.type.name} is not implemented`)
   }
 
   // argumentNode.type.name == 'Identifier'
