@@ -45,6 +45,10 @@
   color: orange;
 }
 
+.eval-result {
+  overflow: auto;
+}
+
 .header {
   /*
   background-color: #282c34;

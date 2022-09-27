@@ -231,7 +231,7 @@ export default function App() {
             <SplitItem>
               {getCodeMirror()}
               <div>Result:</div>
-              <div class="eval-result">{
+              <div class={styles['eval-result']}>{
                 //JSON.stringify(store.evalResult, null, 1)
                 //stringifyEvalResult(store.evalResult)
                 store.evalResultString
