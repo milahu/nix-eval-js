@@ -1,6 +1,7 @@
 import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from './nix-errors.js';
 import { NixPrimops, nixTypeWithArticle } from './nix-primops-lezer-parser.js';
 import { checkInfiniteLoop, resetInfiniteLoopCounter, } from './infinite-loop-counter.js';
+import { getSourceProp } from './nix-utils.js'
 
 // https://github.com/voracious/vite-plugin-node-polyfills/issues/4
 import { join as joinPath } from 'node:path'
@@ -873,49 +874,7 @@ thunkOfNodeType.Lambda = (node, state, env) => {
   }
 
   // store source location of lambda
-  // TODO move to utils.js
-  //lambda.source = getSourceProp(node, state);
-  {
-    lambda.source = {
-      file: '(string)', // TODO nix file path
-      from: node.from,
-      to: node.to,
-    };
-    const setLineColumn = (lambdaSource) => {
-      const sourceLines = state.source.split('\n');
-      //console.log(`setLineColumn lambdaSource`, lambdaSource)
-      //console.log(`setLineColumn sourceLines`, sourceLines)
-      let lineFrom = 0;
-      for (let lineIdx = 0; lineIdx < sourceLines.length; lineIdx++) {
-        const line = sourceLines[lineIdx];
-        const lineTo = lineFrom + line.length;
-        if (lineFrom <= lambdaSource.from && lambdaSource.from <= lineTo) {
-          // found line
-          lambdaSource._line = lineIdx + 1; // lines are 1 based in Nix
-          lambdaSource._column = (lambdaSource.from - lineFrom) + 1; // columns are 1 based in Nix
-          return;
-        }
-        lineFrom += line.length + 1; // +1 for \n
-      }
-      // error
-      lambdaSource._line = 'not';
-      lambdaSource._column = 'found';
-    }
-    Object.defineProperty(lambda.source, 'line', {
-      enumerable: true,
-      get() {
-        if (!this._line) setLineColumn(this);
-        return this._line;
-      },
-    });
-    Object.defineProperty(lambda.source, 'column', {
-      enumerable: true,
-      get() {
-        if (!this._column) setLineColumn(this);
-        return this._column;
-      },
-    });
-  };
+  lambda.source = getSourceProp(node, state);
 
   return lambda;
 };
