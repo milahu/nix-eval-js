@@ -159,6 +159,13 @@ export class NixEval {
   }
 
   evalTree(tree, source) {
-    return tree.topNode.type.thunk(tree.topNode, source);
+    const evalState = new State({
+      source,
+    })
+    const evalEnv = new Env(null, {
+      //test: 'hello world',
+    })
+    const topNode = tree.topNode;
+    return topNode.type.thunk(topNode, evalState, evalEnv);
   }
 }
