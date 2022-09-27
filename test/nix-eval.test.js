@@ -1,12 +1,11 @@
 import test from 'ava';
-import { configure as getStringify } from '../src/nix-eval-stringify/index.js'
 import * as fs from "node:fs"
 import * as path from "node:path"
 import { fileURLToPath } from 'node:url';
-import { NixEval } from "../src/nix-eval.js";
+import { NixEval, getStringifyResult } from "../src/nix-eval.js";
 import { fileTests } from './file-tests.js';
 
-const stringify = getStringify({
+const stringify = getStringifyResult({
   maximumDepth: 2,
   maximumBreadth: 10,
 })

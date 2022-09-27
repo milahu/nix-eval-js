@@ -1,9 +1,8 @@
-import { NixEval } from "../src/nix-eval.js";
-import { configure as getStringify } from '../src/nix-eval-stringify/index.js'
+import { NixEval, getStringifyResult } from "../src/nix-eval.js";
 
 import { fileTests } from './file-tests.js';
 
-const stringify = getStringify({
+const stringify = getStringifyResult({
   maximumDepth: 2,
   maximumBreadth: 10,
 })

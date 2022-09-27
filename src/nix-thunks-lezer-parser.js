@@ -1,10 +1,9 @@
 import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from './nix-errors.js';
 import { NixPrimops, nixTypeWithArticle } from './nix-primops-lezer-parser.js';
-import { configure as getStringify } from './nix-eval-stringify/index.js'
 
 // https://github.com/voracious/vite-plugin-node-polyfills/issues/4
 import { join as joinPath } from 'node:path'
-import { Env } from './nix-eval.js';
+import { Env, getStringifyResult } from './nix-eval.js';
 //import { join as joinPath } from 'path'
 
 // jsdoc types
@@ -16,7 +15,7 @@ import { Env } from './nix-eval.js';
 
 
 
-const stringifyValue = getStringify({
+const stringifyValue = getStringifyResult({
   maximumDepth: 2,
   maximumBreadth: 10,
   indent: "  ",

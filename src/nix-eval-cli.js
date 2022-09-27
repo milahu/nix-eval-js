@@ -1,11 +1,10 @@
 #! /usr/bin/env node
 
-import { NixEval } from "./nix-eval.js";
+import { NixEval, getStringifyResult } from "./nix-eval.js";
 import process from "node:process";
 import { readFileSync } from 'node:fs';
-import { configure as getStringify } from '../src/nix-eval-stringify/index.js'
 
-const stringify = getStringify({
+const stringify = getStringifyResult({
   maximumDepth: 2,
   maximumBreadth: 10,
   indent: "  ",
