@@ -38,12 +38,17 @@ false
 ==>
 0
 
-#
+# empty set
+"{}"
+==>
+{}
+
+# set
 "{a=1;}"
 ==>
 {"a":1}
 
-#
+# set select
 "{a=1;}.a"
 ==>
 1
@@ -122,6 +127,16 @@ ERROR EvalError attempt to call something which is not a function but a float
 "__div 1 2.0"
 ==>
 0.5
+
+# empty list
+"[]"
+==>
+[]
+
+# list
+"[ 1 2 ]"
+==>
+[1,2]
 
 # call primop head
 "__head [ 1 2 ]"
