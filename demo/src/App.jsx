@@ -149,6 +149,7 @@ export default function App() {
     if (!editorState.tree || editorState.tree.length == 0) {
       console.log(`onEditorState: tree is empty`);
       setStore('evalResult', undefined); // set store.evalResult
+      setStore('evalResultString', ''); // set store.evalResultString
       return;
     }
 
@@ -195,6 +196,13 @@ export default function App() {
     //setStore('evalResult', evalResult); // set store.evalResult
     // hide evalResult in thunk, so solid does not call Nix Lambda
     setStore('evalResult', () => evalResult); // set store.evalResult
+    // set store.evalResultString
+    try {
+      setStore('evalResultString', stringifyEvalResult(evalResult))
+    }
+    catch (error) {
+      setStore('evalResultString', `FIXME error in stringifyEvalResult: ${error.name} ${error.message}`)
+    }
     setStore('evalError', evalError); // set store.evalError
   }
 
@@ -233,7 +241,8 @@ export default function App() {
               <div>Result:</div>
               <div class="eval-result">{
                 //JSON.stringify(store.evalResult, null, 1)
-                stringifyEvalResult(store.evalResult)
+                //stringifyEvalResult(store.evalResult)
+                store.evalResultString
               }</div>
               {store.evalError}
             </SplitItem>
