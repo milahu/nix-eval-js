@@ -864,29 +864,73 @@ thunkOfNodeType.Lambda = (node, state, env) => {
 
   if (argumentNode.type.name == 'Identifier') {
     // simple function: f = x: (x + 1)
+    // bind arguments
     const argumentName = nodeText(argumentNode, state);
+    /** @type {function(any): any} */
     lambda = function lambda(argumentValue) {
       const childEnv = new Env(env, {
         [argumentName]: argumentValue,
       });
+      // eval function body
       return callThunk(bodyNode, state, childEnv);
     }
   }
   else if (argumentNode.type.name == 'Formals') {
-    printNode(argumentNode, state, env, { label: 'formals' });
-    let formal = firstChild(argumentNode);
-    while (formal) {
-      printNode(formal, state, env, { label: 'formal' });
-      formal = nextSibling(formal);
+    const debugFormals = false;
+    debugFormals && printNode(argumentNode, state);
+    let formalNode = firstChild(argumentNode);
+    const formalNameSet = new Set();
+    let formalsRest = false;
+    while (formalNode) {
+      if (formalNode.type.name == 'Formal') {
+        const formalName = nodeText(formalNode, state);
+        if (formalNameSet.has(formalName)) {
+          throw new NixEvalError(`duplicate formal function argument '${formalName}'`)
+        }
+        formalNameSet.add(formalName);
+      }
+      else if (formalNode.type.name == 'FormalsRest') {
+        formalsRest = true;
+      }
+      else {
+        throw new NixEvalError(`Lambda: unexpected Formals childNode: ${formalNode.type.name}`)
+      }
+      debugFormals && printNode(formalNode, state);
+      formalNode = nextSibling(formalNode);
     }
-    // TODO
-    throw new NixEvalNotImplemented(`Lambda: argumentNode type ${argumentNode.type.name} is not implemented: ${nodeText(argumentNode, state)}`)
+    /** @type {function(Env): any} */
+    lambda = function lambda(argumentEnv) {
+      // bind arguments
+      if (!(argumentEnv instanceof Env)) {
+        throw new NixEvalError(`value is ${nixTypeWithArticle(argumentEnv)} while a set was expected`)
+      }
+      const childEnv = new Env(env);
+      for (const formalName of formalNameSet) {
+        if (!argumentEnv.has(formalName)) {
+          throw new NixEvalError(`function at (string)+${node.from} called without required argument '${formalName}'`)
+        }
+        // TODO does this copy the value or the getter?
+        // do we need this?
+        // Object.defineProperty(childEnv.data, formalName, { get() { ... } })
+        childEnv.data[formalName] = argumentEnv.data[formalName];
+      }
+      if (formalsRest == false) {
+        // strict
+        for (const argumentName of Object.keys(argumentEnv.data)) {
+          if (!formalNameSet.has(argumentName)) {
+            throw new NixEvalError(`function at (string)+${node.from} called with unexpected argument '${argumentName}'`)
+          }
+        }
+      }
+      // eval function body
+      return callThunk(bodyNode, state, childEnv);
+    }
   }
   else {
     throw new NixEvalNotImplemented(`Lambda: argumentNode type ${argumentNode.type.name} is not implemented: ${nodeText(argumentNode, state)}`)
   }
 
-  // TODO handle complex args: formals, formals-at-binding
+  // TODO formals-at-binding
 
   // store source location
   lambda.source = getSourceProp(node, state);
