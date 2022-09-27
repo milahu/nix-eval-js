@@ -609,6 +609,68 @@ nix/src/libmain/stack.cc
 
 * detect stack overflow, usually from infinite recursion
 
+nix/src/libexpr/eval.hh
+
+```cc
+class EvalState : public std::enable_shared_from_this<EvalState>
+{
+    EvalState(
+        const Strings & _searchPath,
+        ref<Store> store,
+        std::shared_ptr<Store> buildStore = nullptr
+    );
+
+    SearchPath searchPath;
+
+    /* The base environment, containing the builtin functions and
+       values. */
+    Env & baseEnv;
+
+    /* Evaluate an expression to normal form, storing the result in
+       value `v'. */
+    void eval(Expr * e, Value & v);
+
+    inline Value * lookupVar(Env * env, const ExprVar & var, bool noEval);
+
+    void callFunction(Value & fun, size_t nrArgs, Value * * args, Value & vRes, const PosIdx pos);
+
+    void concatLists(Value & v, size_t nrLists, Value * * lists, const PosIdx pos);
+}
+```
+
+nix/src/libexpr/eval.hh
+
+
+```cc
+    Setting<bool> traceFunctionCalls{this, false, "trace-function-calls",
+        R"(
+          If set to `true`, the Nix evaluator will trace every function call.
+          Nix will print a log message at the "vomit" level for every function
+          entrance and function exit.
+
+              function-trace entered undefined position at 1565795816999559622
+              function-trace exited undefined position at 1565795816999581277
+              function-trace entered /nix/store/.../example.nix:226:41 at 1565795253249935150
+              function-trace exited /nix/store/.../example.nix:226:41 at 1565795253249941684
+
+          The `undefined position` means the function call is a builtin.
+
+          Use the `contrib/stack-collapse.py` script distributed with the Nix
+          source code to convert the trace logs in to a format suitable for
+          `flamegraph.pl`.
+        )"};
+```
+
+nix/src/libexpr/eval.cc
+
+```cc
+void EvalState::callFunction(Value & fun, size_t nrArgs, Value * * args, Value & vRes, const PosIdx pos)
+{
+    auto trace = evalSettings.traceFunctionCalls
+        ? std::make_unique<FunctionCallTrace>(positions[pos])
+        : nullptr;
+```
+
 nix/src/libexpr/eval.cc
 
 * stack is allocated with boehmgc
