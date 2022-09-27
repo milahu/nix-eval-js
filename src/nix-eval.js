@@ -68,6 +68,7 @@ export class Env {
   parent = null // aka "outer env"
   constructor(parent = null, data = {}) {
     if (parent) this.parent = parent
+    this.depth = parent ? (parent.depth + 1) : 0
     if (data) this.data = data
   }
   /** @type {function(string, any | undefined): void} */
@@ -79,12 +80,15 @@ export class Env {
     let env = this
     while (env) {
       if (Object.hasOwn(env.data, key)) {
+        //console.log(`Env.get: key=${key} depth=${env.depth} -> found`)
         return env.data[key]
       }
+      //console.log(`Env.get: key=${key} depth=${env.depth} env_keys=${Object.keys(env.data)}`)
       env = env.parent
     }
     // variable is undefined
     //throw new ReferenceError()
+    //console.log(`Env.get: key=${key} -> NOT found`)
     return undefined
   }
 }
