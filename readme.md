@@ -32,6 +32,9 @@ pnpm install
 
 ./bin/nix-parse -f /etc/nixos/configuration.nix
 ./bin/nix-eval -f /etc/nixos/configuration.nix
+
+./bin/nix-parse -f ~/src/nixpkgs/pkgs/top-level/all-packages.nix
+./bin/nix-eval -f ~/src/nixpkgs/pkgs/top-level/all-packages.nix
 ```
 
 ### offline demo
