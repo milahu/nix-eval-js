@@ -53,32 +53,32 @@ false
 ==>
 1
 
-# SKIP call null
+# call null
 "null 2"
 ==>
 ERROR EvalError attempt to call something which is not a function but null
 
-# SKIP call bool true
+# call bool true
 "true 2"
 ==>
 ERROR EvalError attempt to call something which is not a function but a Boolean
 
-# SKIP call bool false
+# call bool false
 "false 2"
 ==>
 ERROR EvalError attempt to call something which is not a function but a Boolean
 
-# SKIP call list
+# call list
 "[] 2"
 ==>
 ERROR EvalError attempt to call something which is not a function but a list
 
-# SKIP call set
+# call set
 "{} 2"
 ==>
 ERROR EvalError attempt to call something which is not a function but a set
 
-# SKIP call string 1
+# call string 1
 "\"\" 2"
 ==>
 ERROR EvalError attempt to call something which is not a function but a string
@@ -88,12 +88,12 @@ ERROR EvalError attempt to call something which is not a function but a string
 ==>
 ERROR EvalError attempt to call something which is not a function but a string
 
-# SKIP call integer
+# call integer
 "1 2"
 ==>
 ERROR EvalError attempt to call something which is not a function but an integer
 
-# SKIP call float
+# call float
 "1.1 2"
 ==>
 ERROR EvalError attempt to call something which is not a function but a float
@@ -143,7 +143,7 @@ ERROR EvalError attempt to call something which is not a function but a float
 ==>
 1
 
-# SKIP call primop head empty
+# call primop head empty
 "__head [ ]"
 ==>
 ERROR EvalError list index 0 is out of bounds
@@ -153,7 +153,7 @@ ERROR EvalError list index 0 is out of bounds
 ==>
 2
 
-# SKIP call primop tail empty
+# call primop tail empty
 "__tail [ ]"
 ==>
 ERROR EvalError 'tail' called on an empty list
@@ -163,7 +163,7 @@ ERROR EvalError 'tail' called on an empty list
 ==>
 1
 
-# SKIP call primop elemAt error 1 TODO implement parens
+# call primop elemAt error 1 TODO implement parens
 "__elemAt [ 1 2 ] (-1)"
 ==>
 ERROR EvalError list index -1 is out of bounds
@@ -238,7 +238,7 @@ ERROR EvalError attempt to call something which is not a function but an integer
 ==>
 "set"
 
-# SKIP typeof string 1
+# typeof string 1
 "__typeOf \"\""
 ==>
 "string"
@@ -253,8 +253,8 @@ ERROR EvalError attempt to call something which is not a function but an integer
 ==>
 ERROR SyntaxError unexpected invalid token
 
-# SKIP eval error undefined variable
-x
+# eval error undefined variable
+"x"
 ==>
 ERROR EvalError undefined variable 'x'
 
