@@ -41,15 +41,15 @@ function resetInfiniteLoop() {
 }
 function checkInfiniteLoop() {
   infiniteLoopCounter++;
-  if (infiniteLoopCounter > 10000) {
+  if (infiniteLoopCounter > 100000) {
     resetInfiniteLoop();
-    throw new Error('infinite loop?');
+    throw new NixEvalError('infinite loop?');
   }
 }
 
 /** @type {function(SyntaxNode): SyntaxNode} */
 function skipComments(node) {
-  checkInfiniteLoop();
+  //checkInfiniteLoop();
   while (
     node && (
       node.type.name == 'Comment' ||
@@ -308,7 +308,7 @@ function get2Numbers(node, state, env, options) {
 function get2Values(node, state, env, options) {
   if (!options) options = {};
   if (!options.caller) options.caller = 'get2Values';
-  checkInfiniteLoop();
+  //checkInfiniteLoop();
   //console.log('thunkOfNodeType.Mul: node', node);
   let childNode1 = firstChild(node);
   if (!childNode1) {
@@ -389,12 +389,14 @@ thunkOfNodeType.Not = (node, state, env) => {
 
 
 
+const debugCall = false
+
 /** @return {any} */
 thunkOfNodeType.Call = (node, state, env) => {
 
   state.stack.push(node)
 
-  console.log(`thunkOfNodeType.Call: state.stack:\n${state.stack}`)
+  debugCall && console.log(`thunkOfNodeType.Call: state.stack:\n${state.stack}`)
 
   // call a function
   // TODO check types
@@ -518,6 +520,8 @@ thunkOfNodeType.List = (node, state, env) => {
   //console.log('thunkOfNodeType.List: list node type', node.type.name);
   //console.log('thunkOfNodeType.List: call stack', new Error());
 
+  checkInfiniteLoop();
+
   // https://codetagteam.com/questions/any-way-to-define-getters-for-lazy-variables-in-javascript-arrays
   function LazyArray() {
     return new Proxy([], {
@@ -545,7 +549,7 @@ thunkOfNodeType.List = (node, state, env) => {
   //console.log(`thunkOfNodeType.List: first childNode`, childNode);
   let idx = 0;
   while (true) {
-    checkInfiniteLoop();
+    //checkInfiniteLoop();
     function getThunk(childNodeCopy) {
       // force copy of childNode
       // fix: thunkOfNodeType.List: call thunk of childNode null
@@ -575,6 +579,8 @@ thunkOfNodeType.List = (node, state, env) => {
 thunkOfNodeType.String = (node, state, env) => {
   // similar to list: zero or more childNodes
 
+  checkInfiniteLoop();
+
   let childNode;
 
   /** @type {string} */
@@ -589,7 +595,7 @@ thunkOfNodeType.String = (node, state, env) => {
   let idx = 0;
 
   while (true) {
-    checkInfiniteLoop();
+    //checkInfiniteLoop();
     const stringPart = callThunk(childNode, state, env);
     result += stringPart;
     if (!(childNode = nextSibling(childNode))) {
@@ -654,7 +660,7 @@ thunkOfNodeType.Set = (node, state, env) => {
   }
 
   while (true) {
-    checkInfiniteLoop();
+    //checkInfiniteLoop();
     //console.log('thunkOfNodeType.Set: attrNode', attrNode);
 
     const keyNode = firstChild(attrNode);
@@ -740,7 +746,7 @@ thunkOfNodeType.RecSet = (node, state, env) => {
   }
 
   while (true) {
-    checkInfiniteLoop();
+    //checkInfiniteLoop();
     //console.log('thunkOfNodeType.Set: attrNode', attrNode);
 
     const keyNode = firstChild(attrNode);
@@ -1048,7 +1054,7 @@ thunkOfNodeType.Let = (node, state, env) => {
   }
 
   while (true) {
-    checkInfiniteLoop();
+    //checkInfiniteLoop();
     //console.log('thunkOfNodeType.Let: childNode', childNode);
 
     let nextChildNode = nextSibling(childNode);
