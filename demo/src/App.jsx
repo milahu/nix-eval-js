@@ -15,7 +15,10 @@ import { SplitRoot, SplitY, SplitX, SplitItem } from './solidjs-resizable-splitt
 import { CodeMirror } from "./codemirror.jsx";
 import { TreeViewCodeMirror } from './treeview.jsx';
 
-import { NixEvalError, NixSyntaxError } from "../../src/nix-eval.js";
+import * as NixEval from "../../src/nix-eval.js";
+
+
+
 import { configure as getStringifyEvalResult } from '../../src/nix-eval-stringify/index.js'
 
 
@@ -394,10 +397,23 @@ export default function App() {
     let evalResult;
     let evalError = '';
     try {
-      evalResult = editorState.tree.topNode.type.thunk(editorState.tree.topNode, source);
+      // call the Nix thunk
+      //evalResult = editorState.tree.topNode.type.thunk(editorState.tree.topNode, source);
+
+      const evalState = new NixEval.State({
+        source,
+      })
+
+      const evalEnv = new NixEval.Env({
+        test: 'hello world',
+      })
+
+      const topNode = editorState.tree.topNode;
+
+      evalResult = topNode.type.thunk(topNode, evalState, evalEnv);
     }
     catch (error) {
-      if (error instanceof NixSyntaxError || error instanceof NixEvalError) {
+      if (error instanceof NixEval.NixSyntaxError || error instanceof NixEval.NixEvalError) {
         console.warn(error);
         evalError = (
           <div class="eval-error">

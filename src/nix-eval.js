@@ -10,6 +10,8 @@ import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
 import { thunkOfNodeType } from './nix-thunks-lezer-parser.js';
 import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from "./nix-errors.js"
 
+
+
 // "export { ... } from '...'" is not working in vite
 export {
   LezerParserNix,
@@ -17,6 +19,25 @@ export {
   NixEvalError,
   NixSyntaxError,
   NixEvalNotImplemented,
+}
+
+export class State {
+  /** @type {string} */
+  source = ''
+  /** @type {function({source: string})} */
+  constructor({ source }) {
+    this.source = source
+  }
+}
+
+export class Env {
+  /** @type {Record<string, any>} */
+  data = {}
+  parent = null // aka "outer env"
+  constructor(data = {}, parent = null) {
+    if (data) this.data = data
+    if (parent) this.parent = parent
+  }
 }
 
 // TODO class Node?
