@@ -1,5 +1,6 @@
 import { NixEval } from "../src/nix-eval.js";
-import { configure as getStringify } from 'safe-stable-stringify'
+import { configure as getStringify } from '../src/nix-eval-stringify/index.js'
+
 import { fileTests } from './file-tests.js';
 
 const stringify = getStringify({
@@ -19,17 +20,25 @@ for (let file of fs.readdirSync(caseDir)) {
   let fileContent = fs.readFileSync(filePath, "utf8")
   const newTests = []
   for (let testData of fileTests(fileContent, file)) {
-    const { name, text, expected: oldExpected, configStr, strict } = testData;
+    const { name, text: textJson, expected: oldExpected, configStr, strict } = testData;
     //console.dir(testData); // debug
+
+    if (/SKIP/.test(name)) {
+      // no change
+      newTests.push(`#${name ? ' ' : ''}${name}${(configStr || '')}\n${textJson}\n==>\n${oldExpected}`);
+      continue;
+    }
 
     const nix = new NixEval();
 
     let result;
+    let resultString;
     let error;
     let newExpected;
+    const text = JSON.parse(textJson);
 
     try {
-      result = nix.eval(JSON.parse(text));
+      result = nix.eval(text);
     }
     catch (_error) {
       error = _error;
@@ -39,11 +48,26 @@ for (let file of fs.readdirSync(caseDir)) {
       newExpected = `ERROR ${error.name} ${error.message}`;
     }
     else {
-      newExpected = String(stringify(result));
+      try {
+        // not done yet
+        // some errors are triggered by stringify
+        // because lazy eval
+        resultString = String(stringify(result));
+      }
+      catch (_error) {
+        error = _error;
+      }
+      if (error) {
+        newExpected = `ERROR ${error.name} ${error.message}`;
+      }
+      else {
+        // done
+        newExpected = resultString;
+      }
     }
 
     //if (name == 'some test name') { console.dir(testData) } // debug
-    newTests.push(`#${name ? ' ' : ''}${name}${(configStr || '')}\n${text}\n==>\n${newExpected}`)
+    newTests.push(`#${name ? ' ' : ''}${name}${(configStr || '')}\n${textJson}\n==>\n${newExpected}`)
   }
   const newFileContent = newTests.join("\n\n") + "\n";
   const dryRun = false;
