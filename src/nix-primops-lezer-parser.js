@@ -82,11 +82,23 @@ export const NixPrimops = {
     return list[index];
   }),
 
-  // TODO check types
-  // TODO check bounds
-  "__head": list => list[0],
-  "__tail": list => list[list.length - 1],
-  "__filter": list => list[list.length - 1],
+  // TODO check type of list
+  "__head": list => {
+    if (list.length == 0) {
+      throw new NixEvalError(`list index 0 is out of bounds`);
+    }
+    return list[0];
+  },
+
+  // TODO check type of list
+  "__tail": list => {
+    if (list.length == 0) {
+      throw new NixEvalError(`'tail' called on an empty list`);
+    }
+    return list[list.length - 1];
+  },
+
+  //"__filter": list => list[list.length - 1],
 
   /*
   "__elem": arg => arg,
