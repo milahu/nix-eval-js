@@ -712,6 +712,9 @@ thunkOfNodeType.Set = (node, state, env) => {
 
 
 /** @typedef {Record<string, any>} LazyObject */
+
+const debugRecSet = true
+
 /** @return {LazyObject} */
 thunkOfNodeType.RecSet = (node, state, env) => {
 
@@ -720,17 +723,7 @@ thunkOfNodeType.RecSet = (node, state, env) => {
 
   checkInfiniteLoop();
 
-  //if (!node) {
-  //  throw NixEvalError('Set: node is null')
-  //}
-
-  // TODO cache. but where? global cache? local context?
-  // node is probably a bad choice
-  //if (!node.data) node.data = {};
-  //const data = node.data;
-  // TODO lazy object via Proxy, see LazyArray
-  //const data = {}; // Set -> data is in child scope via Select
-  if (!node.data) node.data = {}; // RecSet -> data is in this scope
+  const childEnv = new Env(env);
 
   //console.log('thunkOfNodeType.Set: typeof(node)', typeof(node));
 
@@ -747,7 +740,9 @@ thunkOfNodeType.RecSet = (node, state, env) => {
 
   if (!(attrNode = firstChild(node))) {
     // empty set
+    // FIXME how does this work with env?
     return node.data;
+    //return {};
   }
 
   while (true) {
@@ -770,37 +765,40 @@ thunkOfNodeType.RecSet = (node, state, env) => {
     //const valueNodeCopy = copyNode(valueNode);
 
     const key = state.source.slice(keyNode.from, keyNode.to);
-    //console.log('thunkOfNodeType.Set: key', key);
+    debugRecSet && console.log(`thunkOfNodeType.RecSet:${node.from}: key`, key);
 
     function getThunk(valueNodeCopy) {
       // create local copy of valueNode
+      // TODO? const valueNodeCopy = valueNode
       return () => {
         //console.log(`Set value thunk: call thunk of valueNodeCopy`, valueNodeCopy)
         return valueNodeCopy.type.thunk(
           valueNodeCopy,
-          state, env
+          state, childEnv
         );
       }
     }
 
-    Object.defineProperty(node.data, key, {
+    Object.defineProperty(childEnv.data, key, {
       get: getThunk(valueNode),
       enumerable: true,
       // fix: TypeError: Cannot redefine property: a
       configurable: true,
     });
 
-
     if (!(attrNode = nextSibling(attrNode))) {
       break;
     }
   }
 
-  return node.data;
+  return childEnv;
 };
 
 
 
+const debugSelect = true
+
+// void ExprSelect::eval(EvalState & state, Env & env, Value & v)
 /** @return {any} */
 thunkOfNodeType.Select = (node, state, env) => {
   // first child: Set
@@ -810,7 +808,12 @@ thunkOfNodeType.Select = (node, state, env) => {
   if (!setNode) {
     throw new NixEvalError('Select: no setNode')
   }
+
+  // e->eval(state, env, vTmp);
+  // call thunk of Set or RecSet
+  /** @type {Env} */
   const setValue = callThunk(setNode, state, env);
+  debugSelect && console.log(`thunkOfNodeType.Select:${node.from}: setValue`, setValue)
 
   let keyNode = nextSibling(setNode);
   if (!keyNode) {
@@ -819,14 +822,27 @@ thunkOfNodeType.Select = (node, state, env) => {
 
   let result = setValue;
 
+  // loop attrPath
+  // for (auto & i : attrPath) {
   while (keyNode) {
+    // auto name = getName(i, state, env);
     const keyValue = callThunk(keyNode, state, env);
 
-    if (!Object.hasOwn(result, keyValue)) {
+    // state.forceAttrs(*vAttrs, pos);
+
+    // j = vAttrs->attrs->find(name)
+
+    // if (j == vAttrs->attrs->end())
+    //   state.throwEvalError(pos, , "attribute '%1%' missing"
+    debugSelect && console.log(`thunkOfNodeType.Select:${node.from}: result`, result)
+    if (!Object.hasOwn(result.data, keyValue)) {
       throw new NixEvalError(`attribute '${keyValue}' missing`)
     }
 
-    result = result[keyValue];
+    // vAttrs = j->value;
+    // not: dont use result.get(keyValue)
+    // because that would also search in parent env's
+    result = result.data[keyValue];
 
     keyNode = nextSibling(keyNode);
   }
