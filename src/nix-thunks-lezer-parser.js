@@ -707,7 +707,7 @@ thunkOfNodeType.Set = (node, state, env) => {
 
 /** @typedef {Record<string, any>} LazyObject */
 
-const debugRecSet = true
+const debugRecSet = false
 
 /** @return {Env} */
 thunkOfNodeType.RecSet = (node, state, env) => {
@@ -790,7 +790,7 @@ thunkOfNodeType.RecSet = (node, state, env) => {
 
 
 
-const debugSelect = true
+const debugSelect = false
 
 // void ExprSelect::eval(EvalState & state, Env & env, Value & v)
 /** @return {any} */

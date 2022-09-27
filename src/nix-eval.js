@@ -64,7 +64,7 @@ export class State {
 
 
 
-const debugEnv = true
+const debugEnv = false
 
 export class Env {
   /** @type {Record<string, any>} */
