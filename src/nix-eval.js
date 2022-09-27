@@ -9,6 +9,7 @@ import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
 
 import { resetInfiniteLoopCounter, thunkOfNodeType } from './nix-thunks-lezer-parser.js';
 import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from "./nix-errors.js"
+import { configure as getStringifyResult } from '../src/nix-eval-stringify/index.js'
 
 
 
@@ -16,6 +17,7 @@ import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from "./nix-error
 export {
   LezerParserNix,
   thunkOfNodeType,
+  getStringifyResult,
   NixEvalError,
   NixSyntaxError,
   NixEvalNotImplemented,
