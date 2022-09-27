@@ -120,7 +120,21 @@ in f2 (f1 1)
 let f = i: n: m: if i == 0 then n
     else f (i - 1) m (n + m);
   fib = n: f n 1 1;
-in fib 7 # == 21`,
+in fib 9`,
+
+  `# bigint vs integer overflow
+let f = i: n: m: if i == 0 then n
+    else f (i - 1) m (n + m);
+  fib = n: f n 1 1;
+in fib 99
+# original Nix shows different result:
+# 3736710778780434371`,
+
+  `# Maximum call stack size exceeded
+let f = i: n: m: if i == 0 then n
+    else f (i - 1) m (n + m);
+  fib = n: f n 1 1;
+in fib 9999`,
 
 ];
 
