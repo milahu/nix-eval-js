@@ -4,7 +4,9 @@
 
 ## status
 
-proof of concept
+early draft
+
+for a list of implemented features, see [test/nix-eval.snapshots.txt](test/nix-eval.snapshots.txt)
 
 ## demo
 
