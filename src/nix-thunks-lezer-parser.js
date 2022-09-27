@@ -34,17 +34,49 @@ export function printNode(node, label = '') {
   console.log(node.toString(0, 5, "  ", extraDepth));
 }
 
+
+
 export function resetInfiniteLoopCounter() {
-  global.nixEval_infiniteLoopCounter = 0;
+  if (typeof global == 'object') {
+    global.nixEval_infiniteLoopCounter = 0;
+    return;
+  }
+  if (typeof window == 'object') {
+    window.nixEval_infiniteLoopCounter = 0;
+    return;
+  }
+  throw new Error('not found global or window');
 }
 
-function checkInfiniteLoop() {
-  global.nixEval_infiniteLoopCounter++;
-  if (global.nixEval_infiniteLoopCounter > 100000) {
-    resetInfiniteLoopCounter();
-    throw new NixEvalError('infinite loop?');
+const checkInfiniteLoop = (() => {
+  if (typeof global == 'object') {
+    // node
+    return (
+      function checkInfiniteLoop() {
+        global.nixEval_infiniteLoopCounter++;
+        if (global.nixEval_infiniteLoopCounter > 100000) {
+          resetInfiniteLoopCounter();
+          throw new NixEvalError('infinite loop?');
+        }
+      }
+    )
   }
-}
+  if (typeof window == 'object') {
+    // browser
+    return (
+      function checkInfiniteLoop() {
+        window.nixEval_infiniteLoopCounter++;
+        if (window.nixEval_infiniteLoopCounter > 100000) {
+          resetInfiniteLoopCounter();
+          throw new NixEvalError('infinite loop?');
+        }
+      }
+    )
+  }
+  throw new Error('not found global or window');
+})();
+
+
 
 /** @type {function(SyntaxNode): SyntaxNode} */
 function skipComments(node) {
