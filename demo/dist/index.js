@@ -1033,27 +1033,28 @@ function createStore(...[store, options]) {
   return [wrappedStore, setStore];
 }
 
-const App$1 = "_App_itg46_1";
-const flexcolumn = "_flexcolumn_itg46_11";
-const flexrow = "_flexrow_itg46_17";
-const logo = "_logo_itg46_23";
-const flexgrow1 = "_flexgrow1_itg46_29";
-const displayflex = "_displayflex_itg46_32";
-const flexdirectioncolumn = "_flexdirectioncolumn_itg46_35";
-const clickable = "_clickable_itg46_39";
-const header = "_header_itg46_48";
-const main = "_main_itg46_63";
-const link = "_link_itg46_78";
+const App$1 = "_App_5r2wf_1";
+const flexcolumn = "_flexcolumn_5r2wf_11";
+const flexrow = "_flexrow_5r2wf_17";
+const logo = "_logo_5r2wf_23";
+const flexgrow1 = "_flexgrow1_5r2wf_29";
+const displayflex = "_displayflex_5r2wf_32";
+const flexdirectioncolumn = "_flexdirectioncolumn_5r2wf_35";
+const clickable = "_clickable_5r2wf_39";
+const header = "_header_5r2wf_52";
+const main = "_main_5r2wf_67";
+const link = "_link_5r2wf_82";
 const styles = {
 	App: App$1,
 	flexcolumn: flexcolumn,
 	flexrow: flexrow,
 	logo: logo,
-	"logo-spin": "_logo-spin_itg46_1",
+	"logo-spin": "_logo-spin_5r2wf_1",
 	flexgrow1: flexgrow1,
 	displayflex: displayflex,
 	flexdirectioncolumn: flexdirectioncolumn,
 	clickable: clickable,
+	"eval-result": "_eval-result_5r2wf_48",
 	header: header,
 	main: main,
 	link: link
@@ -18690,8 +18691,6 @@ class InputStream$1 {
         }
         return this.next = this.chunk.charCodeAt(this.chunkOff);
     }
-
-
     /// Move the stream forward N (defaults to 1) code units. Returns
     /// the new value of [`next`](#lr.InputStream.next).
     advance(n = 1) {
@@ -19860,1928 +19859,24 @@ function nix() {
 class NixEvalError extends EvalError {
   constructor(message) {
     super(message);
-    //this.name = "EvalError";
+    //this.name = this.constructor.name;
+    //this.name = "EvalError"
   }
 }
 
 class NixEvalNotImplemented extends Error {
   constructor(message) {
     super(message);
-    //this.name = "NotImplemented";
+    this.name = "EvalNotImplemented";
   }
 }
 
 class NixSyntaxError extends SyntaxError {
   constructor(message) {
     super(message);
-    //this.name = "SyntaxError";
+    //this.name = this.constructor.name;
+    //this.name = "SyntaxError"
   }
-}
-
-/*
-cat nix/src/libexpr/primops.cc | grep '.name = "__' | cut -d'"' -f2 | sed -E 's/^(.*)$/  "\1": arg => arg,/'
-*/
-
-const NixPrimops = {
-
-  "__typeOf": arg => {
-    if (arg === null) return 'null'; // js: typeof(null) == 'object'
-    if (arg === true || arg === false) return 'bool';
-    if (Array.isArray(arg)) return 'list';
-    if (arg instanceof Object) return 'set';
-    const javascriptType = typeof(arg);
-    if (javascriptType == 'bigint') {
-      return 'int';
-    }
-    if (javascriptType == 'number') {
-      return 'float';
-    }
-    // TODO handle more cases?
-    return javascriptType; // string
-  },
-
-  "__isFunction": arg => typeof(arg) == 'function',
-  "__isInt": arg => (typeof(arg) == 'number' && (arg|0) == arg),
-  "__isFloat": arg => typeof(arg) == 'number',
-  "__isString": arg => typeof(arg) == 'string',
-  "__isBool": arg => typeof(arg) == 'boolean',
-
-  /*
-  "__isPath": arg => arg,
-  "__genericClosure": arg => arg,
-  "__addErrorContext": arg => arg,
-  */
-
-  "__ceil": float => Math.ceil(float),
-  "__floor": float => Math.floor(float),
-
-  /*
-  "__tryEval": arg => arg,
-  "__getEnv": arg => arg,
-  "__seq": arg => arg,
-  "__deepSeq": arg => arg,
-  "__trace": arg => arg,
-  "__toPath": arg => arg,
-  "__storePath": arg => arg,
-  "__pathExists": arg => arg,
-  "__readFile": arg => arg,
-  "__findFile": arg => arg,
-  "__hashFile": arg => arg,
-  "__readDir": arg => arg,
-  "__toXML": arg => arg,
-  "__toJSON": arg => arg,
-  "__fromJSON": arg => arg,
-  "__toFile": arg => arg,
-  "__filterSource": arg => arg,
-  "__path": arg => arg,
-  "__attrNames": arg => arg,
-  "__attrValues": arg => arg,
-  "__getAttr": arg => arg,
-  "__unsafeGetAttrPos": arg => arg,
-  "__hasAttr": arg => arg,
-  "__isAttrs": arg => arg,
-  "__listToAttrs": arg => arg,
-  "__intersectAttrs": arg => arg,
-  "__catAttrs": arg => arg,
-  "__functionArgs": arg => arg,
-  "__mapAttrs": arg => arg,
-  "__zipAttrsWith": arg => arg,
-  */
-
-  // TODO verify
-  "__isList": arg => Array.isArray(arg),
-
-  "__elemAt": list => (index => list[index]),
-  "__head": list => list[0],
-  "__tail": list => list[list.length - 1],
-  "__filter": list => list[list.length - 1],
-
-  /*
-  "__elem": arg => arg,
-  "__concatLists": arg => arg,
-  "__length": arg => arg,
-  "__foldl'": arg => arg,
-  "__any": arg => arg,
-  "__all": arg => arg,
-  "__genList": arg => arg,
-  "__sort": arg => arg,
-  "__partition": arg => arg,
-  "__groupBy": arg => arg,
-  "__concatMap": arg => arg,
-  */
-
-  "__add": arg => arg,
-  "__sub": arg => arg,
-  "__mul": arg => arg,
-  "__div": arg => arg,
-
-  "__bitAnd": arg => arg,
-  "__bitOr": arg => arg,
-  "__bitXor": arg => arg,
-
-  "__lessThan": arg => arg,
-
-  /*
-  "__substring": arg => arg,
-  "__stringLength": arg => arg,
-  "__hashString": arg => arg,
-  "__match": arg => arg,
-  "__split": arg => arg,
-  "__concatStringsSep": arg => arg,
-  "__replaceStrings": arg => arg,
-  "__parseDrvName": arg => arg,
-  "__compareVersions": arg => arg,
-  "__splitVersion": arg => arg,
-  "__traceVerbose": arg => arg,
-  */
-};
-
-function assertPath(path) {
-  if (typeof path !== 'string') {
-    throw new TypeError('Path must be a string. Received ' + JSON.stringify(path));
-  }
-}
-
-// Resolves . and .. elements in a path with directory names
-function normalizeStringPosix(path, allowAboveRoot) {
-  var res = '';
-  var lastSegmentLength = 0;
-  var lastSlash = -1;
-  var dots = 0;
-  var code;
-  for (var i = 0; i <= path.length; ++i) {
-    if (i < path.length)
-      code = path.charCodeAt(i);
-    else if (code === 47 /*/*/)
-      break;
-    else
-      code = 47 /*/*/;
-    if (code === 47 /*/*/) {
-      if (lastSlash === i - 1 || dots === 1) ; else if (lastSlash !== i - 1 && dots === 2) {
-        if (res.length < 2 || lastSegmentLength !== 2 || res.charCodeAt(res.length - 1) !== 46 /*.*/ || res.charCodeAt(res.length - 2) !== 46 /*.*/) {
-          if (res.length > 2) {
-            var lastSlashIndex = res.lastIndexOf('/');
-            if (lastSlashIndex !== res.length - 1) {
-              if (lastSlashIndex === -1) {
-                res = '';
-                lastSegmentLength = 0;
-              } else {
-                res = res.slice(0, lastSlashIndex);
-                lastSegmentLength = res.length - 1 - res.lastIndexOf('/');
-              }
-              lastSlash = i;
-              dots = 0;
-              continue;
-            }
-          } else if (res.length === 2 || res.length === 1) {
-            res = '';
-            lastSegmentLength = 0;
-            lastSlash = i;
-            dots = 0;
-            continue;
-          }
-        }
-        if (allowAboveRoot) {
-          if (res.length > 0)
-            res += '/..';
-          else
-            res = '..';
-          lastSegmentLength = 2;
-        }
-      } else {
-        if (res.length > 0)
-          res += '/' + path.slice(lastSlash + 1, i);
-        else
-          res = path.slice(lastSlash + 1, i);
-        lastSegmentLength = i - lastSlash - 1;
-      }
-      lastSlash = i;
-      dots = 0;
-    } else if (code === 46 /*.*/ && dots !== -1) {
-      ++dots;
-    } else {
-      dots = -1;
-    }
-  }
-  return res;
-}
-
-function _format(sep, pathObject) {
-  var dir = pathObject.dir || pathObject.root;
-  var base = pathObject.base || (pathObject.name || '') + (pathObject.ext || '');
-  if (!dir) {
-    return base;
-  }
-  if (dir === pathObject.root) {
-    return dir + base;
-  }
-  return dir + sep + base;
-}
-
-var posix = {
-  // path.resolve([from ...], to)
-  resolve: function resolve() {
-    var resolvedPath = '';
-    var resolvedAbsolute = false;
-    var cwd;
-
-    for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
-      var path;
-      if (i >= 0)
-        path = arguments[i];
-      else {
-        if (cwd === undefined)
-          cwd = process.cwd();
-        path = cwd;
-      }
-
-      assertPath(path);
-
-      // Skip empty entries
-      if (path.length === 0) {
-        continue;
-      }
-
-      resolvedPath = path + '/' + resolvedPath;
-      resolvedAbsolute = path.charCodeAt(0) === 47 /*/*/;
-    }
-
-    // At this point the path should be resolved to a full absolute path, but
-    // handle relative paths to be safe (might happen when process.cwd() fails)
-
-    // Normalize the path
-    resolvedPath = normalizeStringPosix(resolvedPath, !resolvedAbsolute);
-
-    if (resolvedAbsolute) {
-      if (resolvedPath.length > 0)
-        return '/' + resolvedPath;
-      else
-        return '/';
-    } else if (resolvedPath.length > 0) {
-      return resolvedPath;
-    } else {
-      return '.';
-    }
-  },
-
-  normalize: function normalize(path) {
-    assertPath(path);
-
-    if (path.length === 0) return '.';
-
-    var isAbsolute = path.charCodeAt(0) === 47 /*/*/;
-    var trailingSeparator = path.charCodeAt(path.length - 1) === 47 /*/*/;
-
-    // Normalize the path
-    path = normalizeStringPosix(path, !isAbsolute);
-
-    if (path.length === 0 && !isAbsolute) path = '.';
-    if (path.length > 0 && trailingSeparator) path += '/';
-
-    if (isAbsolute) return '/' + path;
-    return path;
-  },
-
-  isAbsolute: function isAbsolute(path) {
-    assertPath(path);
-    return path.length > 0 && path.charCodeAt(0) === 47 /*/*/;
-  },
-
-  join: function join() {
-    if (arguments.length === 0)
-      return '.';
-    var joined;
-    for (var i = 0; i < arguments.length; ++i) {
-      var arg = arguments[i];
-      assertPath(arg);
-      if (arg.length > 0) {
-        if (joined === undefined)
-          joined = arg;
-        else
-          joined += '/' + arg;
-      }
-    }
-    if (joined === undefined)
-      return '.';
-    return posix.normalize(joined);
-  },
-
-  relative: function relative(from, to) {
-    assertPath(from);
-    assertPath(to);
-
-    if (from === to) return '';
-
-    from = posix.resolve(from);
-    to = posix.resolve(to);
-
-    if (from === to) return '';
-
-    // Trim any leading backslashes
-    var fromStart = 1;
-    for (; fromStart < from.length; ++fromStart) {
-      if (from.charCodeAt(fromStart) !== 47 /*/*/)
-        break;
-    }
-    var fromEnd = from.length;
-    var fromLen = fromEnd - fromStart;
-
-    // Trim any leading backslashes
-    var toStart = 1;
-    for (; toStart < to.length; ++toStart) {
-      if (to.charCodeAt(toStart) !== 47 /*/*/)
-        break;
-    }
-    var toEnd = to.length;
-    var toLen = toEnd - toStart;
-
-    // Compare paths to find the longest common path from root
-    var length = fromLen < toLen ? fromLen : toLen;
-    var lastCommonSep = -1;
-    var i = 0;
-    for (; i <= length; ++i) {
-      if (i === length) {
-        if (toLen > length) {
-          if (to.charCodeAt(toStart + i) === 47 /*/*/) {
-            // We get here if `from` is the exact base path for `to`.
-            // For example: from='/foo/bar'; to='/foo/bar/baz'
-            return to.slice(toStart + i + 1);
-          } else if (i === 0) {
-            // We get here if `from` is the root
-            // For example: from='/'; to='/foo'
-            return to.slice(toStart + i);
-          }
-        } else if (fromLen > length) {
-          if (from.charCodeAt(fromStart + i) === 47 /*/*/) {
-            // We get here if `to` is the exact base path for `from`.
-            // For example: from='/foo/bar/baz'; to='/foo/bar'
-            lastCommonSep = i;
-          } else if (i === 0) {
-            // We get here if `to` is the root.
-            // For example: from='/foo'; to='/'
-            lastCommonSep = 0;
-          }
-        }
-        break;
-      }
-      var fromCode = from.charCodeAt(fromStart + i);
-      var toCode = to.charCodeAt(toStart + i);
-      if (fromCode !== toCode)
-        break;
-      else if (fromCode === 47 /*/*/)
-        lastCommonSep = i;
-    }
-
-    var out = '';
-    // Generate the relative path based on the path difference between `to`
-    // and `from`
-    for (i = fromStart + lastCommonSep + 1; i <= fromEnd; ++i) {
-      if (i === fromEnd || from.charCodeAt(i) === 47 /*/*/) {
-        if (out.length === 0)
-          out += '..';
-        else
-          out += '/..';
-      }
-    }
-
-    // Lastly, append the rest of the destination (`to`) path that comes after
-    // the common path parts
-    if (out.length > 0)
-      return out + to.slice(toStart + lastCommonSep);
-    else {
-      toStart += lastCommonSep;
-      if (to.charCodeAt(toStart) === 47 /*/*/)
-        ++toStart;
-      return to.slice(toStart);
-    }
-  },
-
-  _makeLong: function _makeLong(path) {
-    return path;
-  },
-
-  dirname: function dirname(path) {
-    assertPath(path);
-    if (path.length === 0) return '.';
-    var code = path.charCodeAt(0);
-    var hasRoot = code === 47 /*/*/;
-    var end = -1;
-    var matchedSlash = true;
-    for (var i = path.length - 1; i >= 1; --i) {
-      code = path.charCodeAt(i);
-      if (code === 47 /*/*/) {
-          if (!matchedSlash) {
-            end = i;
-            break;
-          }
-        } else {
-        // We saw the first non-path separator
-        matchedSlash = false;
-      }
-    }
-
-    if (end === -1) return hasRoot ? '/' : '.';
-    if (hasRoot && end === 1) return '//';
-    return path.slice(0, end);
-  },
-
-  basename: function basename(path, ext) {
-    if (ext !== undefined && typeof ext !== 'string') throw new TypeError('"ext" argument must be a string');
-    assertPath(path);
-
-    var start = 0;
-    var end = -1;
-    var matchedSlash = true;
-    var i;
-
-    if (ext !== undefined && ext.length > 0 && ext.length <= path.length) {
-      if (ext.length === path.length && ext === path) return '';
-      var extIdx = ext.length - 1;
-      var firstNonSlashEnd = -1;
-      for (i = path.length - 1; i >= 0; --i) {
-        var code = path.charCodeAt(i);
-        if (code === 47 /*/*/) {
-            // If we reached a path separator that was not part of a set of path
-            // separators at the end of the string, stop now
-            if (!matchedSlash) {
-              start = i + 1;
-              break;
-            }
-          } else {
-          if (firstNonSlashEnd === -1) {
-            // We saw the first non-path separator, remember this index in case
-            // we need it if the extension ends up not matching
-            matchedSlash = false;
-            firstNonSlashEnd = i + 1;
-          }
-          if (extIdx >= 0) {
-            // Try to match the explicit extension
-            if (code === ext.charCodeAt(extIdx)) {
-              if (--extIdx === -1) {
-                // We matched the extension, so mark this as the end of our path
-                // component
-                end = i;
-              }
-            } else {
-              // Extension does not match, so our result is the entire path
-              // component
-              extIdx = -1;
-              end = firstNonSlashEnd;
-            }
-          }
-        }
-      }
-
-      if (start === end) end = firstNonSlashEnd;else if (end === -1) end = path.length;
-      return path.slice(start, end);
-    } else {
-      for (i = path.length - 1; i >= 0; --i) {
-        if (path.charCodeAt(i) === 47 /*/*/) {
-            // If we reached a path separator that was not part of a set of path
-            // separators at the end of the string, stop now
-            if (!matchedSlash) {
-              start = i + 1;
-              break;
-            }
-          } else if (end === -1) {
-          // We saw the first non-path separator, mark this as the end of our
-          // path component
-          matchedSlash = false;
-          end = i + 1;
-        }
-      }
-
-      if (end === -1) return '';
-      return path.slice(start, end);
-    }
-  },
-
-  extname: function extname(path) {
-    assertPath(path);
-    var startDot = -1;
-    var startPart = 0;
-    var end = -1;
-    var matchedSlash = true;
-    // Track the state of characters (if any) we see before our first dot and
-    // after any path separator we find
-    var preDotState = 0;
-    for (var i = path.length - 1; i >= 0; --i) {
-      var code = path.charCodeAt(i);
-      if (code === 47 /*/*/) {
-          // If we reached a path separator that was not part of a set of path
-          // separators at the end of the string, stop now
-          if (!matchedSlash) {
-            startPart = i + 1;
-            break;
-          }
-          continue;
-        }
-      if (end === -1) {
-        // We saw the first non-path separator, mark this as the end of our
-        // extension
-        matchedSlash = false;
-        end = i + 1;
-      }
-      if (code === 46 /*.*/) {
-          // If this is our first dot, mark it as the start of our extension
-          if (startDot === -1)
-            startDot = i;
-          else if (preDotState !== 1)
-            preDotState = 1;
-      } else if (startDot !== -1) {
-        // We saw a non-dot and non-path separator before our dot, so we should
-        // have a good chance at having a non-empty extension
-        preDotState = -1;
-      }
-    }
-
-    if (startDot === -1 || end === -1 ||
-        // We saw a non-dot character immediately before the dot
-        preDotState === 0 ||
-        // The (right-most) trimmed path component is exactly '..'
-        preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
-      return '';
-    }
-    return path.slice(startDot, end);
-  },
-
-  format: function format(pathObject) {
-    if (pathObject === null || typeof pathObject !== 'object') {
-      throw new TypeError('The "pathObject" argument must be of type Object. Received type ' + typeof pathObject);
-    }
-    return _format('/', pathObject);
-  },
-
-  parse: function parse(path) {
-    assertPath(path);
-
-    var ret = { root: '', dir: '', base: '', ext: '', name: '' };
-    if (path.length === 0) return ret;
-    var code = path.charCodeAt(0);
-    var isAbsolute = code === 47 /*/*/;
-    var start;
-    if (isAbsolute) {
-      ret.root = '/';
-      start = 1;
-    } else {
-      start = 0;
-    }
-    var startDot = -1;
-    var startPart = 0;
-    var end = -1;
-    var matchedSlash = true;
-    var i = path.length - 1;
-
-    // Track the state of characters (if any) we see before our first dot and
-    // after any path separator we find
-    var preDotState = 0;
-
-    // Get non-dir info
-    for (; i >= start; --i) {
-      code = path.charCodeAt(i);
-      if (code === 47 /*/*/) {
-          // If we reached a path separator that was not part of a set of path
-          // separators at the end of the string, stop now
-          if (!matchedSlash) {
-            startPart = i + 1;
-            break;
-          }
-          continue;
-        }
-      if (end === -1) {
-        // We saw the first non-path separator, mark this as the end of our
-        // extension
-        matchedSlash = false;
-        end = i + 1;
-      }
-      if (code === 46 /*.*/) {
-          // If this is our first dot, mark it as the start of our extension
-          if (startDot === -1) startDot = i;else if (preDotState !== 1) preDotState = 1;
-        } else if (startDot !== -1) {
-        // We saw a non-dot and non-path separator before our dot, so we should
-        // have a good chance at having a non-empty extension
-        preDotState = -1;
-      }
-    }
-
-    if (startDot === -1 || end === -1 ||
-    // We saw a non-dot character immediately before the dot
-    preDotState === 0 ||
-    // The (right-most) trimmed path component is exactly '..'
-    preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
-      if (end !== -1) {
-        if (startPart === 0 && isAbsolute) ret.base = ret.name = path.slice(1, end);else ret.base = ret.name = path.slice(startPart, end);
-      }
-    } else {
-      if (startPart === 0 && isAbsolute) {
-        ret.name = path.slice(1, startDot);
-        ret.base = path.slice(1, end);
-      } else {
-        ret.name = path.slice(startPart, startDot);
-        ret.base = path.slice(startPart, end);
-      }
-      ret.ext = path.slice(startDot, end);
-    }
-
-    if (startPart > 0) ret.dir = path.slice(0, startPart - 1);else if (isAbsolute) ret.dir = '/';
-
-    return ret;
-  },
-
-  sep: '/',
-  delimiter: ':',
-  win32: null,
-  posix: null
-};
-
-posix.posix = posix;
-
-var pathBrowserify = posix;
-
-let infiniteLoopCounter = 0;
-function resetInfiniteLoop() {
-  infiniteLoopCounter = 0;
-}
-function checkInfiniteLoop() {
-  infiniteLoopCounter++;
-  if (infiniteLoopCounter > 1000) {
-    resetInfiniteLoop();
-    throw new Error('infinite loop?');
-  }
-}
-
-/** @type {function(SyntaxNode): SyntaxNode} */
-function skipComments(node) {
-  checkInfiniteLoop();
-  while (
-    node && (
-      node.type.name == 'Comment' ||
-      node.type.name == 'CommentBlock'
-    )
-  ) {
-    node = node.nextSibling;
-  }
-  return node;
-}
-
-/** @type {function(SyntaxNode): SyntaxNode} */
-function firstChild(node) {
-  if (!(node = node.firstChild)) {
-    //console.log(`firstChild: node.firstChild is empty`);
-    return null;
-  }
-  if (!(node = skipComments(node))) {
-    //console.log(`firstChild: skipComments failed`);
-    return null;
-  }
-  return node;
-}
-
-/** @type {function(SyntaxNode): SyntaxNode} */
-function nextSibling(node) {
-  if (!(node = node.nextSibling)) {
-    //console.log(`nextSibling: node.nextSibling is empty`);
-    return null;
-  }
-  if (!(node = skipComments(node))) {
-    //console.log(`nextSibling: skipComments failed`);
-    return null;
-  }
-  return node;
-}
-
-/** @type {function(SyntaxNode, string): string} */
-function nodeText(node, source) {
-  // source = full source code of the Nix file
-  // text = source code of this node
-  return source.slice(node.from, node.to);
-}
-
-/** @type {function(SyntaxNode, string): any} */
-function callThunk(node, source) {
-  if (!node.type.thunk) {
-    throw new NixEvalNotImplemented(`thunk is undefined for type ${node.type.name}`);
-  }
-  return node.type.thunk(node, source);
-}
-
-
-
-function nixTypeWithArticle(value) {
-  const typeName = NixPrimops.__typeOf(value);
-  const resultOfType = {
-    'null': 'null',
-    'set': 'a set',
-    'list': 'a list',
-    'integer': 'an integer',
-    'float': 'a float',
-    'bool': 'a Boolean',
-    'string': 'a string',
-  };
-  return resultOfType[typeName];
-}
-
-
-
-/** @type {Record<string, (node: SyntaxNode, source: string) => any>} */
-const thunkOfNodeType = {};
-
-
-
-/** @return {never} */
-thunkOfNodeType['⚠'] = (node, _source) => {
-  checkInfiniteLoop();
-  //console.log('thunkOfNodeType.Error: node', node);
-  // add context from _source? mostly not needed -> on demand or debounced
-  throw new NixSyntaxError(`error at position ${node.from}`);
-};
-
-
-
-/** @return {any} */
-thunkOfNodeType.Nix = (node, source) => {
-  //resetInfiniteLoop();
-  //console.log('thunkOfNodeType.Nix: node', node);
-  const childNode = firstChild(node);
-  if (!childNode) {
-    // input is empty
-    return;
-  }
-  //console.log(`thunkOfNodeType.Nix: call thunk of node`, childNode);
-  return callThunk(childNode, source);
-};
-
-
-
-/** @return {null} */
-thunkOfNodeType.NULL = () => {
-  return null;
-};
-
-/** @return {boolean} */
-thunkOfNodeType.TRUE = () => {
-  return true;
-};
-
-/** @return {boolean} */
-thunkOfNodeType.FALSE = () => {
-  return false;
-};
-
-
-
-/** @return {any} */
-thunkOfNodeType.Parens = (node, source) => {
-  //console.log('thunkOfNodeType.Parens: node', node);
-  const childNode = firstChild(node);
-  if (!childNode) {
-    throw NixSyntaxError("unexpected ')'");
-  }
-  return callThunk(childNode, source);
-};
-
-
-
-/** @return {bigint} */
-thunkOfNodeType.Int = (node, source) => {
-  //console.log('thunkOfNodeType.Int: node', node);
-  //return parseInt(nodeText(node, source));
-  // we need BigInt to diff Int vs Float
-  // otherwise typeof(1.0) == "int"
-  return BigInt(nodeText(node, source));
-};
-
-
-
-/** @return {number} */
-thunkOfNodeType.Float = (node, source) => {
-  //console.log('thunkOfNodeType.Int: node', node);
-  return parseFloat(nodeText(node, source));
-};
-
-
-
-/** @return {string} */
-thunkOfNodeType.Identifier = (node, source) => {
-  //console.log('thunkOfNodeType.Identifier: node', node);
-  return nodeText(node, source);
-};
-
-
-
-/** @return {function} */
-thunkOfNodeType.Primop = (node, source) => {
-  //console.log('thunkOfNodeType.Primop: node', node);
-  const name = nodeText(node, source);
-  //console.log('thunkOfNodeType.Primop: name', name);
-  const func = NixPrimops[name];
-  if (!func) {
-    throw new NixEvalNotImplemented(`primop ${name}`);
-  }
-  return func;
-};
-
-
-
-/** @return {number | bigint} */
-thunkOfNodeType.Add = (node, source) => {
-
-  // arithmetic addition or string concat
-  // TODO check types
-
-  // nix-repl> 1+""
-  // error: cannot add a string to an integer
-
-  // nix-repl> ""+1
-  // error: cannot coerce an integer to a string
-
-  checkInfiniteLoop();
-  //console.log('thunkOfNodeType.Add: node', node);
-  let childNode1 = firstChild(node);
-  if (!childNode1) {
-    throw new NixEvalError('Add: no childNode1')
-  }
-  let value1;
-  let childNode2;
-  {
-    childNode2 = nextSibling(childNode1);
-    if (!childNode2) {
-      throw new NixEvalError('Add: no arg2')
-    }
-    //console.log('thunkOfNodeType.Add: arg1 ...');
-    value1 = callThunk(childNode1, source);
-    //console.log('thunkOfNodeType.Add: arg1', arg1);
-  }
-
-  //console.log('thunkOfNodeType.Add: arg2 ...');
-  const value2 = callThunk(childNode2, source);
-  //console.log('thunkOfNodeType.Add: arg2', arg2);
-
-  // TODO round result of float
-  // nix: 0.1 + 0.2 == 0.3
-  // js: 0.1 + 0.2 == 0.30000000000000004
-
-  // ""+1
-  if (typeof(value1) == 'string' && typeof(value2) == 'bigint') {
-    throw new NixEvalError('cannot coerce an integer to a string')
-  }
-
-  // ""+1.0
-  if (typeof(value1) == 'string' && typeof(value2) == 'number') {
-    throw new NixEvalError('cannot coerce a float to a string')
-  }
-
-  // 1+""
-  if (typeof(value1) == 'bigint' && typeof(value2) == 'string') {
-    throw new NixEvalError('cannot add a string to an integer')
-  }
-
-  // 1.0+""
-  if (typeof(value1) == 'number' && typeof(value2) == 'string') {
-    throw new NixEvalError('cannot add a string to a float')
-  }
-
-  // int + float -> float
-  if (typeof(value1) == 'bigint' && typeof(value2) == 'number') {
-    return parseFloat(value1) + value2;
-  }
-
-  // float + int -> float
-  if (typeof(value1) == 'number' && typeof(value2) == 'bigint') {
-    return value1 + parseFloat(value2);
-  }
-
-  // float + float -> float
-  if (typeof(value1) == 'number' && typeof(value2) == 'number') {
-    return value1 + value2;
-  }
-
-  // int + int -> int
-  if (typeof(value1) == 'bigint' && typeof(value2) == 'bigint') {
-    return value1 + value2;
-  }
-
-  // string + string -> string
-  if (typeof(value1) == 'string' && typeof(value2) == 'string') {
-    return value1 + value2;
-  }
-
-  throw new NixEvalError(`cannot coerce ${nixTypeWithArticle(value1)} to a string`)
-};
-
-
-
-/** @type {function(SyntaxNode, string, Record<string, any>): [number, number]} */
-function get2Numbers(node, source, options) {
-  if (!options) options = {};
-  if (!options.caller) options.caller = 'get2Numbers';
-  checkInfiniteLoop();
-  //console.log('thunkOfNodeType.Mul: node', node);
-  let childNode1 = firstChild(node);
-  if (!childNode1) {
-    throw new NixEvalError(`${options.caller}: no childNode1`)
-  }
-  let value1;
-  let childNode2;
-  {
-    childNode2 = nextSibling(childNode1);
-    if (!childNode2) {
-      throw new NixEvalError(`${options.caller}: no childNode2`)
-    }
-    //console.log('thunkOfNodeType.Mul: arg1 ...');
-    value1 = callThunk(childNode1, source);
-    //console.log('thunkOfNodeType.Mul: arg1', arg1);
-  }
-
-  //console.log('thunkOfNodeType.Mul: arg2 ...');
-  let value2 = callThunk(childNode2, source);
-  //console.log('thunkOfNodeType.Mul: arg2', arg2);
-
-  if (typeof(value1) != typeof(value2)) {
-    // float + int -> float
-    value1 = parseFloat(value1);
-    value2 = parseFloat(value2);
-  }
-
-  return [value1, value2];
-}
-
-/*
-thunkOfNodeType.Add = (node, source) => {
-  const [value1, value2] = get2Numbers(node, source, { caller: 'Add' });
-  return value1 + value2;
-};
-*/
-
-thunkOfNodeType.Sub = (node, source) => {
-  const [value1, value2] = get2Numbers(node, source, { caller: 'Sub' });
-  return value1 - value2;
-};
-
-thunkOfNodeType.Mul = (node, source) => {
-  const [value1, value2] = get2Numbers(node, source, { caller: 'Mul' });
-  return value1 * value2;
-};
-
-thunkOfNodeType.Div = (node, source) => {
-  const [value1, value2] = get2Numbers(node, source, { caller: 'Div' });
-  if (value2 == 0) {
-    throw NixEvalError('division by zero')
-  }
-  return value1 / value2;
-};
-
-
-
-/** @return {any} */
-thunkOfNodeType.Call = (node, source) => {
-
-  // call a function
-  // TODO check types
-
-  checkInfiniteLoop();
-  //console.log('thunkOfNodeType.Call: node', node);
-
-  let childNode1 = firstChild(node);
-  if (!childNode1) {
-    throw new NixEvalError('Call: no childNode1')
-  }
-  // eval deep first: get value1 now, childNode2 later
-  //console.log('thunkOfNodeType.Call: childNode1', childNode1.type.name, childNode1);
-
-  //if (childNode1.type.name == 'Primop' && nodeText(childNode1, source) == '__typeOf') {
-    // call primop with syntax tree
-    // TODO do more primops need access to syntax tree?
-    // special case to handle
-    // __typeOf 1.0
-    // should return "float", but javascript has only "number" so returns "int"
-    // WONTFIX?
-    // this fails for complex cases:
-    // __typeOf (0 + 1.0)
-    // let x = 0; in __typeOf (x + 1.0)
-  //}
-
-  const value1 = callThunk(childNode1, source);
-  //console.log('thunkOfNodeType.Call: value1', value1);
-
-  if (typeof(value1) != 'function') {
-    throw new NixEvalError(`attempt to call something which is not a function but ${nixTypeWithArticle(value1)}`);
-  }
-
-  const childNode2 = nextSibling(childNode1);
-  if (!childNode2) {
-    throw new NixEvalError('Call: no arg2')
-  }
-
-  //console.log('thunkOfNodeType.Call: childNode2', childNode2.type.name, childNode2);
-
-  const value2 = callThunk(childNode2, source);
-  //console.log('thunkOfNodeType.Call: callNode', callNode);
-
-  return value1(value2);
-
-  /*
-  // Lambda. also pass callNode
-  // call function lambda(argumentValue)
-  // Primop
-  return value1.apply(callNode, [value2]); // this == callNode
-  //return value1(childNode2, source);
-  //return value1.apply(callNode, [childNode2, source]);
-  */
-};
-
-
-
-/** @typedef {any[]} LazyArray */
-/** @return {LazyArray} */
-thunkOfNodeType.List = (node, source) => {
-  //console.log('thunkOfNodeType.List: list node type', node.type.name);
-  //console.log('thunkOfNodeType.List: call stack', new Error());
-
-  // https://codetagteam.com/questions/any-way-to-define-getters-for-lazy-variables-in-javascript-arrays
-  function LazyArray() {
-    return new Proxy([], {
-      get: (obj, prop) => {
-        //if (typeof obj[prop] === 'function') {
-        if (obj[prop] instanceof Function) {
-          // replace the function with the result
-          obj[prop] = obj[prop]();
-        }
-        return obj[prop]
-      },
-    })
-  }
-
-  /** @type {LazyArray} */
-  var list = LazyArray();
-
-  let childNode;
-
-  if (!(childNode = firstChild(node))) {
-    // empty list
-    return list;
-  }
-
-  //console.log(`thunkOfNodeType.List: first childNode`, childNode);
-  let idx = 0;
-  while (true) {
-    checkInfiniteLoop();
-    function getThunk(childNodeCopy) {
-      // force copy of childNode
-      // fix: thunkOfNodeType.List: call thunk of childNode null
-      // this will "move" childNode from thunkOfNodeType.List to thunk
-      // TODO better?
-      return () => {
-        //console.log('thunkOfNodeType.List value thunk: node', node.type.name, node);
-        //console.log(`thunkOfNodeType.List: call thunk of childNode`, childNode);
-        return callThunk(childNodeCopy, source);
-      };
-    }
-    list[idx] = getThunk(childNode);
-
-    if (!(childNode = nextSibling(childNode))) {
-      break;
-    }
-    //console.log(`thunkOfNodeType.List: next childNode`, childNode);
-    idx++;
-  }
-  //console.log('thunkOfNodeType.List: list parent node type', node.type.name);
-  return list;
-};
-
-
-
-/** @return {string} */
-thunkOfNodeType.String = (node, source) => {
-  // similar to list: zero or more childNodes
-
-  let childNode;
-
-  /** @type {string} */
-  let result = '';
-
-  if (!(childNode = firstChild(node))) {
-    // empty string
-    return result;
-  }
-
-  while (true) {
-    checkInfiniteLoop();
-    const stringPart = callThunk(childNode, source);
-    result += stringPart;
-    if (!(childNode = nextSibling(childNode))) {
-      break;
-    }
-  }
-
-  return result;
-};
-
-
-
-/** @return {string} */
-thunkOfNodeType.StringContent = thunkOfNodeType.Identifier;
-
-
-
-/** @return {string} */
-thunkOfNodeType.PathAbsolute = thunkOfNodeType.Identifier;
-
-
-
-/** @return {string} */
-thunkOfNodeType.PathRelative = (node, source) => {
-  const relativePath = nodeText(node, source);
-  const absolutePath = pathBrowserify.join('/home/user', relativePath);
-  return absolutePath;
-};
-
-
-
-/** @typedef {Record<string, any>} LazyObject */
-/** @return {LazyObject} */
-thunkOfNodeType.Set = (node, source) => {
-
-  checkInfiniteLoop();
-
-  //if (!node) {
-  //  throw NixEvalError('Set: node is null')
-  //}
-
-  // TODO cache. but where? global cache? local context?
-  // node is probably a bad choice
-  /*
-  if (!node.data) node.data = {};
-  const data = node.data;
-  */
-  // TODO lazy object via Proxy, see LazyArray
-  const data = {};
-
-  //console.log('thunkOfNodeType.Set: typeof(node)', typeof(node));
-
-  //console.log('thunkOfNodeType.Set: typeof(node.firstChild)', typeof(node.firstChild));
-
-  //if (!node.firstChild) {
-  //  throw NixEvalError('Set: node.firstChild is empty. node:', node)
-  //}
-
-  //console.log('thunkOfNodeType.Set ------------------------');
-  //console.log('thunkOfNodeType.Set: node', node);
-
-  let attrNode;
-
-  if (!(attrNode = firstChild(node))) {
-    // empty set
-    return data;
-  }
-
-  while (true) {
-    checkInfiniteLoop();
-    //console.log('thunkOfNodeType.Set: attrNode', attrNode);
-
-    const keyNode = firstChild(attrNode);
-    if (!keyNode) {
-      throw new NixEvalError('Set Attr: no key');
-    }
-    //console.log('thunkOfNodeType.Set: keyNode', keyNode);
-
-    const valueNode = nextSibling(keyNode);
-    if (!valueNode) {
-      throw new NixEvalError('Set Attr: no value');
-    }
-    //console.log('thunkOfNodeType.Set: valueNode', valueNode);
-
-    //const copyNode = (node) => node;
-    //const valueNodeCopy = copyNode(valueNode);
-
-    const key = source.slice(keyNode.from, keyNode.to);
-    //console.log('thunkOfNodeType.Set: key', key);
-
-    function getThunk(valueNodeCopy) {
-      // create local copy of valueNode
-      return () => {
-        //console.log(`Set key=${key}: value thunk: call thunk of valueNodeCopy`, valueNodeCopy)
-        return valueNodeCopy.type.thunk(
-          valueNodeCopy,
-          source
-        );
-      }
-    }
-
-    Object.defineProperty(data, key, {
-      get: getThunk(valueNode),
-      enumerable: true,
-      // fix: TypeError: Cannot redefine property: a
-      configurable: true,
-    });
-
-
-    if (!(attrNode = nextSibling(attrNode))) {
-      break;
-    }
-  }
-
-  return data;
-};
-
-
-
-/** @typedef {Record<string, any>} LazyObject */
-/** @return {LazyObject} */
-thunkOfNodeType.RecSet = (node, source) => {
-
-  // depends on Var
-  // TODO refactor with Set
-
-  checkInfiniteLoop();
-
-  //if (!node) {
-  //  throw NixEvalError('Set: node is null')
-  //}
-
-  // TODO cache. but where? global cache? local context?
-  // node is probably a bad choice
-  //if (!node.data) node.data = {};
-  //const data = node.data;
-  // TODO lazy object via Proxy, see LazyArray
-  //const data = {}; // Set -> data is in child scope via Select
-  node.data = {}; // RecSet -> data is in this scope
-
-  //console.log('thunkOfNodeType.Set: typeof(node)', typeof(node));
-
-  //console.log('thunkOfNodeType.Set: typeof(node.firstChild)', typeof(node.firstChild));
-
-  //if (!node.firstChild) {
-  //  throw NixEvalError('Set: node.firstChild is empty. node:', node)
-  //}
-
-  //console.log('thunkOfNodeType.Set ------------------------');
-  //console.log('thunkOfNodeType.Set: node', node);
-
-  let attrNode;
-
-  if (!(attrNode = firstChild(node))) {
-    // empty set
-    return node.data;
-  }
-
-  while (true) {
-    checkInfiniteLoop();
-    //console.log('thunkOfNodeType.Set: attrNode', attrNode);
-
-    const keyNode = firstChild(attrNode);
-    if (!keyNode) {
-      throw new NixEvalError('Set Attr: no key');
-    }
-    //console.log('thunkOfNodeType.Set: keyNode', keyNode);
-
-    const valueNode = nextSibling(keyNode);
-    if (!valueNode) {
-      throw new NixEvalError('Set Attr: no value');
-    }
-    //console.log('thunkOfNodeType.Set: valueNode', valueNode);
-
-    //const copyNode = (node) => node;
-    //const valueNodeCopy = copyNode(valueNode);
-
-    const key = source.slice(keyNode.from, keyNode.to);
-    //console.log('thunkOfNodeType.Set: key', key);
-
-    function getThunk(valueNodeCopy) {
-      // create local copy of valueNode
-      return () => {
-        //console.log(`Set value thunk: call thunk of valueNodeCopy`, valueNodeCopy)
-        return valueNodeCopy.type.thunk(
-          valueNodeCopy,
-          source
-        );
-      }
-    }
-
-    Object.defineProperty(node.data, key, {
-      get: getThunk(valueNode),
-      enumerable: true,
-      // fix: TypeError: Cannot redefine property: a
-      configurable: true,
-    });
-
-
-    if (!(attrNode = nextSibling(attrNode))) {
-      break;
-    }
-  }
-
-  return node.data;
-};
-
-
-
-/** @return {any} */
-thunkOfNodeType.Select = (node, source) => {
-  // first child: Set
-  // other children: attr keys
-  checkInfiniteLoop();
-  const setNode = firstChild(node);
-  if (!setNode) {
-    throw new NixEvalError('Select: no setNode')
-  }
-  const setValue = callThunk(setNode, source);
-
-  let keyNode = nextSibling(setNode);
-  if (!keyNode) {
-    throw new NixEvalError('Select: no keyNode')
-  }
-
-  let result = setValue;
-
-  while (keyNode) {
-    const keyValue = callThunk(keyNode, source);
-
-    if (!Object.hasOwn(result, keyValue)) {
-      throw new NixEvalError(`attribute '${keyValue}' missing`)
-    }
-
-    result = result[keyValue];
-
-    keyNode = nextSibling(keyNode);
-  }
-
-  return result;
-};
-
-
-
-/** @return {any} */
-thunkOfNodeType.Var = (node, source) => {
-  // input: a
-  // tree:
-  // Nix: a
-  //   Var: a
-  //     Identifier: a
-  checkInfiniteLoop();
-  const keyNode = firstChild(node);
-  if (!keyNode) {
-    throw new NixEvalError('Var: no keyNode')
-  }
-  // FIXME source is undefined when called from Call
-  const key = nodeText(keyNode, source);
-  //console.log(`thunkOfNodeType.Var: key`, key);
-
-  // find scope
-  // wrong. this breaks with
-  // Nix: let f=x: x; in f 1
-  //   Let: let f=x: x; in f 1
-  //     Attr: f=x: x;
-  //       Identifier: f
-  //       Lambda: x: x
-  //         Identifier: x
-  //         Var: x
-  //           Identifier: x
-  //     Call: f 1
-  //       Var: f
-  //         Identifier: f
-  //       Int: 1
-  //
-  // "Var: f" works
-  // because f is stored in Let.data
-  // "Var: x" fails
-  // because x is stored in Call.data
-  // but is searched in
-  //   Lambda.data
-  //   Attr.data
-  //   Let.data
-  //   Nix.data
-  //
-  // TODO explicitly pass scope Call to Lambda
-  //
-  // or ... scope == callstack?
-
-  let parent = node;
-  //console.log(`thunkOfNodeType.Var ${key}: find scope: node`, node.type?.name, node); // Var
-  while ((parent = parent.parent)) {
-    //console.log(`thunkOfNodeType.Var ${key}: find scope: parent`, parent.type?.name, parent);
-    if (parent.data && Object.hasOwn(parent.data, key)) {
-      //console.log(`thunkOfNodeType.Var ${key}: find scope: done`);
-      return parent.data[key];
-    }
-  }
-
-  //console.log(`thunkOfNodeType.Var ${key}: find scope: not found`);
-
-  throw new NixEvalError(`undefined variable '${key}'`);
-};
-
-
-
-/** @return {function} */
-thunkOfNodeType.Lambda = (node, source) => {
-  checkInfiniteLoop();
-  const argumentNode = firstChild(node);
-  if (!argumentNode) {
-    throw new NixEvalError('Lambda: no argumentNode')
-  }
-  //const argumentValue = callThunk(argumentNode, source);
-
-  let bodyNode = nextSibling(argumentNode);
-  if (!bodyNode) {
-    throw new NixEvalError('Lambda: no bodyNode')
-  }
-
-  if (argumentNode.type.name != 'Identifier') {
-    throw new NixEvalNotImplemented('Lambda: argumentNode must be Identifier')
-  }
-
-  // argumentNode.type.name == 'Identifier'
-  // simple function: f = x: (x + 1)
-  const argumentName = nodeText(argumentNode, source);
-
-  const lambdaNode = node;
-  lambdaNode.data = {};
-
-  //return function call1(argumentNode, source) {
-  // note: lambda must be normal function, so this == callNode
-  const lambda = function lambda(argumentValue) {
-    // lambda is called from Call
-    // value1.apply(callNode, [value2])
-    /*
-    const callNode = this;
-    console.log(`thunkOfNodeType.Lambda: call1: should be Call: this`, this)
-    console.log(`thunkOfNodeType.Lambda: call1: argumentValue`, argumentValue)
-    */
-    //return call2;
-    // call2 is called by solid setStore('evalResult', evalResult)
-    // TODO setStore should not call evalResult. -> hide evalResult in thunk?
-    // setStore('evalResult', (() => evalResult))
-    //console.log(`thunkOfNodeType.Lambda: call1: return function call2. args`, arguments, new Error().stack)
-    // find parent Call node
-
-    /*
-    let callNode = node;
-    while (callNode = callNode.parent) {
-      if (callNode.type.name == 'Call') {
-        if (!callNode.data) {
-          callNode.data = {};
-        }
-        callNode.data[argumentName] = callThunk(TODO)
-      }
-    }
-    */
-
-    /*
-    // TODO verify
-    const callNode = argumentNode.parent;
-    console.log(`thunkOfNodeType.Lambda: call1: argumentNode`, argumentNode)
-    console.log(`thunkOfNodeType.Lambda: call1: callNode`, callNode)
-    */
-
-    /* wrong scope. Call != Lambda
-    console.log(`thunkOfNodeType.Lambda: call1: setting data.${argumentName} on callNode ${callNode.type.name}`, callNode)
-    if (!callNode.data) {
-      callNode.data = {};
-    }
-    // argumentNode thunk is called in Call
-    //callNode.data[argumentName] = callThunk(argumentNode, source);
-    callNode.data[argumentName] = argumentValue;
-    */
-
-    // store argument value in Lambda.data
-    //const lambdaNode = bodyNode.parent;
-    //lambdaNode.data = {}; // reset to empty
-    //lambdaNode.data[argumentName] = argumentValue;
-    lambdaNode.data = {
-      [argumentName]: argumentValue,
-    };
-    // TODO handle complex args: formals, formals-at-binding
-
-    return callThunk(bodyNode, source);
-  };
-
-  // store source location of lambda
-  {
-    lambda.source = {
-      file: '(string)', // TODO nix file path
-      from: node.from,
-      to: node.to,
-    };
-    const setLineColumn = (lambdaSource) => {
-      const sourceLines = source.split('\n');
-      //console.log(`setLineColumn lambdaSource`, lambdaSource)
-      //console.log(`setLineColumn sourceLines`, sourceLines)
-      let lineFrom = 0;
-      for (let lineIdx = 0; lineIdx < sourceLines.length; lineIdx++) {
-        const line = sourceLines[lineIdx];
-        if (lambdaSource.from >= lineFrom) {
-          // found line
-          lambdaSource._line = lineIdx + 1; // lines are 1 based in Nix
-          lambdaSource._column = (lambdaSource.from - lineFrom) + 1; // columns are 1 based in Nix
-          return;
-        }
-        lineFrom += line.length + 1; // +1 for \n
-      }
-      // error
-      lambdaSource._line = 'not';
-      lambdaSource._column = 'found';
-    };
-    Object.defineProperty(lambda.source, 'line', {
-      enumerable: true,
-      get() {
-        if (!this._line) setLineColumn(this);
-        return this._line;
-      },
-    });
-    Object.defineProperty(lambda.source, 'column', {
-      enumerable: true,
-      get() {
-        if (!this._column) setLineColumn(this);
-        return this._column;
-      },
-    });
-  }
-  return lambda;
-};
-
-
-
-thunkOfNodeType.Let = (node, source) => {
-  // syntax sugar: let a=1; in a -> rec {a=1;}.a
-
-  // depends on Var
-  // TODO refactor with Set, RecSet
-
-  checkInfiniteLoop();
-
-  //const data = {}; // Set -> data is in child scope via Select
-  node.data = {}; // RecSet -> data is in this scope
-
-  //console.log('thunkOfNodeType.Let: node', node);
-
-  let childNode;
-
-  if (!(childNode = firstChild(node))) {
-    throw new NixEvalError('Let: no key')
-  }
-
-  while (true) {
-    checkInfiniteLoop();
-    //console.log('thunkOfNodeType.Let: childNode', childNode);
-
-    let nextChildNode = nextSibling(childNode);
-
-    if (nextChildNode) {
-      const attrNode = childNode;
-
-      // copy paste from Set, RecSet
-      const keyNode = firstChild(attrNode);
-      if (!keyNode) {
-        throw new NixEvalError('Let Attr: no key');
-      }
-      //console.log('thunkOfNodeType.Let: keyNode', keyNode);
-
-      const valueNode = nextSibling(keyNode);
-      if (!valueNode) {
-        throw new NixEvalError('Let Attr: no value');
-      }
-      //console.log('thunkOfNodeType.Let: valueNode', valueNode);
-
-      const key = source.slice(keyNode.from, keyNode.to);
-      //console.log('thunkOfNodeType.Let: key', key);
-
-      function getThunk(valueNodeCopy) {
-        // create local copy of valueNode
-        return () => {
-          return valueNodeCopy.type.thunk(
-            valueNodeCopy,
-            source
-          );
-        }
-      }
-
-      Object.defineProperty(node.data, key, {
-        get: getThunk(valueNode),
-        enumerable: true,
-        configurable: true,
-      });
-
-      childNode = nextChildNode;
-    }
-
-    else {
-      // last childNode
-      const keyNode = childNode;
-      return callThunk(keyNode, source);
-    }
-  }
-};
-
-const _tmpl$$1 = /*#__PURE__*/template(`<div><div></div></div>`);
-function CodeMirror(props) {
-  let ref;
-  const codeMirrorExtensions = {}; //onMount(() => {
-  //setTimeout(() => {
-  // setTimeout ->
-  // warning: computations created outside a `createRoot` or `render` will never be disposed
-  //codeMirror = createCodeMirror((() => props.options)(), () => ref);
-  //codeMirror = createCodeMirror((() => props)(), () => ref);
-  // solid-codemirror/packages/core/src/createCodeMirror.ts
-
-  let view;
-  const {
-    createExtension
-  } = createCodeMirror({
-    //onValueChange: (newValue) => null,
-    onEditorMount: props.onCodeMirror,
-    onValueChange: props.onValueChange,
-    onEditorState: props.onEditorState,
-    onEditorStateChange: props.onEditorStateChange,
-    onEditorMount: newView => {
-      view = newView;
-      if (props.onEditorMount) props.onEditorMount(view);
-    },
-
-    /*
-    (editorState) => {
-      // handle new tree
-      const newState = tr.state; // call "get state"
-      const newCode = newState.doc.sliceString(0, newState.doc.length);
-      const newTree = newState.tree;
-      //newTree.topNode // Nix: 1+1
-      //newTree.topNode.firstChild // ConcatStrings: 1+1
-    },
-    */
-    //value: props.value,
-    value: props.value //value: (() => props.value)(),
-
-  }, () => ref); // listen for changes in props.value
-  // FIXME deduplicate with createCodeMirror
-
-  createEffect(on(() => props.value, value => {
-    //console.log(`CodeMirror: createEffect on props.value: value = ${value}`)
-    if (!view || value === view.state.doc.toString()) {
-      return;
-    }
-
-    view.dispatch({
-      changes: {
-        from: 0,
-        to: view.state.doc.length,
-        insert: value
-      }
-    });
-  }, {
-    defer: true
-  }));
-  const basicSetupSolid = {
-    syntaxHighlighting: syntaxHighlighting(defaultHighlightStyle, {
-      fallback: true
-    }),
-
-    /*
-    lineNumbers: lineNumbers(),
-    /** /
-    highlightActiveLineGutter: highlightActiveLineGutter(),
-    highlightSpecialChars: highlightSpecialChars(),
-    history: history(),
-    foldGutter: foldGutter(), // FIXME Uncaught Error: Unrecognized extension value in extension set ([object Object]). This sometimes happens because multiple instances of @codemirror/state are loaded, breaking instanceof checks.
-    drawSelection: drawSelection(),
-     /** /
-    dropCursor: dropCursor(),
-    allowMultipleSelections: EditorState.allowMultipleSelections.of(true),
-    indentOnInput: indentOnInput(),
-    /**/
-    bracketMatching: bracketMatching(),
-    // FIXME Uncaught Error: Unrecognized extension value in extension set ([object Object]). This sometimes happens because multiple instances of @codemirror/state are loaded, breaking instanceof checks.
-    closeBrackets: closeBrackets(),
-
-    /**/
-    // FIXME TypeError: Cannot read properties of null (reading 'addEventListener')
-    // https://github.com/codemirror/dev/issues/945
-
-    /** /
-    autocompletion: autocompletion(), // -> tooltipPlugin
-     rectangularSelection: rectangularSelection(),
-    crosshairCursor: crosshairCursor(),
-    highlightActiveLine: highlightActiveLine(),
-    highlightSelectionMatches: highlightSelectionMatches(),
-    /** /
-     keymap: keymap.of([
-      ...closeBracketsKeymap,
-      ...defaultKeymap,
-      ...searchKeymap,
-      ...historyKeymap,
-      ...foldKeymap,
-      ...completionKeymap,
-      ...lintKeymap
-    ]),
-    /**/
-    codemirrorLangNix: nix() // https://github.com/sachinraja/rodemirror/blob/1e8a52f9d5c78859441d11a80211fc6f7538deb7/src/index.tsx#L36
-    // FIXME not called
-
-    /*
-    updateListener: EditorView.updateListener.of(function onUpdate(update) {
-      console.log(`onUpdate update`, update)
-    }),
-    */
-    // -> codeMirror.on('change', (update) => { ... })
-    //javascript: javascript(),
-
-    /**/
-
-  };
-
-  for (const [extensionName, extension] of Object.entries(basicSetupSolid)) {
-    //console.log('basicSetupSolid: extension', extensionName, extension)
-    const reconfigureExtension = createExtension(extension);
-    codeMirrorExtensions[extensionName] = {
-      extension,
-      reconfigure: reconfigureExtension
-    };
-  } // add thunks to types
-
-
-  const parser = codeMirrorExtensions.codemirrorLangNix.extension.language.parser;
-
-  for (const nodeType of parser.nodeSet.types) {
-    nodeType.thunk = thunkOfNodeType[nodeType.name];
-  } // https://github.com/JedWatson/react-codemirror/blob/c3ae528465bcdc4f20780892f8a9111e785fa577/src/Codemirror.js#L49
-
-  /*
-    const codeMirrorInstance = this.getCodeMirrorInstance();
-  this.codeMirror = codeMirrorInstance.fromTextArea(this.textareaNode, this.props.options);
-  this.codeMirror.on('change', this.codemirrorValueChanged);
-  this.codeMirror.on('cursorActivity', this.cursorActivity);
-  this.codeMirror.on('focus', this.focusChanged.bind(this, true));
-  this.codeMirror.on('blur', this.focusChanged.bind(this, false));
-  this.codeMirror.on('scroll', this.scrollChanged);
-  this.codeMirror.setValue(this.props.defaultValue || this.props.value || '');
-    */
-
-  /* this could work in onEditorMount of createCodeMirror
-  // but lets just patch createCodeMirror
-  codeMirror.on('change', (...update) => {
-    console.log(`codeMirror on change: update:`, update);
-  });
-  */
-  //}); // setTimeout(() => {
-  //});
-  //return <div ref={ref} />;
-
-
-  return (() => {
-    const _el$ = _tmpl$$1.cloneNode(true),
-          _el$2 = _el$.firstChild;
-
-    const _ref$ = ref;
-    typeof _ref$ === "function" ? use(_ref$, _el$2) : ref = _el$2;
-    return _el$;
-  })();
-} // CodeMirror plugin crashed: TypeError: Cannot read properties of null (reading 'addEventListener')
-//createExtension(basicSetup);
-// CodeMirror plugin crashed: TypeError: Cannot read properties of null (reading 'addEventListener')
-//for (const extension of basicSetup) {
-//  createExtension(extension);
-//}
-// https://github.com/nimeshnayaju/solid-codemirror/pull/4
-// basicSetup should be used like <CodeMirror extensions={[ basicSetup ]} />
-// -> reimplement basicSetup for "advanced usage" with createExtension
-// https://github.com/nimeshnayaju/solid-codemirror#advanced-usage
-// https://github.com/codemirror/basic-setup
-// the hard way
-
-/*
-const reconfigureLineNumbers = createExtension(lineNumbers());
- createExtension(highlightActiveLineGutter());
- createExtension(bracketMatching());
-*/
-// FIXME Uncaught Error: Unrecognized extension value in extension set ([object Object]).
-// This sometimes happens because multiple instances of @codemirror/state are loaded, breaking instanceof checks.
-// https://github.com/codemirror/dev/issues/608
-
-/*
-
-This usually happens when your build pipeline decides
-to mix two copies or different versions of @codemirror/state
-through the dependency tree.
-
-If you're using npm, try running npm list @codemirror/state
-and see if you have non deduped copies of that package.
-
-
-
-$ pnpm list -r | grep -B20 @codemirror/state
-
-nix-eval-js-demo
-
-devDependencies:
-...
-@codemirror/state 6.1.1
-...
-
-codemirror-lang-nix@6.0.0 nix-eval-js/demo/src/codemirror-lang-nix
-
-devDependencies:
-...
-@codemirror/state 6.1.1
-
-*/
-
-function stringifyTree(tree, options) {
-
-  if (!options) options = {};
-  const pretty = options.pretty || false;
-  const human = options.human || false; // human readable, like python or yaml
-  const compact = (!pretty && !human);
-  const format = compact ? 'compact' : pretty ? 'pretty' : human ? 'human' : null;
-  const source = options.source || options.text || '';
-  const indentStep = options.indent || '  ';
-
-  const cursor = tree.cursor();
-  if (!cursor) return '';
-
-  let depth = 0;
-  let result = '';
-
-  const indent = () => indentStep.repeat(depth);
-  const cursorType = () => cursor.name;
-  const cursorText = () => source.slice(cursor.from, cursor.to);
-
-  const formatNodeByFormat = {
-    human: () => `${indent()}${cursorType()}: ${cursorText()}\n`,
-    pretty: () => `${indent()}${cursorType()}`,
-    compact: () => cursorType(),
-  };
-  const formatNode = formatNodeByFormat[format];
-
-  while (true) {
-    // NLR: Node, Left, Right
-    // Node
-    result += formatNode();
-    // Left
-    if (cursor.firstChild()) {
-      // moved down
-      depth++;
-      if (compact) result += '(';
-      if (pretty) result += ' (\n';
-      continue;
-    }
-    // Right
-    if (cursor.nextSibling()) {
-      // moved right
-      if (compact) result += ',';
-      if (pretty) result += ',\n';
-      continue;
-    }
-    let continueMainLoop = false;
-    let firstUp = true;
-    while (cursor.parent()) {
-      // moved up
-      depth--;
-      if (compact) result += ')';
-      if (pretty && firstUp) result += `\n`;
-      if (pretty) result += `${indent()})`;
-      if (cursor.nextSibling()) {
-        // moved up + right
-        continueMainLoop = true;
-        if (compact) result += ',';
-        if (pretty) result += ',\n';
-        break;
-      }
-      if (pretty) result += `\n`;
-      firstUp = false;
-    }
-    if (continueMainLoop) continue;
-
-    break;
-  }
-
-  return result;
-}
-
-const _tmpl$4$1 = /*#__PURE__*/template(`<div>TreeViewCodeMirror: editorState is empty</div>`),
-      _tmpl$5$1 = /*#__PURE__*/template(`<pre></pre>`);
-// debounce? throttle?
-
-function TreeViewCodeMirror(props) {
-  if (!props.editorState) {
-    console.log('App: TreeViewCodeMirror: editorState is empty -> return');
-    return _tmpl$4$1.cloneNode(true);
-  }
-
-
-  const getTree = () => {
-    const source = props.editorState.doc.sliceString(0, props.editorState.doc.length);
-    return stringifyTree(props.editorState.tree, {
-      source,
-      human: true
-    });
-  };
-
-  return (() => {
-    const _el$8 = _tmpl$5$1.cloneNode(true);
-
-    insert$1(_el$8, getTree);
-
-    return _el$8;
-  })();
 }
 
 // FIXME profile adding a per-Tree TreeNode cache, validating it by
@@ -24766,6 +22861,374 @@ LRParser.deserialize({
   tokenPrec: 7457
 });
 
+// https://github.com/dtao/lazy.js
+
+class CallStack {
+  constructor(state) {
+    /** @type {SyntaxNode[]} */
+    this.stack = [];
+    this.state = state;
+  }
+  /** @type {function(SyntaxNode): void} */
+  push(node) {
+    this.stack.push(node);
+  }
+  /** @type {function(): SyntaxNode?} */
+  pop() {
+    return this.stack.pop() || null
+  }
+  /** @type {function(): SyntaxNode?} */
+  peek() {
+    return this.stack[this.stack.length - 1] || null
+  }
+  /** @type {function(): string} */
+  toString() {
+    const result = [];
+    for (const node of this.stack) {
+      let src = this.state.source.slice(node.from, node.to);
+      src = src.replace(/\n/g, '\\n');
+      result.push(`${node.from}-${node.to}: ${node.type.name}: ${src}`);
+    }
+    return result.join('\n')
+  }
+}
+
+class State {
+  /** @type {string} */
+  source = ''
+  // TODO refactor. make this more like EvalState in nix
+  /** @type {function({ source: string })} */
+  constructor({ source }) {
+    this.source = source;
+    this.stack = new CallStack(this);
+  }
+}
+
+class Env {
+  /** @type {Record<string, any>} */
+  data = {}
+  parent = null // aka "outer env"
+  constructor(parent = null, data = {}) {
+    if (parent) this.parent = parent;
+    this.depth = parent ? (parent.depth + 1) : 0;
+    if (data) this.data = data;
+  }
+  /** @type {function(): string} */
+  toString() {
+    return this.data.toString()
+  }
+  /** @type {function(string, any | undefined): void} */
+  set(key, value) {
+    this.data[key] = value;
+  }
+  /** @type {function(string): any | undefined} */
+  get(key) {
+    let env = this;
+    while (env) {
+      if (Object.hasOwn(env.data, key)) {
+        return env.data[key]
+      }
+      env = env.parent;
+    }
+    return undefined
+  }
+}
+
+/*
+cat nix/src/libexpr/primops.cc | grep '.name = "__' | cut -d'"' -f2 | sed -E 's/^(.*)$/  "\1": arg => arg,/'
+*/
+
+const NixPrimops = {
+
+  "__typeOf": arg => {
+    if (arg === null) return 'null'; // js: typeof(null) == 'object'
+    if (arg === true || arg === false) return 'bool';
+    if (Array.isArray(arg)) return 'list';
+    if (arg instanceof Env) return 'set';
+    const javascriptType = typeof(arg);
+    if (javascriptType == 'bigint') {
+      return 'int';
+    }
+    if (javascriptType == 'number') {
+      return 'float';
+    }
+    // TODO handle more cases?
+    return javascriptType; // string
+  },
+
+  "__isFunction": arg => typeof(arg) == 'function',
+  "__isInt": arg => (typeof(arg) == 'number' && (arg|0) == arg),
+  "__isFloat": arg => typeof(arg) == 'number',
+  "__isString": arg => typeof(arg) == 'string',
+  "__isBool": arg => typeof(arg) == 'boolean',
+
+  /*
+  "__isPath": arg => arg,
+  "__genericClosure": arg => arg,
+  "__addErrorContext": arg => arg,
+  */
+
+  "__ceil": float => Math.ceil(float),
+  "__floor": float => Math.floor(float),
+
+  /*
+  "__tryEval": arg => arg,
+  "__getEnv": arg => arg,
+  "__seq": arg => arg,
+  "__deepSeq": arg => arg,
+  "__trace": arg => arg,
+  "__toPath": arg => arg,
+  "__storePath": arg => arg,
+  "__pathExists": arg => arg,
+  "__readFile": arg => arg,
+  "__findFile": arg => arg,
+  "__hashFile": arg => arg,
+  "__readDir": arg => arg,
+  "__toXML": arg => arg,
+  "__toJSON": arg => arg,
+  "__fromJSON": arg => arg,
+  "__toFile": arg => arg,
+  "__filterSource": arg => arg,
+  "__path": arg => arg,
+  "__attrNames": arg => arg,
+  "__attrValues": arg => arg,
+  "__getAttr": arg => arg,
+  "__unsafeGetAttrPos": arg => arg,
+  "__hasAttr": arg => arg,
+  "__isAttrs": arg => arg,
+  "__listToAttrs": arg => arg,
+  "__intersectAttrs": arg => arg,
+  "__catAttrs": arg => arg,
+  "__functionArgs": arg => arg,
+  "__mapAttrs": arg => arg,
+  "__zipAttrsWith": arg => arg,
+  */
+
+  // TODO verify
+  "__isList": arg => Array.isArray(arg),
+
+  // TODO check types
+  "__elemAt": list => (index => {
+    if (index < 0 || list.length <= index) {
+      throw new NixEvalError(`list index ${index} is out of bounds`);
+    }
+    return list[index];
+  }),
+
+  // TODO check type of list
+  "__head": list => {
+    if (list.length == 0) {
+      throw new NixEvalError(`list index 0 is out of bounds`);
+    }
+    return list[0];
+  },
+
+  // TODO check type of list
+  "__tail": list => {
+    if (list.length == 0) {
+      throw new NixEvalError(`'tail' called on an empty list`);
+    }
+    return list[list.length - 1];
+  },
+
+  //"__filter": list => list[list.length - 1],
+
+  /*
+  "__elem": arg => arg,
+  "__concatLists": arg => arg,
+  "__length": arg => arg,
+  "__foldl'": arg => arg,
+  "__any": arg => arg,
+  "__all": arg => arg,
+  "__genList": arg => arg,
+  "__sort": arg => arg,
+  "__partition": arg => arg,
+  "__groupBy": arg => arg,
+  "__concatMap": arg => arg,
+  */
+
+  // TODO? refactor binary operators
+  "__add": value1 => (value2 => {
+
+    // int + float -> float
+    if (typeof(value1) == 'bigint' && typeof(value2) == 'number') {
+      return parseFloat(value1) + value2;
+    }
+
+    // float + int -> float
+    if (typeof(value1) == 'number' && typeof(value2) == 'bigint') {
+      return value1 + parseFloat(value2);
+    }
+
+    // float + float -> float
+    if (typeof(value1) == 'number' && typeof(value2) == 'number') {
+      return value1 + value2;
+    }
+
+    // int + int -> int
+    if (typeof(value1) == 'bigint' && typeof(value2) == 'bigint') {
+      return value1 + value2;
+    }
+
+    if (typeof(value1) != 'bigint' && typeof(value1) != 'number') {
+      if (typeof(value2) == 'bigint' || typeof(value2) == 'number') {
+        throw new NixEvalError(`value is ${nixTypeWithArticle(value1)} while ${nixTypeWithArticle(value2)} was expected`)
+      }
+      throw new NixEvalError(`value is ${nixTypeWithArticle(value1)} while an integer was expected`)
+    }
+
+    if (typeof(value2) != 'bigint' && typeof(value2) != 'number') {
+      throw new NixEvalError(`value is ${nixTypeWithArticle(value2)} while ${nixTypeWithArticle(value1)} was expected`)
+    }
+
+  }),
+
+  "__sub": value1 => (value2 => {
+
+    // int - float -> float
+    if (typeof(value1) == 'bigint' && typeof(value2) == 'number') {
+      return parseFloat(value1) - value2;
+    }
+
+    // float - int -> float
+    if (typeof(value1) == 'number' && typeof(value2) == 'bigint') {
+      return value1 - parseFloat(value2);
+    }
+
+    // float - float -> float
+    if (typeof(value1) == 'number' && typeof(value2) == 'number') {
+      return value1 - value2;
+    }
+
+    // int - int -> int
+    if (typeof(value1) == 'bigint' && typeof(value2) == 'bigint') {
+      return value1 - value2;
+    }
+
+    if (typeof(value1) != 'bigint' && typeof(value1) != 'number') {
+      if (typeof(value2) == 'bigint' || typeof(value2) == 'number') {
+        throw new NixEvalError(`value is ${nixTypeWithArticle(value1)} while ${nixTypeWithArticle(value2)} was expected`)
+      }
+      throw new NixEvalError(`value is ${nixTypeWithArticle(value1)} while an integer was expected`)
+    }
+
+    if (typeof(value2) != 'bigint' && typeof(value2) != 'number') {
+      throw new NixEvalError(`value is ${nixTypeWithArticle(value2)} while ${nixTypeWithArticle(value1)} was expected`)
+    }
+
+  }),
+
+  "__mul": value1 => (value2 => {
+
+    // int * float -> float
+    if (typeof(value1) == 'bigint' && typeof(value2) == 'number') {
+      return parseFloat(value1) * value2;
+    }
+
+    // float * int -> float
+    if (typeof(value1) == 'number' && typeof(value2) == 'bigint') {
+      return value1 * parseFloat(value2);
+    }
+
+    // float * float -> float
+    if (typeof(value1) == 'number' && typeof(value2) == 'number') {
+      return value1 * value2;
+    }
+
+    // int * int -> int
+    if (typeof(value1) == 'bigint' && typeof(value2) == 'bigint') {
+      return value1 * value2;
+    }
+
+    if (typeof(value1) != 'bigint' && typeof(value1) != 'number') {
+      if (typeof(value2) == 'bigint' || typeof(value2) == 'number') {
+        throw new NixEvalError(`value is ${nixTypeWithArticle(value1)} while ${nixTypeWithArticle(value2)} was expected`)
+      }
+      throw new NixEvalError(`value is ${nixTypeWithArticle(value1)} while an integer was expected`)
+    }
+
+    if (typeof(value2) != 'bigint' && typeof(value2) != 'number') {
+      throw new NixEvalError(`value is ${nixTypeWithArticle(value2)} while ${nixTypeWithArticle(value1)} was expected`)
+    }
+
+  }),
+
+  // TODO error: division by zero
+  "__div": value1 => (value2 => {
+
+    // int / float -> float
+    if (typeof(value1) == 'bigint' && typeof(value2) == 'number') {
+      return parseFloat(value1) / value2;
+    }
+
+    // float / int -> float
+    if (typeof(value1) == 'number' && typeof(value2) == 'bigint') {
+      return value1 / parseFloat(value2);
+    }
+
+    // float / float -> float
+    if (typeof(value1) == 'number' && typeof(value2) == 'number') {
+      return value1 / value2;
+    }
+
+    // int / int -> int
+    if (typeof(value1) == 'bigint' && typeof(value2) == 'bigint') {
+      return value1 / value2;
+    }
+
+    if (typeof(value1) != 'bigint' && typeof(value1) != 'number') {
+      if (typeof(value2) == 'bigint' || typeof(value2) == 'number') {
+        throw new NixEvalError(`value is ${nixTypeWithArticle(value1)} while ${nixTypeWithArticle(value2)} was expected`)
+      }
+      throw new NixEvalError(`value is ${nixTypeWithArticle(value1)} while an integer was expected`)
+    }
+
+    if (typeof(value2) != 'bigint' && typeof(value2) != 'number') {
+      throw new NixEvalError(`value is ${nixTypeWithArticle(value2)} while ${nixTypeWithArticle(value1)} was expected`)
+    }
+
+  }),
+
+  // TODO check types
+  /*
+  "__bitAnd": arg1 => (arg2 => arg1 & arg2),
+  "__bitOr": arg1 => (arg2 => arg1 | arg2),
+  "__bitXor": arg1 => (arg2 => arg1 ^ arg2),
+
+  "__lessThan": arg1 => (arg2 => arg1 < arg2),
+  */
+
+  /*
+  "__substring": arg => arg,
+  "__stringLength": arg => arg,
+  "__hashString": arg => arg,
+  "__match": arg => arg,
+  "__split": arg => arg,
+  "__concatStringsSep": arg => arg,
+  "__replaceStrings": arg => arg,
+  "__parseDrvName": arg => arg,
+  "__compareVersions": arg => arg,
+  "__splitVersion": arg => arg,
+  "__traceVerbose": arg => arg,
+  */
+};
+
+
+
+function nixTypeWithArticle(value) {
+  const typeName = NixPrimops.__typeOf(value);
+  const resultOfType = {
+    'null': 'null',
+    'set': 'a set',
+    'list': 'a list',
+    'int': 'an integer',
+    'float': 'a float',
+    'bool': 'a Boolean',
+    'string': 'a string',
+  };
+  return resultOfType[typeName];
+}
+
 const { hasOwnProperty } = Object.prototype;
 
 // eslint-disable-next-line
@@ -25320,6 +23783,12 @@ function configure (options) {
           return circularValue
         }
 
+        // NixEval.Env
+        // TODO (value instanceof NixEval.Env)
+        if (value.constructor.name == 'Env') {
+          value = value.data;
+        }
+
         let res = '';
 
         if (Array.isArray(value)) {
@@ -25387,7 +23856,12 @@ function configure (options) {
         return ((value | 0) == value) ? `${value}.0` : String(parseFloat(value.toFixed(6)))
       case 'bigint':
         // js bigint -> nix int
-        return parseInt(value)
+        // parseInt will produce float exponent notation for big numbers
+        // example:
+        // 468340976726457153752543329995929
+        // 4.683409767264571e+32
+        //return parseInt(value)
+        return value.toString()
       case 'boolean':
         return value === true ? 'true' : 'false'
       case 'undefined':
@@ -25431,21 +23905,1910 @@ function configure (options) {
   return stringify
 }
 
+function assertPath(path) {
+  if (typeof path !== 'string') {
+    throw new TypeError('Path must be a string. Received ' + JSON.stringify(path));
+  }
+}
+
+// Resolves . and .. elements in a path with directory names
+function normalizeStringPosix(path, allowAboveRoot) {
+  var res = '';
+  var lastSegmentLength = 0;
+  var lastSlash = -1;
+  var dots = 0;
+  var code;
+  for (var i = 0; i <= path.length; ++i) {
+    if (i < path.length)
+      code = path.charCodeAt(i);
+    else if (code === 47 /*/*/)
+      break;
+    else
+      code = 47 /*/*/;
+    if (code === 47 /*/*/) {
+      if (lastSlash === i - 1 || dots === 1) ; else if (lastSlash !== i - 1 && dots === 2) {
+        if (res.length < 2 || lastSegmentLength !== 2 || res.charCodeAt(res.length - 1) !== 46 /*.*/ || res.charCodeAt(res.length - 2) !== 46 /*.*/) {
+          if (res.length > 2) {
+            var lastSlashIndex = res.lastIndexOf('/');
+            if (lastSlashIndex !== res.length - 1) {
+              if (lastSlashIndex === -1) {
+                res = '';
+                lastSegmentLength = 0;
+              } else {
+                res = res.slice(0, lastSlashIndex);
+                lastSegmentLength = res.length - 1 - res.lastIndexOf('/');
+              }
+              lastSlash = i;
+              dots = 0;
+              continue;
+            }
+          } else if (res.length === 2 || res.length === 1) {
+            res = '';
+            lastSegmentLength = 0;
+            lastSlash = i;
+            dots = 0;
+            continue;
+          }
+        }
+        if (allowAboveRoot) {
+          if (res.length > 0)
+            res += '/..';
+          else
+            res = '..';
+          lastSegmentLength = 2;
+        }
+      } else {
+        if (res.length > 0)
+          res += '/' + path.slice(lastSlash + 1, i);
+        else
+          res = path.slice(lastSlash + 1, i);
+        lastSegmentLength = i - lastSlash - 1;
+      }
+      lastSlash = i;
+      dots = 0;
+    } else if (code === 46 /*.*/ && dots !== -1) {
+      ++dots;
+    } else {
+      dots = -1;
+    }
+  }
+  return res;
+}
+
+function _format(sep, pathObject) {
+  var dir = pathObject.dir || pathObject.root;
+  var base = pathObject.base || (pathObject.name || '') + (pathObject.ext || '');
+  if (!dir) {
+    return base;
+  }
+  if (dir === pathObject.root) {
+    return dir + base;
+  }
+  return dir + sep + base;
+}
+
+var posix = {
+  // path.resolve([from ...], to)
+  resolve: function resolve() {
+    var resolvedPath = '';
+    var resolvedAbsolute = false;
+    var cwd;
+
+    for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+      var path;
+      if (i >= 0)
+        path = arguments[i];
+      else {
+        if (cwd === undefined)
+          cwd = process.cwd();
+        path = cwd;
+      }
+
+      assertPath(path);
+
+      // Skip empty entries
+      if (path.length === 0) {
+        continue;
+      }
+
+      resolvedPath = path + '/' + resolvedPath;
+      resolvedAbsolute = path.charCodeAt(0) === 47 /*/*/;
+    }
+
+    // At this point the path should be resolved to a full absolute path, but
+    // handle relative paths to be safe (might happen when process.cwd() fails)
+
+    // Normalize the path
+    resolvedPath = normalizeStringPosix(resolvedPath, !resolvedAbsolute);
+
+    if (resolvedAbsolute) {
+      if (resolvedPath.length > 0)
+        return '/' + resolvedPath;
+      else
+        return '/';
+    } else if (resolvedPath.length > 0) {
+      return resolvedPath;
+    } else {
+      return '.';
+    }
+  },
+
+  normalize: function normalize(path) {
+    assertPath(path);
+
+    if (path.length === 0) return '.';
+
+    var isAbsolute = path.charCodeAt(0) === 47 /*/*/;
+    var trailingSeparator = path.charCodeAt(path.length - 1) === 47 /*/*/;
+
+    // Normalize the path
+    path = normalizeStringPosix(path, !isAbsolute);
+
+    if (path.length === 0 && !isAbsolute) path = '.';
+    if (path.length > 0 && trailingSeparator) path += '/';
+
+    if (isAbsolute) return '/' + path;
+    return path;
+  },
+
+  isAbsolute: function isAbsolute(path) {
+    assertPath(path);
+    return path.length > 0 && path.charCodeAt(0) === 47 /*/*/;
+  },
+
+  join: function join() {
+    if (arguments.length === 0)
+      return '.';
+    var joined;
+    for (var i = 0; i < arguments.length; ++i) {
+      var arg = arguments[i];
+      assertPath(arg);
+      if (arg.length > 0) {
+        if (joined === undefined)
+          joined = arg;
+        else
+          joined += '/' + arg;
+      }
+    }
+    if (joined === undefined)
+      return '.';
+    return posix.normalize(joined);
+  },
+
+  relative: function relative(from, to) {
+    assertPath(from);
+    assertPath(to);
+
+    if (from === to) return '';
+
+    from = posix.resolve(from);
+    to = posix.resolve(to);
+
+    if (from === to) return '';
+
+    // Trim any leading backslashes
+    var fromStart = 1;
+    for (; fromStart < from.length; ++fromStart) {
+      if (from.charCodeAt(fromStart) !== 47 /*/*/)
+        break;
+    }
+    var fromEnd = from.length;
+    var fromLen = fromEnd - fromStart;
+
+    // Trim any leading backslashes
+    var toStart = 1;
+    for (; toStart < to.length; ++toStart) {
+      if (to.charCodeAt(toStart) !== 47 /*/*/)
+        break;
+    }
+    var toEnd = to.length;
+    var toLen = toEnd - toStart;
+
+    // Compare paths to find the longest common path from root
+    var length = fromLen < toLen ? fromLen : toLen;
+    var lastCommonSep = -1;
+    var i = 0;
+    for (; i <= length; ++i) {
+      if (i === length) {
+        if (toLen > length) {
+          if (to.charCodeAt(toStart + i) === 47 /*/*/) {
+            // We get here if `from` is the exact base path for `to`.
+            // For example: from='/foo/bar'; to='/foo/bar/baz'
+            return to.slice(toStart + i + 1);
+          } else if (i === 0) {
+            // We get here if `from` is the root
+            // For example: from='/'; to='/foo'
+            return to.slice(toStart + i);
+          }
+        } else if (fromLen > length) {
+          if (from.charCodeAt(fromStart + i) === 47 /*/*/) {
+            // We get here if `to` is the exact base path for `from`.
+            // For example: from='/foo/bar/baz'; to='/foo/bar'
+            lastCommonSep = i;
+          } else if (i === 0) {
+            // We get here if `to` is the root.
+            // For example: from='/foo'; to='/'
+            lastCommonSep = 0;
+          }
+        }
+        break;
+      }
+      var fromCode = from.charCodeAt(fromStart + i);
+      var toCode = to.charCodeAt(toStart + i);
+      if (fromCode !== toCode)
+        break;
+      else if (fromCode === 47 /*/*/)
+        lastCommonSep = i;
+    }
+
+    var out = '';
+    // Generate the relative path based on the path difference between `to`
+    // and `from`
+    for (i = fromStart + lastCommonSep + 1; i <= fromEnd; ++i) {
+      if (i === fromEnd || from.charCodeAt(i) === 47 /*/*/) {
+        if (out.length === 0)
+          out += '..';
+        else
+          out += '/..';
+      }
+    }
+
+    // Lastly, append the rest of the destination (`to`) path that comes after
+    // the common path parts
+    if (out.length > 0)
+      return out + to.slice(toStart + lastCommonSep);
+    else {
+      toStart += lastCommonSep;
+      if (to.charCodeAt(toStart) === 47 /*/*/)
+        ++toStart;
+      return to.slice(toStart);
+    }
+  },
+
+  _makeLong: function _makeLong(path) {
+    return path;
+  },
+
+  dirname: function dirname(path) {
+    assertPath(path);
+    if (path.length === 0) return '.';
+    var code = path.charCodeAt(0);
+    var hasRoot = code === 47 /*/*/;
+    var end = -1;
+    var matchedSlash = true;
+    for (var i = path.length - 1; i >= 1; --i) {
+      code = path.charCodeAt(i);
+      if (code === 47 /*/*/) {
+          if (!matchedSlash) {
+            end = i;
+            break;
+          }
+        } else {
+        // We saw the first non-path separator
+        matchedSlash = false;
+      }
+    }
+
+    if (end === -1) return hasRoot ? '/' : '.';
+    if (hasRoot && end === 1) return '//';
+    return path.slice(0, end);
+  },
+
+  basename: function basename(path, ext) {
+    if (ext !== undefined && typeof ext !== 'string') throw new TypeError('"ext" argument must be a string');
+    assertPath(path);
+
+    var start = 0;
+    var end = -1;
+    var matchedSlash = true;
+    var i;
+
+    if (ext !== undefined && ext.length > 0 && ext.length <= path.length) {
+      if (ext.length === path.length && ext === path) return '';
+      var extIdx = ext.length - 1;
+      var firstNonSlashEnd = -1;
+      for (i = path.length - 1; i >= 0; --i) {
+        var code = path.charCodeAt(i);
+        if (code === 47 /*/*/) {
+            // If we reached a path separator that was not part of a set of path
+            // separators at the end of the string, stop now
+            if (!matchedSlash) {
+              start = i + 1;
+              break;
+            }
+          } else {
+          if (firstNonSlashEnd === -1) {
+            // We saw the first non-path separator, remember this index in case
+            // we need it if the extension ends up not matching
+            matchedSlash = false;
+            firstNonSlashEnd = i + 1;
+          }
+          if (extIdx >= 0) {
+            // Try to match the explicit extension
+            if (code === ext.charCodeAt(extIdx)) {
+              if (--extIdx === -1) {
+                // We matched the extension, so mark this as the end of our path
+                // component
+                end = i;
+              }
+            } else {
+              // Extension does not match, so our result is the entire path
+              // component
+              extIdx = -1;
+              end = firstNonSlashEnd;
+            }
+          }
+        }
+      }
+
+      if (start === end) end = firstNonSlashEnd;else if (end === -1) end = path.length;
+      return path.slice(start, end);
+    } else {
+      for (i = path.length - 1; i >= 0; --i) {
+        if (path.charCodeAt(i) === 47 /*/*/) {
+            // If we reached a path separator that was not part of a set of path
+            // separators at the end of the string, stop now
+            if (!matchedSlash) {
+              start = i + 1;
+              break;
+            }
+          } else if (end === -1) {
+          // We saw the first non-path separator, mark this as the end of our
+          // path component
+          matchedSlash = false;
+          end = i + 1;
+        }
+      }
+
+      if (end === -1) return '';
+      return path.slice(start, end);
+    }
+  },
+
+  extname: function extname(path) {
+    assertPath(path);
+    var startDot = -1;
+    var startPart = 0;
+    var end = -1;
+    var matchedSlash = true;
+    // Track the state of characters (if any) we see before our first dot and
+    // after any path separator we find
+    var preDotState = 0;
+    for (var i = path.length - 1; i >= 0; --i) {
+      var code = path.charCodeAt(i);
+      if (code === 47 /*/*/) {
+          // If we reached a path separator that was not part of a set of path
+          // separators at the end of the string, stop now
+          if (!matchedSlash) {
+            startPart = i + 1;
+            break;
+          }
+          continue;
+        }
+      if (end === -1) {
+        // We saw the first non-path separator, mark this as the end of our
+        // extension
+        matchedSlash = false;
+        end = i + 1;
+      }
+      if (code === 46 /*.*/) {
+          // If this is our first dot, mark it as the start of our extension
+          if (startDot === -1)
+            startDot = i;
+          else if (preDotState !== 1)
+            preDotState = 1;
+      } else if (startDot !== -1) {
+        // We saw a non-dot and non-path separator before our dot, so we should
+        // have a good chance at having a non-empty extension
+        preDotState = -1;
+      }
+    }
+
+    if (startDot === -1 || end === -1 ||
+        // We saw a non-dot character immediately before the dot
+        preDotState === 0 ||
+        // The (right-most) trimmed path component is exactly '..'
+        preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+      return '';
+    }
+    return path.slice(startDot, end);
+  },
+
+  format: function format(pathObject) {
+    if (pathObject === null || typeof pathObject !== 'object') {
+      throw new TypeError('The "pathObject" argument must be of type Object. Received type ' + typeof pathObject);
+    }
+    return _format('/', pathObject);
+  },
+
+  parse: function parse(path) {
+    assertPath(path);
+
+    var ret = { root: '', dir: '', base: '', ext: '', name: '' };
+    if (path.length === 0) return ret;
+    var code = path.charCodeAt(0);
+    var isAbsolute = code === 47 /*/*/;
+    var start;
+    if (isAbsolute) {
+      ret.root = '/';
+      start = 1;
+    } else {
+      start = 0;
+    }
+    var startDot = -1;
+    var startPart = 0;
+    var end = -1;
+    var matchedSlash = true;
+    var i = path.length - 1;
+
+    // Track the state of characters (if any) we see before our first dot and
+    // after any path separator we find
+    var preDotState = 0;
+
+    // Get non-dir info
+    for (; i >= start; --i) {
+      code = path.charCodeAt(i);
+      if (code === 47 /*/*/) {
+          // If we reached a path separator that was not part of a set of path
+          // separators at the end of the string, stop now
+          if (!matchedSlash) {
+            startPart = i + 1;
+            break;
+          }
+          continue;
+        }
+      if (end === -1) {
+        // We saw the first non-path separator, mark this as the end of our
+        // extension
+        matchedSlash = false;
+        end = i + 1;
+      }
+      if (code === 46 /*.*/) {
+          // If this is our first dot, mark it as the start of our extension
+          if (startDot === -1) startDot = i;else if (preDotState !== 1) preDotState = 1;
+        } else if (startDot !== -1) {
+        // We saw a non-dot and non-path separator before our dot, so we should
+        // have a good chance at having a non-empty extension
+        preDotState = -1;
+      }
+    }
+
+    if (startDot === -1 || end === -1 ||
+    // We saw a non-dot character immediately before the dot
+    preDotState === 0 ||
+    // The (right-most) trimmed path component is exactly '..'
+    preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+      if (end !== -1) {
+        if (startPart === 0 && isAbsolute) ret.base = ret.name = path.slice(1, end);else ret.base = ret.name = path.slice(startPart, end);
+      }
+    } else {
+      if (startPart === 0 && isAbsolute) {
+        ret.name = path.slice(1, startDot);
+        ret.base = path.slice(1, end);
+      } else {
+        ret.name = path.slice(startPart, startDot);
+        ret.base = path.slice(startPart, end);
+      }
+      ret.ext = path.slice(startDot, end);
+    }
+
+    if (startPart > 0) ret.dir = path.slice(0, startPart - 1);else if (isAbsolute) ret.dir = '/';
+
+    return ret;
+  },
+
+  sep: '/',
+  delimiter: ':',
+  win32: null,
+  posix: null
+};
+
+posix.posix = posix;
+
+var pathBrowserify = posix;
+
+//import { join as joinPath } from 'path'
+
+// jsdoc types
+// https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html
+
+/** @typedef { import("@lezer/common").SyntaxNode } SyntaxNode */
+/** @typedef { import("./nix-eval.js").State } State */
+/** @typedef { import("./nix-eval.js").Env } Env */
+
+
+
+configure({
+  maximumDepth: 2,
+  maximumBreadth: 10,
+  indent: "  ",
+});
+
+let infiniteLoopCounter = 0;
+function resetInfiniteLoop() {
+  infiniteLoopCounter = 0;
+}
+function checkInfiniteLoop() {
+  infiniteLoopCounter++;
+  if (infiniteLoopCounter > 100000) {
+    resetInfiniteLoop();
+    throw new NixEvalError('infinite loop?');
+  }
+}
+
+/** @type {function(SyntaxNode): SyntaxNode} */
+function skipComments(node) {
+  //checkInfiniteLoop();
+  while (
+    node && (
+      node.type.name == 'Comment' ||
+      node.type.name == 'CommentBlock'
+    )
+  ) {
+    node = node.nextSibling;
+  }
+  return node;
+}
+
+/** @type {function(SyntaxNode): SyntaxNode} */
+function firstChild(node) {
+  if (!(node = node.firstChild)) {
+    //console.log(`firstChild: node.firstChild is empty`);
+    return null;
+  }
+  if (!(node = skipComments(node))) {
+    //console.log(`firstChild: skipComments failed`);
+    return null;
+  }
+  return node;
+}
+
+/** @type {function(SyntaxNode): SyntaxNode} */
+function nextSibling(node) {
+  if (!(node = node.nextSibling)) {
+    //console.log(`nextSibling: node.nextSibling is empty`);
+    return null;
+  }
+  if (!(node = skipComments(node))) {
+    //console.log(`nextSibling: skipComments failed`);
+    return null;
+  }
+  return node;
+}
+
+/** @type {function(SyntaxNode, State): string} */
+function nodeText(node, state) {
+  // source = full source code of the Nix file
+  // text = source code of this node
+  return state.source.slice(node.from, node.to);
+}
+
+/** @type {function(SyntaxNode, State, Env): any} */
+function callThunk(node, state, env) {
+  if (!node.type.thunk) {
+    throw new NixEvalNotImplemented(`thunk is undefined for type ${node.type.name}`);
+  }
+  return node.type.thunk(node, state, env);
+}
+
+
+
+/** @type {Record<string, (node: SyntaxNode, state: State, env: Env) => any>} */
+const thunkOfNodeType = {};
+
+
+
+/** @return {never} */
+// TODO ignore typescript error: 'state' is declared but its value is never read. ts(6133)
+// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+thunkOfNodeType['⚠'] = (node, state, env) => {
+  checkInfiniteLoop();
+  //console.log('thunkOfNodeType.Error: node', node);
+  // add context from _source? mostly not needed -> on demand or debounced
+  throw new NixSyntaxError(`error at position ${node.from}`);
+};
+
+
+
+/** @return {any} */
+thunkOfNodeType.Nix = (node, state, env) => {
+  //resetInfiniteLoop();
+  //console.log('thunkOfNodeType.Nix: node', node);
+  const childNode = firstChild(node);
+  if (!childNode) {
+    // input is empty
+    return;
+  }
+  //console.log(`thunkOfNodeType.Nix: call thunk of node`, childNode);
+  return callThunk(childNode, state, env);
+};
+
+
+
+/** @return {null} */
+thunkOfNodeType.NULL = () => {
+  return null;
+};
+
+/** @return {boolean} */
+thunkOfNodeType.TRUE = () => {
+  return true;
+};
+
+/** @return {boolean} */
+thunkOfNodeType.FALSE = () => {
+  return false;
+};
+
+
+
+/** @return {any} */
+thunkOfNodeType.Parens = (node, state, env) => {
+  //console.log('thunkOfNodeType.Parens: node', node);
+  const childNode = firstChild(node);
+  if (!childNode) {
+    throw NixSyntaxError("unexpected ')'");
+  }
+  return callThunk(childNode, state, env);
+};
+
+
+
+/** @return {bigint} */
+thunkOfNodeType.Int = (node, state, env) => {
+  //console.log('thunkOfNodeType.Int: node', node);
+  //return parseInt(nodeText(node, state));
+  // we need BigInt to diff Int vs Float
+  // otherwise typeof(1.0) == "int"
+  return BigInt(nodeText(node, state));
+};
+
+
+
+/** @return {number} */
+thunkOfNodeType.Float = (node, state, env) => {
+  //console.log('thunkOfNodeType.Int: node', node);
+  return parseFloat(nodeText(node, state));
+};
+
+
+
+/** @return {string} */
+thunkOfNodeType.Identifier = (node, state, env) => {
+  //console.log('thunkOfNodeType.Identifier: node', node);
+  return nodeText(node, state);
+};
+
+
+
+/** @return {function} */
+thunkOfNodeType.Primop = (node, state, env) => {
+  //console.log('thunkOfNodeType.Primop: node', node);
+  const name = nodeText(node, state);
+  //console.log('thunkOfNodeType.Primop: name', name);
+  const func = NixPrimops[name];
+  //console.log('thunkOfNodeType.Primop: func', func);
+  if (!func) {
+    throw new NixEvalNotImplemented(`primop ${name}`);
+  }
+  return func;
+};
+
+
+
+/** @return {number | bigint | string} */
+thunkOfNodeType.Add = (node, state, env) => {
+
+  // arithmetic addition or string concat
+
+  checkInfiniteLoop();
+
+  const [value1, value2] = get2Values(node, state, env, { caller: 'Add' });
+
+  // string + string -> string
+  if (typeof(value1) == 'string' && typeof(value2) == 'string') {
+    return value1 + value2;
+  }
+
+  // ""+1
+  if (typeof(value1) == 'string' && typeof(value2) == 'bigint') {
+    throw new NixEvalError('cannot coerce an integer to a string')
+  }
+  // ""+1.0
+  if (typeof(value1) == 'string' && typeof(value2) == 'number') {
+    throw new NixEvalError('cannot coerce a float to a string')
+  }
+  // 1+""
+  if (typeof(value1) == 'bigint' && typeof(value2) == 'string') {
+    throw new NixEvalError('cannot add a string to an integer')
+  }
+  // 1.0+""
+  if (typeof(value1) == 'number' && typeof(value2) == 'string') {
+    throw new NixEvalError('cannot add a string to a float')
+  }
+
+  return NixPrimops.__add(value1)(value2);
+};
+
+
+
+/** @type {function(SyntaxNode, State, Env, Record<string, any>): [number, number]} */
+function get2Numbers(node, state, env, options) {
+  if (!options) options = {};
+  if (!options.caller) options.caller = 'get2Numbers';
+
+  let [value1, value2] = get2Values(node, state, env, options);
+
+  if (typeof(value1) != typeof(value2)) {
+    // float . int -> float
+    value1 = parseFloat(value1);
+    value2 = parseFloat(value2);
+  }
+
+  return [value1, value2];
+}
+
+
+
+/** @type {function(SyntaxNode, State, Env, Record<string, any>): [any, any]} */
+function get2Values(node, state, env, options) {
+  if (!options) options = {};
+  if (!options.caller) options.caller = 'get2Values';
+  //checkInfiniteLoop();
+  //console.log('thunkOfNodeType.Mul: node', node);
+  let childNode1 = firstChild(node);
+  if (!childNode1) {
+    throw new NixEvalError(`${options.caller}: no childNode1`)
+  }
+  let value1;
+  let childNode2;
+  {
+    childNode2 = nextSibling(childNode1);
+    if (!childNode2) {
+      throw new NixEvalError(`${options.caller}: no childNode2`)
+    }
+    //console.log('thunkOfNodeType.Mul: arg1 ...');
+    value1 = callThunk(childNode1, state, env);
+    //console.log('thunkOfNodeType.Mul: arg1', arg1);
+  }
+
+  //console.log('thunkOfNodeType.Mul: arg2 ...');
+  let value2 = callThunk(childNode2, state, env);
+  //console.log('thunkOfNodeType.Mul: arg2', arg2);
+
+  return [value1, value2];
+}
+
+
+
+/*
+thunkOfNodeType.Add = (node, state, env) => {
+  const [value1, value2] = get2Numbers(node, state, { caller: 'Add' });
+  return value1 + value2;
+};
+*/
+
+thunkOfNodeType.Sub = (node, state, env) => {
+  const [value1, value2] = get2Numbers(node, state, env, { caller: 'Sub' });
+  return value1 - value2;
+};
+
+thunkOfNodeType.Mul = (node, state, env) => {
+  const [value1, value2] = get2Numbers(node, state, env, { caller: 'Mul' });
+  return value1 * value2;
+};
+
+thunkOfNodeType.Div = (node, state, env) => {
+  const [value1, value2] = get2Numbers(node, state, env, { caller: 'Div' });
+  if (value2 == 0) {
+    throw NixEvalError('division by zero')
+  }
+  return value1 / value2;
+};
+
+
+
+/** @return {boolean} */
+thunkOfNodeType.Not = (node, state, env) => {
+  checkInfiniteLoop();
+  //console.log('thunkOfNodeType.Add: node', node);
+  let childNode = firstChild(node);
+  if (!childNode) {
+    throw new NixEvalError('Not: no childNode')
+  }
+  const value = callThunk(childNode, state, env);
+  return !value;
+};
+
+
+
+/** @return {number | bigint} */
+thunkOfNodeType.Neg = (node, state, env) => {
+  checkInfiniteLoop();
+  //console.log('thunkOfNodeType.Neg: node', node);
+  let childNode = firstChild(node);
+  if (!childNode) {
+    throw new NixEvalError('Neg: no childNode')
+  }
+  const value = callThunk(childNode, state, env);
+  // TODO check type
+  // nix-repl> -{}
+  // error: value is a set while an integer was expected
+  return -value;
+};
+
+/** @return {any} */
+thunkOfNodeType.Call = (node, state, env) => {
+
+  state.stack.push(node);
+
+  // call a function
+  // TODO check types
+
+  checkInfiniteLoop();
+  //console.log('thunkOfNodeType.Call: node', node);
+
+  let functionNode = firstChild(node);
+  if (!functionNode) {
+    throw new NixEvalError('Call: no functionNode')
+  }
+  // eval deep first: get functionValue now, childNode2 later
+  //console.log('thunkOfNodeType.Call: functionNode', functionNode.type.name, functionNode);
+
+  //if (functionNode.type.name == 'Primop' && nodeText(functionNode, state) == '__typeOf') {
+    // call primop with syntax tree
+    // TODO do more primops need access to syntax tree?
+    // special case to handle
+    // __typeOf 1.0
+    // should return "float", but javascript has only "number" so returns "int"
+    // WONTFIX?
+    // this fails for complex cases:
+    // __typeOf (0 + 1.0)
+    // let x = 0; in __typeOf (x + 1.0)
+  //}
+
+  const functionValue = callThunk(functionNode, state, env);
+  //console.log('thunkOfNodeType.Call: functionValue', functionValue);
+
+  if (typeof(functionValue) != 'function') {
+    throw new NixEvalError(`attempt to call something which is not a function but ${nixTypeWithArticle(functionValue)}`);
+  }
+
+  const argumentNode = nextSibling(functionNode);
+  if (!argumentNode) {
+    throw new NixEvalError('Call: no arg2')
+  }
+
+  //console.log('thunkOfNodeType.Call: argumentNode', argumentNode.type.name, argumentNode);
+
+  const argumentValue = callThunk(argumentNode, state, env);
+  //console.log('thunkOfNodeType.Call: argumentValue', argumentValue);
+
+  return functionValue(argumentValue);
+
+  /*
+  // Lambda. also pass callNode
+  // call function lambda(argumentValue)
+  // Primop
+  return functionValue.apply(callNode, [argumentValue]); // this == callNode
+  //return functionValue(argumentNode, source);
+  //return functionValue.apply(callNode, [argumentNode, source]);
+  */
+};
+
+
+
+/** @return {any} */
+thunkOfNodeType.If = (node, state, env) => {
+
+  // if condition then expression else alternative
+
+  checkInfiniteLoop();
+  //console.log('thunkOfNodeType.If: node', node);
+
+  let ifNode = firstChild(node);
+  if (!ifNode) {
+    throw new NixEvalError('If: no ifNode')
+  }
+
+  const ifValue = callThunk(ifNode, state, env);
+  //console.log('thunkOfNodeType.If: ifValue', ifValue);
+
+  const thenNode = nextSibling(ifNode);
+  if (!thenNode) {
+    throw new NixEvalError('If: no thenNode')
+  }
+
+  if (ifValue) {
+    return callThunk(thenNode, state, env);
+  }
+
+  const elseNode = nextSibling(thenNode);
+  if (!elseNode) {
+    throw new NixEvalError('If: no elseNode')
+  }
+
+  return callThunk(elseNode, state, env);
+};
+
+
+
+/** @return {boolean} */
+thunkOfNodeType.Eq = (node, state, env) => {
+  let [value1, value2] = get2Values(node, state, env, { caller: 'thunkOfNodeType.Eq' });
+  // TODO? types
+  return (value1 == value2);
+};
+
+
+
+/** @return {boolean} */
+thunkOfNodeType.NEq = (node, state, env) => {
+  let [value1, value2] = get2Values(node, state, env, { caller: 'thunkOfNodeType.NEq' });
+  // TODO? types
+  return (value1 != value2);
+};
+
+/** @return {boolean} */
+thunkOfNodeType.GT = (node, state, env) => {
+  let [value1, value2] = get2Values(node, state, env, { caller: 'thunkOfNodeType.GT' });
+  // TODO? types
+  return (value1 > value2);
+};
+
+
+
+/** @typedef {any[]} LazyArray */
+/** @return {LazyArray} */
+thunkOfNodeType.List = (node, state, env) => {
+  //console.log('thunkOfNodeType.List: list node type', node.type.name);
+  //console.log('thunkOfNodeType.List: call stack', new Error());
+
+  checkInfiniteLoop();
+
+  // https://codetagteam.com/questions/any-way-to-define-getters-for-lazy-variables-in-javascript-arrays
+  function LazyArray() {
+    return new Proxy([], {
+      get: (obj, prop) => {
+        //if (typeof obj[prop] === 'function') {
+        if (obj[prop] instanceof Function) {
+          // replace the function with the result
+          obj[prop] = obj[prop]();
+        }
+        return obj[prop]
+      },
+    })
+  }
+
+  /** @type {LazyArray} */
+  var list = LazyArray();
+
+  let childNode;
+
+  if (!(childNode = firstChild(node))) {
+    // empty list
+    return list;
+  }
+
+  //console.log(`thunkOfNodeType.List: first childNode`, childNode);
+  let idx = 0;
+  while (true) {
+    //checkInfiniteLoop();
+    function getThunk(childNodeCopy) {
+      // force copy of childNode
+      // fix: thunkOfNodeType.List: call thunk of childNode null
+      // this will "move" childNode from thunkOfNodeType.List to thunk
+      // TODO better?
+      return () => {
+        //console.log('thunkOfNodeType.List value thunk: node', node.type.name, node);
+        //console.log(`thunkOfNodeType.List: call thunk of childNode`, childNode);
+        return callThunk(childNodeCopy, state, env);
+      };
+    }
+    list[idx] = getThunk(childNode);
+
+    if (!(childNode = nextSibling(childNode))) {
+      break;
+    }
+    //console.log(`thunkOfNodeType.List: next childNode`, childNode);
+    idx++;
+  }
+  //console.log('thunkOfNodeType.List: list parent node type', node.type.name);
+  return list;
+};
+
+
+
+/** @return {string} */
+thunkOfNodeType.String = (node, state, env) => {
+  // similar to list: zero or more childNodes
+
+  checkInfiniteLoop();
+
+  let childNode;
+
+  /** @type {string} */
+  let result = '';
+
+  if (!(childNode = firstChild(node))) {
+    // empty string
+    return result;
+  }
+
+  while (true) {
+    //checkInfiniteLoop();
+    const stringPart = callThunk(childNode, state, env);
+    result += stringPart;
+    if (!(childNode = nextSibling(childNode))) {
+      break;
+    }
+  }
+
+  return result;
+};
+
+
+
+/** @return {string} */
+thunkOfNodeType.StringContent = thunkOfNodeType.Identifier;
+
+
+
+/** @return {string} */
+thunkOfNodeType.PathAbsolute = thunkOfNodeType.Identifier;
+
+
+
+/** @return {string} */
+thunkOfNodeType.PathRelative = (node, state, env) => {
+  const relativePath = nodeText(node, state);
+  const absolutePath = pathBrowserify.join('/home/user', relativePath);
+  return absolutePath;
+};
+
+
+
+/** @typedef {Record<string, any>} LazyObject */
+/** @return {Env} */
+thunkOfNodeType.Set = (node, state, env) => {
+
+  checkInfiniteLoop();
+
+  //if (!node) {
+  //  throw NixEvalError('Set: node is null')
+  //}
+
+  const childEnv = new Env(env);
+
+  //console.log('thunkOfNodeType.Set: typeof(node)', typeof(node));
+
+  //console.log('thunkOfNodeType.Set: typeof(node.firstChild)', typeof(node.firstChild));
+
+  //if (!node.firstChild) {
+  //  throw NixEvalError('Set: node.firstChild is empty. node:', node)
+  //}
+
+  //console.log('thunkOfNodeType.Set ------------------------');
+  //console.log('thunkOfNodeType.Set: node', node);
+
+  let attrNode;
+
+  if (!(attrNode = firstChild(node))) {
+    // empty set
+    return childEnv;
+  }
+
+  while (true) {
+    //checkInfiniteLoop();
+    //console.log('thunkOfNodeType.Set: attrNode', attrNode);
+
+    const keyNode = firstChild(attrNode);
+    if (!keyNode) {
+      throw new NixEvalError('Set Attr: no key');
+    }
+    //console.log('thunkOfNodeType.Set: keyNode', keyNode);
+
+    const valueNode = nextSibling(keyNode);
+    if (!valueNode) {
+      throw new NixEvalError('Set Attr: no value');
+    }
+    //console.log('thunkOfNodeType.Set: valueNode', valueNode);
+
+    //const copyNode = (node) => node;
+    //const valueNodeCopy = copyNode(valueNode);
+
+    const key = state.source.slice(keyNode.from, keyNode.to);
+    //console.log('thunkOfNodeType.Set: key', key);
+
+    function getThunk(valueNodeCopy) {
+      // create local copy of valueNode
+      return () => {
+        //console.log(`Set key=${key}: value thunk: call thunk of valueNodeCopy`, valueNodeCopy)
+        return valueNodeCopy.type.thunk(
+          valueNodeCopy,
+          //state, childEnv // RecSet
+          state, env // Set
+        );
+      }
+    }
+
+    Object.defineProperty(childEnv.data, key, {
+      get: getThunk(valueNode),
+      enumerable: true,
+      // fix: TypeError: Cannot redefine property: a
+      configurable: true,
+    });
+
+
+    if (!(attrNode = nextSibling(attrNode))) {
+      break;
+    }
+  }
+
+  return childEnv;
+};
+
+/** @return {Env} */
+thunkOfNodeType.RecSet = (node, state, env) => {
+
+  // depends on Var
+  // TODO refactor with Set
+
+  checkInfiniteLoop();
+
+  const childEnv = new Env(env);
+
+  //console.log('thunkOfNodeType.Set: typeof(node)', typeof(node));
+
+  //console.log('thunkOfNodeType.Set: typeof(node.firstChild)', typeof(node.firstChild));
+
+  //if (!node.firstChild) {
+  //  throw NixEvalError('Set: node.firstChild is empty. node:', node)
+  //}
+
+  //console.log('thunkOfNodeType.Set ------------------------');
+  //console.log('thunkOfNodeType.Set: node', node);
+
+  let attrNode;
+
+  if (!(attrNode = firstChild(node))) {
+    // empty set
+    return childEnv;
+  }
+
+  while (true) {
+    //checkInfiniteLoop();
+    //console.log('thunkOfNodeType.Set: attrNode', attrNode);
+
+    const keyNode = firstChild(attrNode);
+    if (!keyNode) {
+      throw new NixEvalError('Set Attr: no key');
+    }
+    //console.log('thunkOfNodeType.Set: keyNode', keyNode);
+
+    const valueNode = nextSibling(keyNode);
+    if (!valueNode) {
+      throw new NixEvalError('Set Attr: no value');
+    }
+    //console.log('thunkOfNodeType.Set: valueNode', valueNode);
+
+    //const copyNode = (node) => node;
+    //const valueNodeCopy = copyNode(valueNode);
+
+    const key = state.source.slice(keyNode.from, keyNode.to);
+
+    function getThunk(valueNodeCopy) {
+      // create local copy of valueNode
+      // TODO? const valueNodeCopy = valueNode
+      return () => {
+        //console.log(`Set value thunk: call thunk of valueNodeCopy`, valueNodeCopy)
+        return valueNodeCopy.type.thunk(
+          valueNodeCopy,
+          state, childEnv
+        );
+      }
+    }
+
+    Object.defineProperty(childEnv.data, key, {
+      get: getThunk(valueNode),
+      enumerable: true,
+      // fix: TypeError: Cannot redefine property: a
+      configurable: true,
+    });
+
+    if (!(attrNode = nextSibling(attrNode))) {
+      break;
+    }
+  }
+
+  return childEnv;
+};
+
+// void ExprSelect::eval(EvalState & state, Env & env, Value & v)
+/** @return {any} */
+thunkOfNodeType.Select = (node, state, env) => {
+  // first child: Set
+  // other children: attr keys
+  checkInfiniteLoop();
+  const setNode = firstChild(node);
+  if (!setNode) {
+    throw new NixEvalError('Select: no setNode')
+  }
+
+  // e->eval(state, env, vTmp);
+  // call thunk of Set or RecSet
+  /** @type {Env} */
+  const setValue = callThunk(setNode, state, env);
+
+  let keyNode = nextSibling(setNode);
+  if (!keyNode) {
+    throw new NixEvalError('Select: no keyNode')
+  }
+
+  let result = setValue;
+
+  // loop attrPath
+  // for (auto & i : attrPath) {
+  while (keyNode) {
+    // auto name = getName(i, state, env);
+    const keyValue = callThunk(keyNode, state, env);
+    if (!Object.hasOwn(result.data, keyValue)) {
+      throw new NixEvalError(`attribute '${keyValue}' missing`)
+    }
+
+    // vAttrs = j->value;
+    // not: dont use result.get(keyValue)
+    // because that would also search in parent env's
+    result = result.data[keyValue];
+
+    keyNode = nextSibling(keyNode);
+  }
+
+  return result;
+};
+
+
+
+/** @return {any} */
+thunkOfNodeType.Var = (node, state, env) => {
+  // input: a
+  // tree:
+  // Nix: a
+  //   Var: a
+  //     Identifier: a
+  checkInfiniteLoop();
+  const keyNode = firstChild(node);
+  if (!keyNode) {
+    throw new NixEvalError('Var: no keyNode')
+  }
+  // FIXME source is undefined when called from Call
+  const key = nodeText(keyNode, state);
+  //console.log(`thunkOfNodeType.Var: key`, key);
+
+  const value = env.get(key);
+
+  if (value === undefined) {
+    throw new NixEvalError(`undefined variable '${key}'`);
+  }
+
+  return value
+};
+
+
+
+/** @return {function} */
+thunkOfNodeType.Lambda = (node, state, env) => {
+  checkInfiniteLoop();
+  const argumentNode = firstChild(node);
+  if (!argumentNode) {
+    throw new NixEvalError('Lambda: no argumentNode')
+  }
+  //const argumentValue = callThunk(argumentNode, state, env);
+
+  let bodyNode = nextSibling(argumentNode);
+  if (!bodyNode) {
+    throw new NixEvalError('Lambda: no bodyNode')
+  }
+
+  if (argumentNode.type.name != 'Identifier') {
+    throw new NixEvalNotImplemented('Lambda: argumentNode must be Identifier')
+  }
+
+  // argumentNode.type.name == 'Identifier'
+  // simple function: f = x: (x + 1)
+  const argumentName = nodeText(argumentNode, state);
+
+  //return function call1(argumentNode, source) {
+  // note: lambda must be normal function, so this == callNode
+  // we need an IIFE closure to copy bodyNode (no?)
+  const lambda = ((bodyNode) => function lambda(argumentValue) {
+    // lambda is called from Call
+    // value1.apply(callNode, [value2])
+    /*
+    const callNode = this;
+    console.log(`thunkOfNodeType.Lambda: call1: should be Call: this`, this)
+    console.log(`thunkOfNodeType.Lambda: call1: argumentValue`, argumentValue)
+    */
+    //return call2;
+    // call2 is called by solid setStore('evalResult', evalResult)
+    // TODO setStore should not call evalResult. -> hide evalResult in thunk?
+    // setStore('evalResult', (() => evalResult))
+    //console.log(`thunkOfNodeType.Lambda: call1: return function call2. args`, arguments, new Error().stack)
+    // find parent Call node
+
+    /*
+    let callNode = node;
+    while (callNode = callNode.parent) {
+      if (callNode.type.name == 'Call') {
+        if (!callNode.data) {
+          callNode.data = {};
+        }
+        callNode.data[argumentName] = callThunk(TODO)
+      }
+    }
+    */
+
+    /*
+    // TODO verify
+    const callNode = argumentNode.parent;
+    console.log(`thunkOfNodeType.Lambda: call1: argumentNode`, argumentNode)
+    console.log(`thunkOfNodeType.Lambda: call1: callNode`, callNode)
+    */
+
+    /* wrong scope. Call != Lambda
+    console.log(`thunkOfNodeType.Lambda: call1: setting data.${argumentName} on callNode ${callNode.type.name}`, callNode)
+    if (!callNode.data) {
+      callNode.data = {};
+    }
+    // argumentNode thunk is called in Call
+    //callNode.data[argumentName] = callThunk(argumentNode, source);
+    callNode.data[argumentName] = argumentValue;
+    */
+
+    // store argument value in Lambda.data
+    //const lambdaNode = bodyNode.parent;
+    //lambdaNode.data = {}; // reset to empty
+    //lambdaNode.data[argumentName] = argumentValue;
+    /*
+    lambdaNode.data = {
+      [argumentName]: argumentValue,
+    };
+    */
+    // bodyNode is not a parent node of nested lambdas
+    /*
+    bodyNode.data = {
+      [argumentName]: argumentValue,
+    };
+    */
+    
+    // TODO
+    // find scope: parent
+
+    bodyNode.parent; // Lambda node
+    // wrong??? should be set in Call?
+    /* wrong: old variables are removed
+    dataNode.data = {
+      [argumentName]: argumentValue,
+    };
+    */
+
+    // TODO handle complex args: formals, formals-at-binding
+
+    const childEnv = new Env(env, {
+      [argumentName]: argumentValue,
+    });
+
+    return callThunk(bodyNode, state, childEnv);
+
+  })(bodyNode);
+
+  // store source location of lambda
+  {
+    lambda.source = {
+      file: '(string)', // TODO nix file path
+      from: node.from,
+      to: node.to,
+    };
+    const setLineColumn = (lambdaSource) => {
+      const sourceLines = state.source.split('\n');
+      //console.log(`setLineColumn lambdaSource`, lambdaSource)
+      //console.log(`setLineColumn sourceLines`, sourceLines)
+      let lineFrom = 0;
+      for (let lineIdx = 0; lineIdx < sourceLines.length; lineIdx++) {
+        const line = sourceLines[lineIdx];
+        const lineTo = lineFrom + line.length;
+        if (lineFrom <= lambdaSource.from && lambdaSource.from <= lineTo) {
+          // found line
+          lambdaSource._line = lineIdx + 1; // lines are 1 based in Nix
+          lambdaSource._column = (lambdaSource.from - lineFrom) + 1; // columns are 1 based in Nix
+          return;
+        }
+        lineFrom += line.length + 1; // +1 for \n
+      }
+      // error
+      lambdaSource._line = 'not';
+      lambdaSource._column = 'found';
+    };
+    Object.defineProperty(lambda.source, 'line', {
+      enumerable: true,
+      get() {
+        if (!this._line) setLineColumn(this);
+        return this._line;
+      },
+    });
+    Object.defineProperty(lambda.source, 'column', {
+      enumerable: true,
+      get() {
+        if (!this._column) setLineColumn(this);
+        return this._column;
+      },
+    });
+  }
+  return lambda;
+};
+
+
+
+thunkOfNodeType.Let = (node, state, env) => {
+  // syntax sugar: let a=1; in a -> rec {a=1;}.a
+
+  // depends on Var
+  // TODO refactor with Set, RecSet
+
+  checkInfiniteLoop();
+
+  const childEnv = new Env(env, {});
+
+  //console.log('thunkOfNodeType.Let: node', node);
+
+  let childNode;
+
+  if (!(childNode = firstChild(node))) {
+    throw new NixEvalError('Let: no key')
+  }
+
+  while (true) {
+    //checkInfiniteLoop();
+    //console.log('thunkOfNodeType.Let: childNode', childNode);
+
+    let nextChildNode = nextSibling(childNode);
+
+    if (nextChildNode) {
+      const attrNode = childNode;
+
+      // copy paste from Set, RecSet
+      const keyNode = firstChild(attrNode);
+      if (!keyNode) {
+        throw new NixEvalError('Let Attr: no key');
+      }
+      //console.log('thunkOfNodeType.Let: keyNode', keyNode);
+
+      const valueNode = nextSibling(keyNode);
+      if (!valueNode) {
+        throw new NixEvalError('Let Attr: no value');
+      }
+      //console.log('thunkOfNodeType.Let: valueNode', valueNode);
+
+      const key = state.source.slice(keyNode.from, keyNode.to);
+      //console.log('thunkOfNodeType.Let: key', key);
+
+      function getThunk(valueNodeCopy) {
+        // create local copy of valueNode
+        return () => {
+          return valueNodeCopy.type.thunk(
+            valueNodeCopy,
+            state, childEnv
+          );
+        }
+      }
+
+      Object.defineProperty(childEnv.data, key, {
+        get: getThunk(valueNode),
+        enumerable: true,
+        configurable: true,
+      });
+
+      childNode = nextChildNode;
+    }
+
+    else {
+      // last childNode: similar to bodyNode in Lambda
+      return callThunk(childNode, state, childEnv);
+    }
+  }
+};
+
+const _tmpl$$1 = /*#__PURE__*/template(`<div><div></div></div>`);
+function CodeMirror(props) {
+  let ref;
+  const codeMirrorExtensions = {}; //onMount(() => {
+  //setTimeout(() => {
+  // setTimeout ->
+  // warning: computations created outside a `createRoot` or `render` will never be disposed
+  //codeMirror = createCodeMirror((() => props.options)(), () => ref);
+  //codeMirror = createCodeMirror((() => props)(), () => ref);
+  // solid-codemirror/packages/core/src/createCodeMirror.ts
+
+  let view;
+  const {
+    createExtension
+  } = createCodeMirror({
+    //onValueChange: (newValue) => null,
+    onEditorMount: props.onCodeMirror,
+    onValueChange: props.onValueChange,
+    onEditorState: props.onEditorState,
+    onEditorStateChange: props.onEditorStateChange,
+    onEditorMount: newView => {
+      view = newView;
+      if (props.onEditorMount) props.onEditorMount(view);
+    },
+
+    /*
+    (editorState) => {
+      // handle new tree
+      const newState = tr.state; // call "get state"
+      const newCode = newState.doc.sliceString(0, newState.doc.length);
+      const newTree = newState.tree;
+      //newTree.topNode // Nix: 1+1
+      //newTree.topNode.firstChild // ConcatStrings: 1+1
+    },
+    */
+    //value: props.value,
+    value: props.value //value: (() => props.value)(),
+
+  }, () => ref); // listen for changes in props.value
+  // FIXME deduplicate with createCodeMirror
+
+  createEffect(on(() => props.value, value => {
+    //console.log(`CodeMirror: createEffect on props.value: value = ${value}`)
+    if (!view || value === view.state.doc.toString()) {
+      return;
+    }
+
+    view.dispatch({
+      changes: {
+        from: 0,
+        to: view.state.doc.length,
+        insert: value
+      }
+    });
+  }, {
+    defer: true
+  }));
+  const basicSetupSolid = {
+    syntaxHighlighting: syntaxHighlighting(defaultHighlightStyle, {
+      fallback: true
+    }),
+
+    /*
+    lineNumbers: lineNumbers(),
+    /** /
+    highlightActiveLineGutter: highlightActiveLineGutter(),
+    highlightSpecialChars: highlightSpecialChars(),
+    history: history(),
+    foldGutter: foldGutter(), // FIXME Uncaught Error: Unrecognized extension value in extension set ([object Object]). This sometimes happens because multiple instances of @codemirror/state are loaded, breaking instanceof checks.
+    drawSelection: drawSelection(),
+     /** /
+    dropCursor: dropCursor(),
+    allowMultipleSelections: EditorState.allowMultipleSelections.of(true),
+    indentOnInput: indentOnInput(),
+    /**/
+    bracketMatching: bracketMatching(),
+    // FIXME Uncaught Error: Unrecognized extension value in extension set ([object Object]). This sometimes happens because multiple instances of @codemirror/state are loaded, breaking instanceof checks.
+    closeBrackets: closeBrackets(),
+
+    /**/
+    // FIXME TypeError: Cannot read properties of null (reading 'addEventListener')
+    // https://github.com/codemirror/dev/issues/945
+
+    /** /
+    autocompletion: autocompletion(), // -> tooltipPlugin
+     rectangularSelection: rectangularSelection(),
+    crosshairCursor: crosshairCursor(),
+    highlightActiveLine: highlightActiveLine(),
+    highlightSelectionMatches: highlightSelectionMatches(),
+    /** /
+     keymap: keymap.of([
+      ...closeBracketsKeymap,
+      ...defaultKeymap,
+      ...searchKeymap,
+      ...historyKeymap,
+      ...foldKeymap,
+      ...completionKeymap,
+      ...lintKeymap
+    ]),
+    /**/
+    codemirrorLangNix: nix() // https://github.com/sachinraja/rodemirror/blob/1e8a52f9d5c78859441d11a80211fc6f7538deb7/src/index.tsx#L36
+    // FIXME not called
+
+    /*
+    updateListener: EditorView.updateListener.of(function onUpdate(update) {
+      console.log(`onUpdate update`, update)
+    }),
+    */
+    // -> codeMirror.on('change', (update) => { ... })
+    //javascript: javascript(),
+
+    /**/
+
+  };
+
+  for (const [extensionName, extension] of Object.entries(basicSetupSolid)) {
+    //console.log('basicSetupSolid: extension', extensionName, extension)
+    const reconfigureExtension = createExtension(extension);
+    codeMirrorExtensions[extensionName] = {
+      extension,
+      reconfigure: reconfigureExtension
+    };
+  } // add thunks to types
+
+
+  const parser = codeMirrorExtensions.codemirrorLangNix.extension.language.parser;
+
+  for (const nodeType of parser.nodeSet.types) {
+    nodeType.thunk = thunkOfNodeType[nodeType.name];
+  } // https://github.com/JedWatson/react-codemirror/blob/c3ae528465bcdc4f20780892f8a9111e785fa577/src/Codemirror.js#L49
+
+  /*
+    const codeMirrorInstance = this.getCodeMirrorInstance();
+  this.codeMirror = codeMirrorInstance.fromTextArea(this.textareaNode, this.props.options);
+  this.codeMirror.on('change', this.codemirrorValueChanged);
+  this.codeMirror.on('cursorActivity', this.cursorActivity);
+  this.codeMirror.on('focus', this.focusChanged.bind(this, true));
+  this.codeMirror.on('blur', this.focusChanged.bind(this, false));
+  this.codeMirror.on('scroll', this.scrollChanged);
+  this.codeMirror.setValue(this.props.defaultValue || this.props.value || '');
+    */
+
+  /* this could work in onEditorMount of createCodeMirror
+  // but lets just patch createCodeMirror
+  codeMirror.on('change', (...update) => {
+    console.log(`codeMirror on change: update:`, update);
+  });
+  */
+  //}); // setTimeout(() => {
+  //});
+  //return <div ref={ref} />;
+
+
+  return (() => {
+    const _el$ = _tmpl$$1.cloneNode(true),
+          _el$2 = _el$.firstChild;
+
+    const _ref$ = ref;
+    typeof _ref$ === "function" ? use(_ref$, _el$2) : ref = _el$2;
+    return _el$;
+  })();
+} // CodeMirror plugin crashed: TypeError: Cannot read properties of null (reading 'addEventListener')
+//createExtension(basicSetup);
+// CodeMirror plugin crashed: TypeError: Cannot read properties of null (reading 'addEventListener')
+//for (const extension of basicSetup) {
+//  createExtension(extension);
+//}
+// https://github.com/nimeshnayaju/solid-codemirror/pull/4
+// basicSetup should be used like <CodeMirror extensions={[ basicSetup ]} />
+// -> reimplement basicSetup for "advanced usage" with createExtension
+// https://github.com/nimeshnayaju/solid-codemirror#advanced-usage
+// https://github.com/codemirror/basic-setup
+// the hard way
+
+/*
+const reconfigureLineNumbers = createExtension(lineNumbers());
+ createExtension(highlightActiveLineGutter());
+ createExtension(bracketMatching());
+*/
+// FIXME Uncaught Error: Unrecognized extension value in extension set ([object Object]).
+// This sometimes happens because multiple instances of @codemirror/state are loaded, breaking instanceof checks.
+// https://github.com/codemirror/dev/issues/608
+
+/*
+
+This usually happens when your build pipeline decides
+to mix two copies or different versions of @codemirror/state
+through the dependency tree.
+
+If you're using npm, try running npm list @codemirror/state
+and see if you have non deduped copies of that package.
+
+
+
+$ pnpm list -r | grep -B20 @codemirror/state
+
+nix-eval-js-demo
+
+devDependencies:
+...
+@codemirror/state 6.1.1
+...
+
+codemirror-lang-nix@6.0.0 nix-eval-js/demo/src/codemirror-lang-nix
+
+devDependencies:
+...
+@codemirror/state 6.1.1
+
+*/
+
+// called from nix-eval-js/demo/src/treeview.jsx
+
+function stringifyTree(tree, options) {
+
+  if (!options) options = {};
+  const pretty = options.pretty || false;
+  const human = options.human || false; // human readable, like python or yaml
+  const positions = options.positions || false; // add node positions
+  const firstLine = options.firstLine || false; // show only first line of node source
+  const compact = (!pretty && !human);
+  const format = compact ? 'compact' : pretty ? 'pretty' : human ? 'human' : null;
+  const source = options.source || options.text || '';
+  const indentStep = options.indent || '  ';
+
+  const cursor = tree.cursor();
+  if (!cursor) return '';
+
+  let depth = 0;
+  let result = '';
+
+  const indent = () => indentStep.repeat(depth);
+  const cursorType = () => positions ? `${cursor.name}:${cursor.from}` : cursor.name;
+  const cursorText = () => {
+    let src = source.slice(cursor.from, cursor.to);
+    if (firstLine) {
+      return src.split('\n')[0];
+    }
+    return src;
+  };
+
+  const formatNodeByFormat = {
+    human: () => `${indent()}${cursorType()}: ${cursorText()}\n`,
+    pretty: () => `${indent()}${cursorType()}`,
+    compact: () => cursorType(),
+  };
+  const formatNode = formatNodeByFormat[format];
+
+  while (true) {
+    // NLR: Node, Left, Right
+    // Node
+    result += formatNode();
+    // Left
+    if (cursor.firstChild()) {
+      // moved down
+      depth++;
+      if (compact) result += '(';
+      if (pretty) result += ' (\n';
+      continue;
+    }
+    // Right
+    if (cursor.nextSibling()) {
+      // moved right
+      if (compact) result += ',';
+      if (pretty) result += ',\n';
+      continue;
+    }
+    let continueMainLoop = false;
+    let firstUp = true;
+    while (cursor.parent()) {
+      // moved up
+      depth--;
+      if (compact) result += ')';
+      if (pretty && firstUp) result += `\n`;
+      if (pretty) result += `${indent()})`;
+      if (cursor.nextSibling()) {
+        // moved up + right
+        continueMainLoop = true;
+        if (compact) result += ',';
+        if (pretty) result += ',\n';
+        break;
+      }
+      if (pretty) result += `\n`;
+      firstUp = false;
+    }
+    if (continueMainLoop) continue;
+
+    break;
+  }
+
+  return result;
+}
+
+const _tmpl$4$1 = /*#__PURE__*/template(`<div>TreeViewCodeMirror: editorState is empty</div>`),
+      _tmpl$5$1 = /*#__PURE__*/template(`<pre></pre>`);
+// debounce? throttle?
+
+function TreeViewCodeMirror(props) {
+  if (!props.editorState) {
+    console.log('App: TreeViewCodeMirror: editorState is empty -> return');
+    return _tmpl$4$1.cloneNode(true);
+  }
+
+
+  const getTree = () => {
+    const source = props.editorState.doc.sliceString(0, props.editorState.doc.length);
+    return stringifyTree(props.editorState.tree, {
+      source,
+      human: true,
+      positions: true,
+      firstLine: true,
+      indent: ' '
+    });
+  };
+
+  return (() => {
+    const _el$8 = _tmpl$5$1.cloneNode(true);
+
+    insert$1(_el$8, getTree);
+
+    return _el$8;
+  })();
+}
+
 const _tmpl$ = /*#__PURE__*/template(`<div class="eval-error"><span color="red"></span> </div>`),
       _tmpl$2 = /*#__PURE__*/template(`<div class="eval-error"><span color="red">FIXME</span> unhandled error: <!> </div>`),
       _tmpl$3 = /*#__PURE__*/template(`<div>editorState is empty</div>`),
       _tmpl$4 = /*#__PURE__*/template(`<div>Result:</div>`),
-      _tmpl$5 = /*#__PURE__*/template(`<div class="eval-result"></div>`),
+      _tmpl$5 = /*#__PURE__*/template(`<div></div>`),
       _tmpl$6 = /*#__PURE__*/template(`<div>Example inputs:</div>`),
       _tmpl$7 = /*#__PURE__*/template(`<ul></ul>`),
-      _tmpl$8 = /*#__PURE__*/template(`<div></div>`),
-      _tmpl$9 = /*#__PURE__*/template(`<li></li>`);
+      _tmpl$8 = /*#__PURE__*/template(`<li></li>`);
 const stringifyEvalResult = configure({
   maximumDepth: 2,
   maximumBreadth: 10,
   indent: "  "
 });
-const exampleInputs = ['1 # int', '1+1+1 # add', '1+1.0 # int + float', '0.1+0.2 # float precision', '0.123456789 # float precision', '2+3*4 # mul', '(2+3)*4 # parens', '1.0/ 2 # div', '1.0/2 # path', '1.0 /2 # call', '[1 2 3] # list', '__typeOf null # call', '__typeOf 1 # call', '__typeOf 1.0 # call', '__head [1 2 3] # call', '__tail [1 2 3] # call', '__elemAt [1 2 3] 1 # nested call', '{a=1;b=2;} # set', '{a=1;b=2;}.a # select', '{a=1;b=2;}.z # select missing attribute', '{a={b=2;};}.a.b # nested select', 'rec {a=1;b=a;}.b # rec set', 'let a=1; in a # let', 'let a={b=2;}; in a.b # nested let', 'x: x # lambda', '(x: x) 1 # call lambda', '(x: y: x + y) 1 2 # call lambda nested', 'let f=x: 2*x; in f 3 # let lambda call'];
+/*
+Nix
+  Let
+    Attr: f = x: if x > 0 then f (x - 1) else x;
+      Identifier: f
+      Lambda: x: if x > 0 then f (x - 1) else x ########### x is probably stored here
+        Identifier: x
+        If: if x > 0 then f (x - 1) else x
+          GT: x > 0
+            Var: x
+              Identifier: x
+            Int: 0
+          Call: f (x - 1) ########### x should be stored here
+            Var: f
+              Identifier: f
+            Parens: (x - 1)
+              Sub: x - 1
+                Var: x ################### FIXME EvalError undefined variable 'x'
+                  Identifier: x
+                Int: 1
+          Var: x
+            Identifier: x
+    Call: f 1
+      Var: f
+        Identifier: f
+      Int: 1
+*/
+
+const exampleInputs = ['rec {a=1;b=a;}.b # rec set', '1 # int', '1+1+1 # add', '1+1.0 # int + float', '0.1+0.2 # float precision', '0.123456789 # float precision', '2+3*4 # mul', '(2+3)*4 # parens', '1.0/ 2 # div', '1.0/2 # path', '1.0 /2 # call: type error', '[1 2 3] # list', '1 == 1 # equal', '1 != 2 # not equal', 'if (!true) then 1 else 2 # if', '__typeOf null # call', '__typeOf 1 # call', '__typeOf 1.0 # call', '__head [1 2 3] # call', '__tail [1 2 3] # call', '__elemAt [1 2 3] 1 # nested call', '{a=1;b=2;} # set', '{a=1;b=2;}.a # select', '{a=1;b=2;}.z # select: key error', '{a={b=2;};}.a.b # nested select', 'rec {a=1;b=a;}.b # rec set', 'let a=1; in a # let', 'let a={b=2;}; in a.b # nested let', 'x: x # lambda', '(x: x) 1 # call lambda', '(x: y: x + y) 1 2 # call lambda nested', 'let f=x: 2*x; in f 3 # let lambda call', 'let f = a: b: (a+b); in f 1 2 # let lambda call nested', `let f = x: y: z: x; in f 1 2 3 # lambda multi arg`, `# recursive call
+let f = x: if x > 0 then f (x - 1) else x;
+in f 1`, `# call 2 functions nested
+let f = x: y: (g 1 x) + y;
+  g = x: y: x + y;
+in f 1 1`, `# call 2 functions
+let f1 = x: x + 1;
+  f2 = x: x + 2;
+in f2 (f1 1)
+`, // fibonacci based on https://medium.com/@MrJamesFisher/nix-by-example-a0063a1a4c55
+`# Fibonacci
+let f = i: n: m: if i == 0 then n
+    else f (i - 1) m (n + m);
+  fib = n: f n 1 1;
+in fib 9`, `# bigint vs integer overflow
+let f = i: n: m: if i == 0 then n
+    else f (i - 1) m (n + m);
+  fib = n: f n 1 1;
+in fib 99
+# original Nix shows different result:
+# 3736710778780434371`, `# Maximum call stack size exceeded
+let f = i: n: m: if i == 0 then n
+    else f (i - 1) m (n + m);
+  fib = n: f n 1 1;
+in fib 9999`];
 function App() {
   const [store, setStore] = createStore({
     editorText: exampleInputs[0],
@@ -25461,8 +25824,11 @@ function App() {
       console.log(`onEditorState: tree is empty`);
       setStore('evalResult', undefined); // set store.evalResult
 
+      setStore('evalResultString', ''); // set store.evalResultString
+
       return;
     } // eval
+    //console.log(`App: eval. stack:`, new Error().stack)
 
 
     const source = editorState.doc.sliceString(0, editorState.doc.length);
@@ -25470,7 +25836,16 @@ function App() {
     let evalError = '';
 
     try {
-      evalResult = editorState.tree.topNode.type.thunk(editorState.tree.topNode, source);
+      // call the Nix thunk
+      //evalResult = editorState.tree.topNode.type.thunk(editorState.tree.topNode, source);
+      const evalState = new State({
+        source
+      });
+      const evalEnv = new Env(null, {
+        test: 'hello world'
+      });
+      const topNode = editorState.tree.topNode;
+      evalResult = topNode.type.thunk(topNode, evalState, evalEnv);
     } catch (error) {
       if (error instanceof NixSyntaxError || error instanceof NixEvalError) {
         console.warn(error);
@@ -25503,12 +25878,19 @@ function App() {
           return _el$4;
         })();
       }
-    } //console.log('evalResult', evalResult);
-    //setStore('evalResult', evalResult); // set store.evalResult
+    }
+
+    console.log(`App: eval. result:`, evalResult); //setStore('evalResult', evalResult); // set store.evalResult
     // hide evalResult in thunk, so solid does not call Nix Lambda
 
-
     setStore('evalResult', () => evalResult); // set store.evalResult
+    // set store.evalResultString
+
+    try {
+      setStore('evalResultString', stringifyEvalResult(evalResult));
+    } catch (error) {
+      setStore('evalResultString', `FIXME error in stringifyEvalResult: ${error.name} ${error.message}`);
+    }
 
     setStore('evalError', evalError); // set store.evalError
   }
@@ -25530,7 +25912,7 @@ function App() {
   });
 
   return (() => {
-    const _el$9 = _tmpl$8.cloneNode(true);
+    const _el$9 = _tmpl$5.cloneNode(true);
 
     insert$1(_el$9, createComponent(SplitRoot, {
       get children() {
@@ -25577,7 +25959,10 @@ function App() {
                       const _el$12 = _tmpl$5.cloneNode(true);
 
                       insert$1(_el$12, () => //JSON.stringify(store.evalResult, null, 1)
-                      stringifyEvalResult(store.evalResult));
+                      //stringifyEvalResult(store.evalResult)
+                      store.evalResultString);
+
+                      createRenderEffect(() => className(_el$12, styles['eval-result']));
 
                       return _el$12;
                     })(), memo(() => store.evalError)];
@@ -25591,7 +25976,7 @@ function App() {
                       insert$1(_el$14, createComponent(For, {
                         each: exampleInputs,
                         children: input => (() => {
-                          const _el$15 = _tmpl$9.cloneNode(true);
+                          const _el$15 = _tmpl$8.cloneNode(true);
 
                           _el$15.$$click = () => {
                             //console.log(`click example input: ${input}`);

@@ -11,7 +11,7 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-._App_itg46_1 {
+._App_5r2wf_1 {
   /*
   text-align: center;
   */
@@ -21,44 +21,48 @@ code {
   /*align-content:stretch;*/
 }
 
-._flexcolumn_itg46_11 {
+._flexcolumn_5r2wf_11 {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
 }
 
-._flexrow_itg46_17 {
+._flexrow_5r2wf_17 {
   display: flex;
   flex-direction: row;
   flex-grow: 1;
 }
 
-._logo_itg46_23 {
-  animation: _logo-spin_itg46_1 infinite 20s linear;
+._logo_5r2wf_23 {
+  animation: _logo-spin_5r2wf_1 infinite 20s linear;
   height: 40vmin;
   pointer-events: none;
 }
 
-._flexgrow1_itg46_29 {
+._flexgrow1_5r2wf_29 {
   flex-grow: 1;
 }
-._displayflex_itg46_32 {
+._displayflex_5r2wf_32 {
   display: flex;
 }
-._flexdirectioncolumn_itg46_35 {
+._flexdirectioncolumn_5r2wf_35 {
   flex-direction: column;
 }
 
-._clickable_itg46_39 {
+._clickable_5r2wf_39 {
   cursor: pointer;
   color: blue;
 }
 
-._clickable_itg46_39:hover {
+._clickable_5r2wf_39:hover {
   color: orange;
 }
 
-._header_itg46_48 {
+._eval-result_5r2wf_48 {
+  overflow: auto;
+}
+
+._header_5r2wf_52 {
   /*
   background-color: #282c34;
   */
@@ -73,7 +77,7 @@ code {
   */
 }
 
-._main_itg46_63 {
+._main_5r2wf_67 {
   /*
   background-color: #282c34;
   */
@@ -88,13 +92,13 @@ code {
   */
 }
 
-._link_itg46_78 {
+._link_5r2wf_82 {
   /*
   color: #b318f0;
   */
 }
 
-@keyframes _logo-spin_itg46_1 {
+@keyframes _logo-spin_5r2wf_1 {
   from {
     transform: rotate(0deg);
   }
