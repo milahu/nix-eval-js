@@ -427,3 +427,33 @@ true
 "let f = i: n: m: if i == 0 then n else f (i - 1) m (n + m); fib = n: f n 1 1; in fib 9999"
 ==>
 TODO
+
+# call lambda with formals
+"({x}:x) {x=1;}"
+==>
+1
+
+# call lambda with formals
+"({x,...}:x) {x=1;y=2;}"
+==>
+1
+
+# call lambda with formals: extra formal
+"({x}:x) {x=1;y=2;}"
+==>
+ERROR EvalError function at (string)+1 called with unexpected argument 'y'
+
+# call lambda with formals: missing formal
+"({x,y}:x) {x=1;}"
+==>
+ERROR EvalError function at (string)+1 called without required argument 'y'
+
+# call lambda with formals: type error
+"({x}:x) 1"
+==>
+ERROR EvalError value is an integer while a set was expected
+
+# call lambda with formals: type error
+"({x}:x) \"\""
+==>
+ERROR EvalError value is a string while a set was expected
