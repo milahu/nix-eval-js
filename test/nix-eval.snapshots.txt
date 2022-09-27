@@ -457,3 +457,18 @@ ERROR EvalError value is an integer while a set was expected
 "({x}:x) \"\""
 ==>
 ERROR EvalError value is a string while a set was expected
+
+# call lambda with formals: left binding
+"(args@{...}: args) {a=1;}"
+==>
+todo
+
+# call lambda with formals: right binding
+"({...}@args: args) {a=1;}"
+==>
+todo
+
+# call lambda with formals: syntax error
+"(args@{...}@args: args) {a=1;}"
+==>
+todo
