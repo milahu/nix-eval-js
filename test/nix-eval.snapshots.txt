@@ -106,7 +106,7 @@ ERROR EvalError undefined variable 'a'
 # set select key error
 "{a=1;}.z"
 ==>
-ERROR EvalError TODO
+ERROR EvalError attribute 'z' missing
 
 # rec set select
 "rec {a=1;b=a;}.b"
@@ -356,7 +356,7 @@ true
 # lambda
 "x: x"
 ==>
-TODO
+«lambda @ (string):1:1»
 
 # call lambda
 "(x: x) 1"
@@ -366,62 +366,62 @@ TODO
 # call lambda
 "(x: y: x + y) 1 2"
 ==>
-TODO
+3
 
 # let lambda call
 "let f=x: 2*x; in f 3"
 ==>
-TODO
+6
 
 # let lambda call nested
 "let f = a: b: (a+b); in f 1 2"
 ==>
-TODO
+3
 
 # lambda multi arg
 "let f = x: y: z: x; in f 1 2 3"
 ==>
-TODO
+1
 
 # lambda recursive call
 "let f = x: if x > 0 then f (x - 1) else x; in f 1"
 ==>
-TODO
+0
 
 # lambda nested call
 "let f = x: y: (g 1 x) + y; g = x: y: x + y; in f 1 1"
 ==>
-TODO
+3
 
 # fibonacci 0
 "let f = i: n: m: if i == 0 then n else f (i - 1) m (n + m); fib = n: f n 1 1; in fib 0"
 ==>
-TODO
+1
 
 # fibonacci 1
 "let f = i: n: m: if i == 0 then n else f (i - 1) m (n + m); fib = n: f n 1 1; in fib 1"
 ==>
-TODO
+1
 
 # fibonacci 2
 "let f = i: n: m: if i == 0 then n else f (i - 1) m (n + m); fib = n: f n 1 1; in fib 2"
 ==>
-TODO
+2
 
 # fibonacci 9
 "let f = i: n: m: if i == 0 then n else f (i - 1) m (n + m); fib = n: f n 1 1; in fib 9"
 ==>
-TODO
+55
 
 # fibonacci 99. bigint vs integer overflow. original Nix result: 3736710778780434371
 "let f = i: n: m: if i == 0 then n else f (i - 1) m (n + m); fib = n: f n 1 1; in fib 99"
 ==>
-TODO
+354224848179261915075
 
 # fibonacci 999. bigint vs integer overflow. original Nix result: 817770325994397771
 "let f = i: n: m: if i == 0 then n else f (i - 1) m (n + m); fib = n: f n 1 1; in fib 999"
 ==>
-TODO
+43466557686937456435688527675040625802564660517371780402481729089536555417949051890403879840079255169295922593080322634775209689623239873322471161642996440906533187938298969649928516003704476137795166849228875
 
 # SKIP fibonacci 9999 = Maximum call stack size exceeded
 "let f = i: n: m: if i == 0 then n else f (i - 1) m (n + m); fib = n: f n 1 1; in fib 9999"
