@@ -7,9 +7,10 @@ import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
 //import { parser as LezerParserNix } from "../demo/src/codemirror-lang-nix/src/lezer-parser-nix/dist/index.js"
 //import { parser as LezerParserNix } from "../demo/src/codemirror-lang-nix/dist/index.js"
 
-import { resetInfiniteLoopCounter, thunkOfNodeType } from './nix-thunks-lezer-parser.js';
+import { thunkOfNodeType } from './nix-thunks-lezer-parser.js';
 import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from "./nix-errors.js"
 import { configure as getStringifyResult } from '../src/nix-eval-stringify/index.js'
+import { resetInfiniteLoopCounter, } from './infinite-loop-counter.js';
 
 
 

@@ -1,5 +1,6 @@
 import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from './nix-errors.js';
 import { NixPrimops, nixTypeWithArticle } from './nix-primops-lezer-parser.js';
+import { checkInfiniteLoop, resetInfiniteLoopCounter, } from './infinite-loop-counter.js';
 
 // https://github.com/voracious/vite-plugin-node-polyfills/issues/4
 import { join as joinPath } from 'node:path'
@@ -33,48 +34,6 @@ export function printNode(node, label = '') {
   // note: this will print a trailing newline
   console.log(node.toString(0, 5, "  ", extraDepth));
 }
-
-
-
-export function resetInfiniteLoopCounter() {
-  if (typeof global == 'object') {
-    global.nixEval_infiniteLoopCounter = 0;
-    return;
-  }
-  if (typeof window == 'object') {
-    window.nixEval_infiniteLoopCounter = 0;
-    return;
-  }
-  throw new Error('not found global or window');
-}
-
-const checkInfiniteLoop = (() => {
-  if (typeof global == 'object') {
-    // node
-    return (
-      function checkInfiniteLoop() {
-        global.nixEval_infiniteLoopCounter++;
-        if (global.nixEval_infiniteLoopCounter > 100000) {
-          resetInfiniteLoopCounter();
-          throw new NixEvalError('infinite loop?');
-        }
-      }
-    )
-  }
-  if (typeof window == 'object') {
-    // browser
-    return (
-      function checkInfiniteLoop() {
-        window.nixEval_infiniteLoopCounter++;
-        if (window.nixEval_infiniteLoopCounter > 100000) {
-          resetInfiniteLoopCounter();
-          throw new NixEvalError('infinite loop?');
-        }
-      }
-    )
-  }
-  throw new Error('not found global or window');
-})();
 
 
 
