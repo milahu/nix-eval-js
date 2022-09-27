@@ -656,7 +656,7 @@ thunkOfNodeType.Set = (node, state, env) => {
 
   if (!(attrNode = firstChild(node))) {
     // empty set
-    return data;
+    return childEnv;
   }
 
   while (true) {
