@@ -8,8 +8,9 @@
     "nix-eval": "./src/nix-eval-cli.js"
   },
   "scripts": {
-    "test": "run-s test:unit",
-    "test:unit": "ava",
+    "test": "ava",
+    "__test": "run-s test:unit",
+    "__test:unit": "ava",
     "test:perf": "bipbip --compare doc/benchmarks.json test/benchmarks.js",
     "test:perf:save": "bipbip --compare doc/benchmarks.json --save doc/benchmarks.json test/benchmarks.js"
   },
@@ -27,12 +28,15 @@
   ],
   "author": "Milan Hauth",
   "license": "MIT",
+  "dependencies": {
+    "@lezer/lr": "^1.2.3"
+  },
   "devDependencies": {
     "@lezer/common": "^1.0.1",
-    "@lezer/lr": "^1.2.3",
-    "ava": "^4.3.3",
-    "bipbip": "github:milahu/bipbip",
+    "ava": "^4.3.3"
+  },
+  "devDependencies__benchmark": {
     "npm-run-all": "^4.1.5",
-    "safe-stable-stringify": "^2.3.1"
+    "bipbip": "github:milahu/bipbip"
   }
 }
