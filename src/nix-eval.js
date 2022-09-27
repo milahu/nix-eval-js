@@ -7,7 +7,7 @@ import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
 //import { parser as LezerParserNix } from "../demo/src/codemirror-lang-nix/src/lezer-parser-nix/dist/index.js"
 //import { parser as LezerParserNix } from "../demo/src/codemirror-lang-nix/dist/index.js"
 
-import { thunkOfNodeType } from './nix-thunks-lezer-parser.js';
+import { resetInfiniteLoopCounter, thunkOfNodeType } from './nix-thunks-lezer-parser.js';
 import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from "./nix-errors.js"
 
 
@@ -125,6 +125,7 @@ export class NixEval {
 
   constructor() {
     //console.log(`NixEval.constructor`);
+    resetInfiniteLoopCounter();
   }
 
   eval(source) {

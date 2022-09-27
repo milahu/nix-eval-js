@@ -35,14 +35,14 @@ export function printNode(node, label = '') {
   console.log(node.toString(0, 5, "  ", extraDepth));
 }
 
-let infiniteLoopCounter = 0;
-function resetInfiniteLoop() {
-  infiniteLoopCounter = 0;
+export function resetInfiniteLoopCounter() {
+  global.nixEval_infiniteLoopCounter = 0;
 }
+
 function checkInfiniteLoop() {
-  infiniteLoopCounter++;
-  if (infiniteLoopCounter > 100000) {
-    resetInfiniteLoop();
+  global.nixEval_infiniteLoopCounter++;
+  if (global.nixEval_infiniteLoopCounter > 100000) {
+    resetInfiniteLoopCounter();
     throw new NixEvalError('infinite loop?');
   }
 }
@@ -124,7 +124,7 @@ thunkOfNodeType['⚠'] = (node, state, env) => {
 
 /** @return {any} */
 thunkOfNodeType.Nix = (node, state, env) => {
-  //resetInfiniteLoop();
+  resetInfiniteLoopCounter();
   //console.log('thunkOfNodeType.Nix: node', node);
   const childNode = firstChild(node);
   if (!childNode) {
