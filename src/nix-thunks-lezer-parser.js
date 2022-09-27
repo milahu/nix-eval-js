@@ -850,7 +850,7 @@ thunkOfNodeType.Var = (node, state, env) => {
 /** @return {function} */
 thunkOfNodeType.Lambda = (node, state, env) => {
   checkInfiniteLoop();
-  const argumentNode = firstChild(node);
+  let argumentNode = firstChild(node);
   if (!argumentNode) {
     throw new NixEvalError('Lambda: no argumentNode')
   }
@@ -860,81 +860,131 @@ thunkOfNodeType.Lambda = (node, state, env) => {
     throw new NixEvalError('Lambda: no bodyNode')
   }
 
-  let lambda;
-
-  if (argumentNode.type.name == 'Identifier') {
+  if (
+    argumentNode.type.name == 'Identifier' &&
+    bodyNode.type.name != 'Formals'
+  ) {
     // simple function: f = x: (x + 1)
     // bind arguments
     const argumentName = nodeText(argumentNode, state);
     /** @type {function(any): any} */
-    lambda = function lambda(argumentValue) {
+    const lambda = function lambda(argumentValue) {
       const childEnv = new Env(env, {
         [argumentName]: argumentValue,
       });
       // eval function body
       return callThunk(bodyNode, state, childEnv);
     }
+    // store source location
+    lambda.source = getSourceProp(node, state);
+    // lambda is called from Call
+    return lambda;
   }
-  else if (argumentNode.type.name == 'Formals') {
-    const debugFormals = false;
-    debugFormals && printNode(argumentNode, state);
-    let formalNode = firstChild(argumentNode);
-    const formalNameSet = new Set();
-    let formalsRest = false;
-    while (formalNode) {
-      if (formalNode.type.name == 'Formal') {
-        const formalName = nodeText(formalNode, state);
-        if (formalNameSet.has(formalName)) {
-          throw new NixEvalError(`duplicate formal function argument '${formalName}'`)
-        }
-        formalNameSet.add(formalName);
+
+  // function with formals: f = {x, y, ...} @ args: (x + 1)
+
+  const debugFormals = false;
+
+  let formalsBindingName = null;
+  const formalNameSet = new Set();
+  let formalsRest = false;
+
+  if (argumentNode.type.name == 'Identifier') {
+    // formals with left binding: f = args @ {...}: args
+    formalsBindingName = nodeText(argumentNode, state);
+    argumentNode = nextSibling(argumentNode);
+  }
+
+  if (argumentNode.type.name != 'Formals') {
+    throw new NixEvalError(`Lambda: expected Formals, found ${argumentNode.type.name}`)
+  }
+
+  debugFormals && printNode(argumentNode, state, env, { label: 'argumentNode' });
+
+  let formalNode = firstChild(argumentNode);
+  while (formalNode) {
+    if (formalNode.type.name == 'Formal') {
+      const formalName = nodeText(formalNode, state);
+      if (formalNameSet.has(formalName)) {
+        throw new NixEvalError(`duplicate formal function argument '${formalName}'`)
       }
-      else if (formalNode.type.name == 'FormalsRest') {
-        formalsRest = true;
-      }
-      else {
-        throw new NixEvalError(`Lambda: unexpected Formals childNode: ${formalNode.type.name}`)
-      }
-      debugFormals && printNode(formalNode, state);
-      formalNode = nextSibling(formalNode);
+      formalNameSet.add(formalName);
     }
-    /** @type {function(Env): any} */
-    lambda = function lambda(argumentEnv) {
-      // bind arguments
-      if (!(argumentEnv instanceof Env)) {
-        throw new NixEvalError(`value is ${nixTypeWithArticle(argumentEnv)} while a set was expected`)
+    else if (formalNode.type.name == 'FormalsRest') {
+      formalsRest = true;
+    }
+    else {
+      throw new NixEvalError(`Lambda Formals: unexpected childNode: ${formalNode.type.name}`)
+    }
+    debugFormals && printNode(formalNode, state, env, { label: 'formalNode' });
+    formalNode = nextSibling(formalNode);
+  }
+
+  bodyNode = nextSibling(argumentNode);
+
+  if (bodyNode.type.name == 'Identifier') {
+    /* this syntax error is caught in the parser
+    if (formalsBindingName != null) {
+      throw new NixEvalError(`Lambda Formals: unexpected childNode: ${formalNode.type.name}`)
+    }
+    */
+    // formals with right binding: f = {...} @ args: args
+    formalsBindingName = nodeText(bodyNode, state);
+    bodyNode = nextSibling(bodyNode);
+  }
+
+  /** @type {function(Env): any} */
+  const lambda = function lambda(argumentEnv) {
+    // check type
+    if (!(argumentEnv instanceof Env)) {
+      throw new NixEvalError(`value is ${nixTypeWithArticle(argumentEnv)} while a set was expected`)
+    }
+
+    // bind arguments
+    const childEnv = new Env(env);
+    for (const formalName of formalNameSet) {
+      if (!argumentEnv.has(formalName)) {
+        throw new NixEvalError(`function at (string)+${node.from} called without required argument '${formalName}'`)
       }
-      const childEnv = new Env(env);
-      for (const formalName of formalNameSet) {
-        if (!argumentEnv.has(formalName)) {
-          throw new NixEvalError(`function at (string)+${node.from} called without required argument '${formalName}'`)
+      // TODO does this copy the value or the getter?
+      // do we need this?
+      // Object.defineProperty(childEnv.data, formalName, { get() { ... } })
+      childEnv.data[formalName] = argumentEnv.data[formalName];
+    }
+
+    if (formalsRest == false) {
+      // strict
+      for (const argumentName of Object.keys(argumentEnv.data)) {
+        if (!formalNameSet.has(argumentName)) {
+          throw new NixEvalError(`function at (string)+${node.from} called with unexpected argument '${argumentName}'`)
         }
-        // TODO does this copy the value or the getter?
-        // do we need this?
-        // Object.defineProperty(childEnv.data, formalName, { get() { ... } })
-        childEnv.data[formalName] = argumentEnv.data[formalName];
       }
-      if (formalsRest == false) {
-        // strict
-        for (const argumentName of Object.keys(argumentEnv.data)) {
-          if (!formalNameSet.has(argumentName)) {
-            throw new NixEvalError(`function at (string)+${node.from} called with unexpected argument '${argumentName}'`)
-          }
-        }
-      }
+    }
+
+    if (formalsBindingName) {
+      // add one more env
+      debugFormals && console.log(`Lambda: formalsBindingName ${formalsBindingName}`)
+      // FIXME 
+      const childChildEnv = new Env(childEnv, {
+        //[formalsBindingName]: childEnv, // wrong
+        [formalsBindingName]: argumentEnv,
+      });
       // eval function body
-      return callThunk(bodyNode, state, childEnv);
+      return callThunk(bodyNode, state, childChildEnv);
     }
-  }
-  else {
-    throw new NixEvalNotImplemented(`Lambda: argumentNode type ${argumentNode.type.name} is not implemented: ${nodeText(argumentNode, state)}`)
-  }
 
-  // TODO formals-at-binding
+    /* no?
+    if (childEnv.has(formalsBindingName)) {
+      throw new NixEvalNotImplemented(`name collision for formals binding`)
+    }
+    childEnv.data[formalsBindingName] = childEnv;
+    */
 
+    // eval function body
+    return callThunk(bodyNode, state, childEnv);
+  };
   // store source location
   lambda.source = getSourceProp(node, state);
-
   // lambda is called from Call
   return lambda;
 };
