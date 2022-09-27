@@ -27,9 +27,11 @@ pnpm install
 ### commands
 
 ```sh
-./bin/nix-eval -e 1+1
 ./bin/nix-parse -e 1+1
+./bin/nix-eval -e 1+1
+
 ./bin/nix-parse -f /etc/nixos/configuration.nix
+./bin/nix-eval -f /etc/nixos/configuration.nix
 ```
 
 ### offline demo
