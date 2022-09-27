@@ -11,8 +11,8 @@
     "test": "ava",
     "__test": "run-s test:unit",
     "__test:unit": "ava",
-    "test:perf": "bipbip --compare doc/benchmarks.json test/benchmarks.js",
-    "test:perf:save": "bipbip --compare doc/benchmarks.json --save doc/benchmarks.json test/benchmarks.js"
+    "test:perf": "bipbip --compare docs/benchmarks.json test/benchmarks.js",
+    "test:perf:save": "bipbip --compare docs/benchmarks.json --save docs/benchmarks.json test/benchmarks.js"
   },
   "ava": {
     "files": [
