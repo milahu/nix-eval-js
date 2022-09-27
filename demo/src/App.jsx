@@ -58,6 +58,12 @@ Nix
 */
 const exampleInputs = [
 
+  // fibonacci based on https://medium.com/@MrJamesFisher/nix-by-example-a0063a1a4c55
+  `let f = i: n: m: if i == 0 then n
+    else f (i - 1) m (n + m);
+  fib = n: f n 1 1; # Fibonacci
+in fib 1 # == 1`,
+
   'let a=1; in a # let',
   'let a={b=2;}; in a.b # nested let',
 
@@ -66,16 +72,6 @@ const exampleInputs = [
 
   '(x: x) 1 # call lambda',
   '(x: y: x + y) 1 2 # call lambda nested',
-
-  // fibonacci based on https://medium.com/@MrJamesFisher/nix-by-example-a0063a1a4c55
-  `# Fibonacci
-let
-  f = i: n: m:
-    if i == 0 then n
-    else f (i - 1) m (n + m);
-  fib = n: f n 1 1;
-in
-fib 1 # == 1`,
 
   `# Fibonacci function, with parens
 let
