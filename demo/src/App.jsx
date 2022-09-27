@@ -57,39 +57,50 @@ Nix
       Int: 1
 */
 const exampleInputs = [
+  'rec {a=1;b=a;}.b # rec set',
 
-  // fibonacci based on https://medium.com/@MrJamesFisher/nix-by-example-a0063a1a4c55
-  `let f = i: n: m: if i == 0 then n
-    else f (i - 1) m (n + m);
-  fib = n: f n 1 1; # Fibonacci
-in fib 1 # == 1`,
+  '1 # int',
+  '1+1+1 # add',
+  '1+1.0 # int + float',
+  '0.1+0.2 # float precision',
+  '0.123456789 # float precision',
+
+  '2+3*4 # mul',
+  '(2+3)*4 # parens',
+  '1.0/ 2 # div',
+  '1.0/2 # path',
+  '1.0 /2 # call',
+
+  '[1 2 3] # list',
+
+  '1 == 1 # equal',
+  '1 != 2 # not equal',
+  'if (!true) then 1 else 2 # if',
+
+  '__typeOf null # call',
+  '__typeOf 1 # call',
+  '__typeOf 1.0 # call',
+  '__head [1 2 3] # call',
+  '__tail [1 2 3] # call',
+  '__elemAt [1 2 3] 1 # nested call',
+
+  '{a=1;b=2;} # set',
+  '{a=1;b=2;}.a # select',
+  '{a=1;b=2;}.z # select missing attribute',
+  '{a={b=2;};}.a.b # nested select',
+  'rec {a=1;b=a;}.b # rec set',
 
   'let a=1; in a # let',
   'let a={b=2;}; in a.b # nested let',
 
-  'let f=x: 2*x; in f 3 # let lambda call',
-  'let f = a: b: (a+b); in f 1 2 # let lambda call nested',
-
+  'x: x # lambda',
   '(x: x) 1 # call lambda',
   '(x: y: x + y) 1 2 # call lambda nested',
 
-  `# Fibonacci function, with parens
-let
-  # fibInner : int -> int -> int -> int
-  fibInner = i: (n: (m:
-    if i == 0 then n
-    else fibInner (i - 1) m (n + m)));
-  # fib : int -> int 
-  fib = n: (fibInner n 1 1);
-in
-fib 1 # == 1
-# FIXME EvalError undefined variable 'i'`,
+  'let f=x: 2*x; in f 3 # let lambda call',
+  'let f = a: b: (a+b); in f 1 2 # let lambda call nested',
 
-  `let f = x: y: z: x; in f 1 2 3 # multi arg
-# FIXME undefined variable 'x'`,
-
-  `let f = x: y: x; in f 1 2 # multi arg
-# FIXME undefined variable 'x'`,
+  `let f = x: y: z: x; in f 1 2 3 # lambda multi arg`,
 
   `# recursive call
 let
@@ -111,38 +122,14 @@ let
 in
 f2 (f1 1)
 `,
-  '1 # int',
-  '1+1+1 # add',
-  '1+1.0 # int + float',
-  '0.1+0.2 # float precision',
-  '0.123456789 # float precision',
-  '2+3*4 # mul',
-  '(2+3)*4 # parens',
-  '1.0/ 2 # div',
-  '1.0/2 # path',
-  '1.0 /2 # call',
-  '[1 2 3] # list',
-  '__typeOf null # call',
-  '__typeOf 1 # call',
-  '__typeOf 1.0 # call',
-  '__head [1 2 3] # call',
-  '__tail [1 2 3] # call',
-  '__elemAt [1 2 3] 1 # nested call',
-  '{a=1;b=2;} # set',
-  '{a=1;b=2;}.a # select',
-  '{a=1;b=2;}.z # select missing attribute',
-  '{a={b=2;};}.a.b # nested select',
-  'rec {a=1;b=a;}.b # rec set',
-  'let a=1; in a # let',
-  'let a={b=2;}; in a.b # nested let',
-  'x: x # lambda',
-  '(x: x) 1 # call lambda',
-  '(x: y: x + y) 1 2 # call lambda nested',
-  'if (!true) then 1 else 2 # if',
-  '1 == 1 # equal',
-  '1 != 2 # not equal',
-  'let f=x: 2*x; in f 3 # let lambda call',
-  'let f = a: b: (a+b); in f 1 2 # let lambda call nested',
+
+  // fibonacci based on https://medium.com/@MrJamesFisher/nix-by-example-a0063a1a4c55
+  `# Fibonacci
+let f = i: n: m: if i == 0 then n
+    else f (i - 1) m (n + m);
+  fib = n: f n 1 1;
+in fib 7 # == 21`,
+
 ];
 
 
