@@ -461,14 +461,14 @@ ERROR EvalError value is a string while a set was expected
 # call lambda with formals: left binding
 "(args@{...}: args) {a=1;}"
 ==>
-todo
+{"a":1}
 
 # call lambda with formals: right binding
 "({...}@args: args) {a=1;}"
 ==>
-todo
+{"a":1}
 
 # call lambda with formals: syntax error
 "(args@{...}@args: args) {a=1;}"
 ==>
-todo
+ERROR SyntaxError unexpected invalid token
