@@ -715,9 +715,7 @@ thunkOfNodeType.RecSet = (node, state, env) => {
 
   if (!(attrNode = firstChild(node))) {
     // empty set
-    // FIXME how does this work with env?
-    return node.data;
-    //return {};
+    return childEnv;
   }
 
   while (true) {
