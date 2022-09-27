@@ -356,17 +356,17 @@ thunkOfNodeType.Add = (node, state, env) => {
 */
 
 thunkOfNodeType.Sub = (node, state, env) => {
-  const [value1, value2] = get2Numbers(node, state, { caller: 'Sub' });
+  const [value1, value2] = get2Numbers(node, state, env, { caller: 'Sub' });
   return value1 - value2;
 };
 
 thunkOfNodeType.Mul = (node, state, env) => {
-  const [value1, value2] = get2Numbers(node, state, { caller: 'Mul' });
+  const [value1, value2] = get2Numbers(node, state, env, { caller: 'Mul' });
   return value1 * value2;
 };
 
 thunkOfNodeType.Div = (node, state, env) => {
-  const [value1, value2] = get2Numbers(node, state, { caller: 'Div' });
+  const [value1, value2] = get2Numbers(node, state, env, { caller: 'Div' });
   if (value2 == 0) {
     throw NixEvalError('division by zero')
   }
@@ -1083,10 +1083,9 @@ thunkOfNodeType.Let = (node, state, env) => {
     }
 
     else {
-      // last childNode
-      const keyNode = childNode;
-      // TODO childEnv?
-      return callThunk(keyNode, state, env);
+      // last childNode: similar to bodyNode in Lambda
+      const childEnv = new Env(env, node.data);
+      return callThunk(childNode, state, childEnv);
     }
   }
 };
