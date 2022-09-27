@@ -624,7 +624,7 @@ thunkOfNodeType.PathRelative = (node, state, env) => {
 
 
 /** @typedef {Record<string, any>} LazyObject */
-/** @return {LazyObject} */
+/** @return {Env} */
 thunkOfNodeType.Set = (node, state, env) => {
 
   checkInfiniteLoop();
@@ -633,14 +633,7 @@ thunkOfNodeType.Set = (node, state, env) => {
   //  throw NixEvalError('Set: node is null')
   //}
 
-  // TODO cache. but where? global cache? local context?
-  // node is probably a bad choice
-  /*
-  if (!node.data) node.data = {};
-  const data = node.data;
-  */
-  // TODO lazy object via Proxy, see LazyArray
-  const data = {};
+  const childEnv = new Env(env);
 
   //console.log('thunkOfNodeType.Set: typeof(node)', typeof(node));
 
@@ -688,12 +681,13 @@ thunkOfNodeType.Set = (node, state, env) => {
         //console.log(`Set key=${key}: value thunk: call thunk of valueNodeCopy`, valueNodeCopy)
         return valueNodeCopy.type.thunk(
           valueNodeCopy,
-          state, env
+          //state, childEnv // RecSet
+          state, env // Set
         );
       }
     }
 
-    Object.defineProperty(data, key, {
+    Object.defineProperty(childEnv.data, key, {
       get: getThunk(valueNode),
       enumerable: true,
       // fix: TypeError: Cannot redefine property: a
@@ -706,7 +700,7 @@ thunkOfNodeType.Set = (node, state, env) => {
     }
   }
 
-  return data;
+  return childEnv;
 };
 
 
@@ -715,7 +709,7 @@ thunkOfNodeType.Set = (node, state, env) => {
 
 const debugRecSet = true
 
-/** @return {LazyObject} */
+/** @return {Env} */
 thunkOfNodeType.RecSet = (node, state, env) => {
 
   // depends on Var
