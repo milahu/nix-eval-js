@@ -22,6 +22,13 @@ see [docs/](docs/)
 git clone --recurse-submodules https://github.com/milahu/nix-eval-js
 cd nix-eval-js
 pnpm install
+./bin/nix-eval -e 1+1
+./bin/nix-parse -e 1+1
+```
+
+### install demo
+
+```sh
 cd demo
 pnpm install
 npm run dev
