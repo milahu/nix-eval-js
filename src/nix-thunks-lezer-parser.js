@@ -41,7 +41,7 @@ function resetInfiniteLoop() {
 }
 function checkInfiniteLoop() {
   infiniteLoopCounter++;
-  if (infiniteLoopCounter > 1000) {
+  if (infiniteLoopCounter > 10000) {
     resetInfiniteLoop();
     throw new Error('infinite loop?');
   }
@@ -1027,8 +1027,7 @@ thunkOfNodeType.Let = (node, state, env) => {
 
   checkInfiniteLoop();
 
-  //const data = {}; // Set -> data is in child scope via Select
-  if (!node.data) node.data = {}; // RecSet -> data is in this scope
+  const childEnv = new Env(env, {});
 
   //console.log('thunkOfNodeType.Let: node', node);
 
@@ -1068,12 +1067,12 @@ thunkOfNodeType.Let = (node, state, env) => {
         return () => {
           return valueNodeCopy.type.thunk(
             valueNodeCopy,
-            state, env
+            state, childEnv
           );
         }
       }
 
-      Object.defineProperty(node.data, key, {
+      Object.defineProperty(childEnv.data, key, {
         get: getThunk(valueNode),
         enumerable: true,
         configurable: true,
@@ -1084,7 +1083,6 @@ thunkOfNodeType.Let = (node, state, env) => {
 
     else {
       // last childNode: similar to bodyNode in Lambda
-      const childEnv = new Env(env, node.data);
       return callThunk(childNode, state, childEnv);
     }
   }
