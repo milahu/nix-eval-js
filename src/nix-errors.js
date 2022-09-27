@@ -1,20 +1,20 @@
 export class NixEvalError extends EvalError {
   constructor(message) {
     super(message);
-    //this.name = "EvalError";
+    this.name = this.constructor.name;
   }
 }
 
 export class NixEvalNotImplemented extends Error {
   constructor(message) {
     super(message);
-    //this.name = "NotImplemented";
+    this.name = this.constructor.name;
   }
 }
 
 export class NixSyntaxError extends SyntaxError {
   constructor(message) {
     super(message);
-    //this.name = "SyntaxError";
+    this.name = this.constructor.name;
   }
 }
