@@ -58,6 +58,11 @@ Nix
 */
 const exampleInputs = [
 
+  '(x: x) 1 # call lambda',
+  '(x: y: x + y) 1 2 # call lambda nested',
+  'let f=x: 2*x; in f 3 # let lambda call',
+  'let f = a: b: (a+b); in f 1 2 # let lambda call nested',
+
   // fibonacci based on https://medium.com/@MrJamesFisher/nix-by-example-a0063a1a4c55
   `# Fibonacci
 let
@@ -392,7 +397,7 @@ export default function App() {
     }
 
     // eval
-    console.log(`App: eval. stack:`, new Error().stack)
+    //console.log(`App: eval. stack:`, new Error().stack)
     const source = editorState.doc.sliceString(0, editorState.doc.length);
     let evalResult;
     let evalError = '';
@@ -404,7 +409,7 @@ export default function App() {
         source,
       })
 
-      const evalEnv = new NixEval.Env({
+      const evalEnv = new NixEval.Env(null, {
         test: 'hello world',
       })
 

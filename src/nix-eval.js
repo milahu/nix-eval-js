@@ -21,12 +21,44 @@ export {
   NixEvalNotImplemented,
 }
 
+class CallStack {
+  constructor(state) {
+    /** @type {SyntaxNode[]} */
+    this.stack = []
+    this.state = state
+  }
+  /** @type {function(SyntaxNode): void} */
+  push(node) {
+    this.stack.push(node)
+  }
+  /** @type {function(): SyntaxNode?} */
+  pop() {
+    return this.stack.pop() || null
+  }
+  /** @type {function(): SyntaxNode?} */
+  peek() {
+    return this.stack[this.stack.length - 1] || null
+  }
+  /** @type {function(): string} */
+  toString() {
+    const result = []
+    for (const node of this.stack) {
+      let src = this.state.source.slice(node.from, node.to)
+      src = src.replace(/\n/g, '\\n')
+      result.push(`${node.from}-${node.to}: ${node.type.name}: ${src}`)
+    }
+    return result.join('\n')
+  }
+}
+
 export class State {
   /** @type {string} */
   source = ''
-  /** @type {function({source: string})} */
+  // TODO refactor. make this more like EvalState in nix
+  /** @type {function({ source: string })} */
   constructor({ source }) {
     this.source = source
+    this.stack = new CallStack(this)
   }
 }
 
@@ -34,9 +66,26 @@ export class Env {
   /** @type {Record<string, any>} */
   data = {}
   parent = null // aka "outer env"
-  constructor(data = {}, parent = null) {
-    if (data) this.data = data
+  constructor(parent = null, data = {}) {
     if (parent) this.parent = parent
+    if (data) this.data = data
+  }
+  /** @type {function(string, any | undefined): void} */
+  set(key, value) {
+    this.data[key] = value
+  }
+  /** @type {function(string): any | undefined} */
+  get(key) {
+    let env = this
+    while (env) {
+      if (Object.hasOwn(env.data, key)) {
+        return env.data[key]
+      }
+      env = env.parent
+    }
+    // variable is undefined
+    //throw new ReferenceError()
+    return undefined
   }
 }
 

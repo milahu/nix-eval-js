@@ -4,6 +4,7 @@ import { configure as getStringify } from './nix-eval-stringify/index.js'
 
 // https://github.com/voracious/vite-plugin-node-polyfills/issues/4
 import { join as joinPath } from 'node:path'
+import { Env } from './nix-eval.js';
 //import { join as joinPath } from 'path'
 
 // jsdoc types
@@ -390,6 +391,10 @@ thunkOfNodeType.Not = (node, state, env) => {
 
 /** @return {any} */
 thunkOfNodeType.Call = (node, state, env) => {
+
+  state.stack.push(node)
+
+  console.log(`thunkOfNodeType.Call: state.stack:\n${state.stack}`)
 
   // call a function
   // TODO check types
@@ -847,51 +852,13 @@ thunkOfNodeType.Var = (node, state, env) => {
   const key = nodeText(keyNode, state);
   //console.log(`thunkOfNodeType.Var: key`, key);
 
-  // find scope
-  // wrong. this breaks with
-  // Nix: let f=x: x; in f 1
-  //   Let: let f=x: x; in f 1
-  //     Attr: f=x: x;
-  //       Identifier: f
-  //       Lambda: x: x
-  //         Identifier: x
-  //         Var: x
-  //           Identifier: x
-  //     Call: f 1
-  //       Var: f
-  //         Identifier: f
-  //       Int: 1
-  //
-  // "Var: f" works
-  // because f is stored in Let.data
-  // "Var: x" fails
-  // because x is stored in Call.data
-  // but is searched in
-  //   Lambda.data
-  //   Attr.data
-  //   Let.data
-  //   Nix.data
-  //
-  // TODO explicitly pass scope Call to Lambda
-  //
-  // or ... scope == callstack?
+  const value = env.get(key)
 
-  const debugVar = true;
-
-  let parent = node;
-  debugVar && console.log(`thunkOfNodeType.Var:${node.from}: getting variable ${key}: find scope: node ${node.type.name}:${node.from} ${stringifyValue(node.data || {})}`); // Var
-  while ((parent = parent.parent)) {
-    debugVar && console.log(`thunkOfNodeType.Var:${node.from}: getting variable ${key}: find scope: parent ${parent.type.name}:${parent.from} ${stringifyValue(parent.data || {})}`);
-    
-    if (parent.data && Object.hasOwn(parent.data, key)) {
-      debugVar && console.log(`thunkOfNodeType.Var:${node.from}: done getting variable ${key}: found in parent ${parent.type.name}:${parent.from} ${stringifyValue(parent.data || {})}`);
-      return parent.data[key];
-    }
+  if (value === undefined) {
+    throw new NixEvalError(`undefined variable '${key}'`);
   }
 
-  debugVar && console.log(`thunkOfNodeType.Var:${node.from} ${key}: find scope: not found`);
-
-  throw new NixEvalError(`undefined variable '${key}'`);
+  return value
 };
 
 
@@ -917,9 +884,6 @@ thunkOfNodeType.Lambda = (node, state, env) => {
   // argumentNode.type.name == 'Identifier'
   // simple function: f = x: (x + 1)
   const argumentName = nodeText(argumentNode, state);
-
-  const lambdaNode = node;
-  lambdaNode.data = {};
 
   //return function call1(argumentNode, source) {
   // note: lambda must be normal function, so this == callNode
@@ -997,17 +961,14 @@ thunkOfNodeType.Lambda = (node, state, env) => {
     };
     */
 
-    console.log(`thunkOfNodeType.Lambda:${node.from}: setting variable ${argumentName}=${stringifyValue(argumentValue)} on ${dataNode.type.name}:${dataNode.from} ${stringifyValue(dataNode.data || {})} for bodyNode ${bodyNode.type.name}:${bodyNode.from} ${stringifyValue(bodyNode.data || {})}`)
-
-    // right: add to scope with other variables
-    if (!dataNode.data) dataNode.data = {};
-    dataNode.data[argumentName] = argumentValue;
-
-    console.log(`thunkOfNodeType.Lambda:${node.from}: setting variable ${argumentName}=${stringifyValue(argumentValue)} on ${dataNode.type.name}:${dataNode.from} ${stringifyValue(dataNode.data || {})} - done`)
-
     // TODO handle complex args: formals, formals-at-binding
 
-    return callThunk(bodyNode, state, env);
+    const childEnv = new Env(env, {
+      [argumentName]: argumentValue,
+    });
+
+    return callThunk(bodyNode, state, childEnv);
+
   })(bodyNode);
 
   // store source location of lambda
@@ -1124,6 +1085,7 @@ thunkOfNodeType.Let = (node, state, env) => {
     else {
       // last childNode
       const keyNode = childNode;
+      // TODO childEnv?
       return callThunk(keyNode, state, env);
     }
   }
