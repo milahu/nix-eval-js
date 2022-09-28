@@ -123,6 +123,21 @@ ERROR EvalError attribute 'z' missing
 ==>
 2
 
+# with
+"let a={b=2;}; in with a; b"
+==>
+2
+
+# with
+"let a={b={c=3;};}; in with a.b; c"
+==>
+3
+
+# with
+"let a={b={c=3;};}; in with a; b.c"
+==>
+3
+
 # set update
 "{a=0;b=2;}//{a=1;c=3;}"
 ==>
