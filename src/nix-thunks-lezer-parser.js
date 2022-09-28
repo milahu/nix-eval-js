@@ -17,6 +17,13 @@ import { Env, getStringifyResult } from './nix-eval.js';
 
 
 
+const debugAllThunks = false
+
+// Let Lambda Call var
+const debugCallStack = true
+
+
+
 const stringifyValue = getStringifyResult({
   maximumDepth: 2,
   maximumBreadth: 10,
@@ -373,14 +380,19 @@ thunkOfNodeType.Neg = (node, state, env) => {
 
 
 
-const debugCall = false
+const debugCall = debugAllThunks || debugCallStack || false
 
 /** @return {any} */
 thunkOfNodeType.Call = (node, state, env) => {
 
   state.stack.push(node)
 
-  debugCall && console.log(`thunkOfNodeType.Call: state.stack:\n${state.stack}`)
+  //debugCall && console.log(`thunkOfNodeType.Call: state.stack:\n${state.stack}`)
+  debugCall && console.log(`thunkOfNodeType.Call: stack size: ${state.stack.stack.length}`);
+  debugVar && console.log(`Call: stack`, new Error().stack);
+  if (state.stack.stack.length > 5) {
+    throw new Error('stack size')
+  }
 
   // call a function
   // TODO check types
@@ -424,6 +436,11 @@ thunkOfNodeType.Call = (node, state, env) => {
   const argumentValue = callThunk(argumentNode, state, env);
   //console.log('thunkOfNodeType.Call: argumentValue', argumentValue);
 
+  // TODO env? or is this done in Lambda?
+  // nix.cc does this in EvalState::callFunction
+  // Env & env2(allocEnv(size));
+
+  // lambda.body->eval(*this, env2, vCur);
   return functionValue(argumentValue);
 
   /*
@@ -560,7 +577,7 @@ thunkOfNodeType.List = (node, state, env) => {
     }
   }
 
-  const debugLazyArray = false
+  const debugLazyArray = debugAllThunks || false
 
   // https://codetagteam.com/questions/any-way-to-define-getters-for-lazy-variables-in-javascript-arrays
   function LazyArray() {
@@ -638,7 +655,7 @@ thunkOfNodeType.List = (node, state, env) => {
 
 
 
-const debugConcat = false
+const debugConcat = debugAllThunks || false
 
 /** @return {LazyArray} */
 thunkOfNodeType.Concat = (node, state, env) => {
@@ -735,7 +752,7 @@ thunkOfNodeType.PathRelative = (node, state, env) => {
 
 thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
 
-  const debugSet = false
+  const debugSet = debugAllThunks || debugCallStack || false
 
   checkInfiniteLoop();
 
@@ -861,7 +878,7 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
 
 
 
-const debugSelect = false
+const debugSelect = debugAllThunks || false
 
 // void ExprSelect::eval(EvalState & state, Env & env, Value & v)
 /** @return {any} */
@@ -917,7 +934,7 @@ thunkOfNodeType.Select = (node, state, env) => {
 
 
 
-const debugHasAttr = false
+const debugHasAttr = debugAllThunks || false
 
 /** @return {boolean} */
 thunkOfNodeType.HasAttr = (node, state, env) => {
@@ -980,7 +997,7 @@ thunkOfNodeType.HasAttr = (node, state, env) => {
 
 
 
-const debugUpdate = false
+const debugUpdate = debugAllThunks || false
 
 /** @return {LazyArray} */
 thunkOfNodeType.Update = (node, state, env) => {
@@ -1034,7 +1051,7 @@ thunkOfNodeType.Update = (node, state, env) => {
 
 thunkOfNodeType.With = (node, state, env) => {
 
-  const debugWith = false;
+  const debugWith = debugAllThunks || false;
 
   checkInfiniteLoop();
 
@@ -1068,6 +1085,8 @@ thunkOfNodeType.With = (node, state, env) => {
 
 
 
+const debugVar = debugAllThunks || true
+
 /** @return {any} */
 thunkOfNodeType.Var = (node, state, env) => {
   // input: a
@@ -1076,6 +1095,8 @@ thunkOfNodeType.Var = (node, state, env) => {
   //   Var: a
   //     Identifier: a
   checkInfiniteLoop();
+  debugVar && printNode(node, state, env);
+  debugVar && console.log(`Var: stack`, new Error().stack);
   const keyNode = firstChild(node);
   if (!keyNode) {
     throw new NixEvalError('Var: no keyNode')
@@ -1131,7 +1152,7 @@ thunkOfNodeType.Lambda = (node, state, env) => {
 
   // function with formals: f = {x, y, ...} @ args: (x + 1)
 
-  const debugFormals = false;
+  const debugFormals = debugAllThunks || false;
 
   let formalsBindingName = null;
   const formalNameSet = new Set();
@@ -1271,7 +1292,7 @@ thunkOfNodeType.Let = (node, state, env) => {
 
   // let a=1; in a == rec {a=1;}.a
 
-  const debugLet = false;
+  const debugLet = debugAllThunks || debugCallStack || false;
 
   checkInfiniteLoop();
 
@@ -1327,7 +1348,7 @@ thunkOfNodeType.LetOld = (node, state, env) => {
 
   // let { a=1; body=a; } == rec {a=1;body=a;}.body
 
-  const debugLetOld = false
+  const debugLetOld = debugAllThunks || debugCallStack || false
 
   checkInfiniteLoop();
 
