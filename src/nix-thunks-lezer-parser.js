@@ -760,30 +760,51 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
     }
     debugSet && printNode(keyNode, state, env, { label: 'keyNode' });
 
-    const valueNode = nextSibling(keyNode);
-    if (!valueNode) {
-      throw new NixEvalError('Set Attr: no value');
-    }
-    debugSet && printNode(valueNode, state, env, { label: 'valueNode' });
-
     const key = state.source.slice(keyNode.from, keyNode.to);
     debugSet && console.log(`thunkOfNodeType.${node.type.name}: key`, key);
 
-    const valueEnv = (node.type.name == 'Set'
-      ? env // Set
-      : childEnv // RecSet
-    );
+    const valueNode = nextSibling(keyNode);
 
-    const getValue = () => (
-      valueNode.type.thunk(valueNode, state, valueEnv)
-    );
+    if (valueNode) {
+      debugSet && printNode(valueNode, state, env, { label: 'valueNode' });
 
-    Object.defineProperty(childEnv.data, key, {
-      get: getValue,
-      enumerable: true,
-      // fix: TypeError: Cannot redefine property: a
-      configurable: true,
-    });
+      const valueEnv = (node.type.name == 'Set'
+        ? env // Set
+        : childEnv // RecSet
+      );
+
+      const getValue = () => (
+        valueNode.type.thunk(valueNode, state, valueEnv)
+      );
+
+      Object.defineProperty(childEnv.data, key, {
+        get: getValue,
+        enumerable: true,
+        // fix: TypeError: Cannot redefine property: a
+        configurable: true,
+      });
+    }
+
+    else if (attrNode.type.name == 'AttrInherit') {
+      /** @type {Env} */
+      const inheritSet = env.get(key);
+      if (inheritSet === undefined) {
+        throw new NixEvalError(`undefined variable '${key}'`)
+      }
+      for (const inheritKey in inheritSet.data) {
+        Object.defineProperty(childEnv.data, inheritKey, {
+          // TODO better? copy the getter function
+          get: () => inheritSet.data[inheritKey],
+          enumerable: true,
+          configurable: true,
+        });
+      }
+    }
+
+    else {
+      // this should be not reachable
+      throw new NixEvalError('Set Attr: no value');
+    }
 
     if (!(attrNode = nextSibling(attrNode))) {
       break;
