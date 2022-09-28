@@ -408,6 +408,46 @@ true
 ==>
 true
 
+# less than
+"1<2"
+==>
+true
+
+# less than
+"1<1"
+==>
+false
+
+# less equal
+"1<=1"
+==>
+true
+
+# less equal
+"1<=0"
+==>
+false
+
+# greater than
+"2>1"
+==>
+true
+
+# greater than
+"1>1"
+==>
+false
+
+# greater equal
+"1>=1"
+==>
+true
+
+# greater equal
+"0>=1"
+==>
+false
+
 # if
 "if (!true) then 1 else 2"
 ==>
