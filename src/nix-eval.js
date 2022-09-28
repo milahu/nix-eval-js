@@ -203,6 +203,12 @@ export class NixEval {
       builtinsEnv.data[primopName] = NixPrimops[primopKey];
     }
 
+    builtinsEnv.data['true'] = true;
+    builtinsEnv.data['false'] = false;
+    builtinsEnv.data['null'] = null;
+
+    builtinsEnv.data['import'] = evalEnv.data['import'];
+
     const topNode = tree.topNode;
     return topNode.type.thunk(topNode, evalState, evalEnv);
   }
