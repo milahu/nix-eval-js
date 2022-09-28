@@ -477,9 +477,26 @@ thunkOfNodeType.NEq = (node, state, env) => {
 
 /** @return {boolean} */
 thunkOfNodeType.GT = (node, state, env) => {
-  let [value1, value2] = get2Values(node, state, env, { caller: 'thunkOfNodeType.GT' })
-  // TODO? types
+  let [value1, value2] = get2Numbers(node, state, env, { caller: 'thunkOfNodeType.GT' })
   return (value1 > value2);
+};
+
+/** @return {boolean} */
+thunkOfNodeType.GE = (node, state, env) => {
+  let [value1, value2] = get2Numbers(node, state, env, { caller: 'thunkOfNodeType.GT' })
+  return (value1 >= value2);
+};
+
+/** @return {boolean} */
+thunkOfNodeType.LT = (node, state, env) => {
+  let [value1, value2] = get2Numbers(node, state, env, { caller: 'thunkOfNodeType.GT' })
+  return (value1 < value2);
+};
+
+/** @return {boolean} */
+thunkOfNodeType.LE = (node, state, env) => {
+  let [value1, value2] = get2Numbers(node, state, env, { caller: 'thunkOfNodeType.GT' })
+  return (value1 <= value2);
 };
 
 
