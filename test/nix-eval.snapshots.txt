@@ -113,6 +113,16 @@ ERROR EvalError attribute 'z' missing
 ==>
 1
 
+# set inherit
+"let a={b=2;}; in {inherit a;}"
+==>
+{"b":2}
+
+# set inherit: error undefined
+"{inherit z;}"
+==>
+ERROR EvalError undefined variable 'z'
+
 # let
 "let a=1; in a"
 ==>
