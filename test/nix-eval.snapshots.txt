@@ -478,6 +478,41 @@ true
 ==>
 ERROR EvalError value is an integer while a Boolean was expected
 
+# imply
+"false -> false"
+==>
+true
+
+# imply
+"false -> true"
+==>
+true
+
+# imply
+"true -> true"
+==>
+true
+
+# imply
+"true -> false"
+==>
+false
+
+# imply: must eval
+"false -> not_defined"
+==>
+ERROR EvalError undefined variable 'not_defined'
+
+# imply: ignore type
+"false -> \"\""
+==>
+true
+
+# imply: type error
+"true -> \"\""
+==>
+ERROR EvalError value is a string while a Boolean was expected
+
 # if
 "if (!true) then 1 else 2"
 ==>
