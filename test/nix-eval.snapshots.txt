@@ -138,6 +138,21 @@ ERROR EvalError attribute 'z' missing
 ==>
 3
 
+# with: ignore type error
+"with 1; 2"
+==>
+2
+
+# with: ignore type error
+"with null; 2"
+==>
+2
+
+# with: ignore type error
+"with \"\"; 2"
+==>
+2
+
 # set update
 "{a=0;b=2;}//{a=1;c=3;}"
 ==>
