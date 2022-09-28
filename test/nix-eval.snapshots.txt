@@ -323,6 +323,11 @@ ERROR EvalError attempt to call something which is not a function but a float
 ==>
 0.5
 
+# call primop builtins.add
+"builtins.add 1 1"
+==>
+2
+
 # empty list
 "[]"
 ==>
