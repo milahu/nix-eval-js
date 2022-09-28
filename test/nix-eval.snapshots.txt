@@ -477,3 +477,23 @@ ERROR SyntaxError unexpected invalid token
 "let f = { a ? 1, b ? 2 }: a + b; in f {}"
 ==>
 3
+
+# has attr: true
+"{a=1;}?a"
+==>
+true
+
+# has attr: false
+"{a=1;}?z"
+==>
+false
+
+# has attr: type error
+"1?z"
+==>
+false
+
+# has attr: type error nested
+"{a=1;}?a.z"
+==>
+false
