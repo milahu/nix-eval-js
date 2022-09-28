@@ -472,3 +472,8 @@ ERROR EvalError value is a string while a set was expected
 "(args@{...}@args: args) {a=1;}"
 ==>
 ERROR SyntaxError unexpected invalid token
+
+# default arguments
+"let f = { a ? 1, b ? 2 }: a + b; in f {}"
+==>
+3
