@@ -123,6 +123,11 @@ ERROR EvalError attribute 'z' missing
 ==>
 2
 
+# set update
+"{a=0;b=2;}//{a=1;c=3;}"
+==>
+{"a":1,"b":2,"c":3}
+
 # call null
 "null 2"
 ==>
