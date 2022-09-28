@@ -1054,6 +1054,49 @@ thunkOfNodeType.Update = (node, state, env) => {
 
 
 
+/**
+* The `with` statement introduces a set's values
+* into the lexical scope of the following expression.
+*
+* @return {any}
+*/
+
+thunkOfNodeType.With = (node, state, env) => {
+
+  const debugWith = false;
+
+  checkInfiniteLoop();
+
+  const setNode = firstChild(node);
+  if (!setNode) {
+    throw new NixEvalError('With: no setNode')
+  }
+
+  const exprNode = nextSibling(setNode);
+  if (!exprNode) {
+    // this should be unreachable
+    throw new NixEvalError('With: no exprNode')
+  }
+
+  // call thunk of Set or RecSet
+  /** @type {Env} */
+  const setValue = callThunk(setNode, state, env);
+  debugWith && console.log(`thunkOfNodeType.With:${node.from}: setValue`, setValue)
+  if (!(setValue instanceof Env)) {
+    // ignore type errors
+    // nix-repl> with null; 1
+    // 1
+    // nix-repl> with ""; 1
+    // 1
+    return callThunk(exprNode, state, env);
+  }
+
+  const childEnv = new Env(env, setValue.data);
+  return callThunk(exprNode, state, childEnv);
+};
+
+
+
 /** @return {any} */
 thunkOfNodeType.Var = (node, state, env) => {
   // input: a
