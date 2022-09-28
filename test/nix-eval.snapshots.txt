@@ -662,3 +662,13 @@ false
 "{a=1;}?a.z"
 ==>
 false
+
+# library: import
+"(import /var/empty/nix-eval.test.nix {}).test"
+==>
+"hello world"
+
+# SKIP library: import: no such file
+"import /var/empty/does-not-exist.nix {}"
+==>
+ERROR EvalError getting status of '/var/empty/does-not-exist.nix': No such file or directory
