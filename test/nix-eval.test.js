@@ -31,7 +31,15 @@ for (let file of fs.readdirSync(caseDir)) {
 
     if (/SKIP/.test(name)) continue;
 
-    const text = JSON.parse(textJson);
+    const text = (() => {
+      try {
+        return JSON.parse(textJson);
+      }
+      catch (error) {
+        error.message += `\nfailed to parse textJson: ${textJson}`
+        throw error;
+      }
+    })();
 
     if (expected.startsWith('ERROR ')) {
       const expectedParts = expected.split(' ');
