@@ -243,6 +243,26 @@ ERROR EvalError list index -1 is out of bounds
 ==>
 ERROR EvalError list index 2 is out of bounds
 
+# list concat
+"[1 2]++[3 4]"
+==>
+[1,2,3,4]
+
+# list concat: empty
+"[]++[]"
+==>
+[]
+
+# list concat: right empty
+"[1 2]++[]"
+==>
+[1,2]
+
+# list concat: left empty
+"[]++[3 4]"
+==>
+[3,4]
+
 # add mul
 "2+3*4"
 ==>
