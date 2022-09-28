@@ -763,6 +763,11 @@ false
 ==>
 "hello world"
 
+# library: builtins.import
+"(builtins.import /var/empty/nix-eval.test.nix {}).test"
+==>
+"hello world"
+
 # SKIP library: import: no such file
 "import /var/empty/does-not-exist.nix {}"
 ==>
