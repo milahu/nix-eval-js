@@ -726,10 +726,16 @@ thunkOfNodeType.PathRelative = (node, state, env) => {
 
 
 /** @typedef {Record<string, any>} LazyObject */
-/** @return {Env} */
-thunkOfNodeType.Set = (node, state, env) => {
 
-  const debugSet = true
+/**
+* Set and RecSet
+*
+* @return {Env}
+*/
+
+thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
+
+  const debugSet = false
 
   checkInfiniteLoop();
 
@@ -761,102 +767,19 @@ thunkOfNodeType.Set = (node, state, env) => {
     debugSet && printNode(valueNode, state, env, { label: 'valueNode' });
 
     const key = state.source.slice(keyNode.from, keyNode.to);
-    console.log('thunkOfNodeType.Set: key', key);
+    debugSet && console.log(`thunkOfNodeType.${node.type.name}: key`, key);
 
-    const getValue = () => {
-      return valueNode.type.thunk(
-        valueNode,
-        // TODO refactor with RecSet
-        //state, childEnv // RecSet
-        state, env // Set
-      );
-    };
+    const valueEnv = (node.type.name == 'Set'
+      ? env // Set
+      : childEnv // RecSet
+    );
+
+    const getValue = () => (
+      valueNode.type.thunk(valueNode, state, valueEnv)
+    );
 
     Object.defineProperty(childEnv.data, key, {
       get: getValue,
-      enumerable: true,
-      // fix: TypeError: Cannot redefine property: a
-      configurable: true,
-    });
-
-    if (!(attrNode = nextSibling(attrNode))) {
-      break;
-    }
-  }
-
-  return childEnv;
-};
-
-
-
-/** @typedef {Record<string, any>} LazyObject */
-
-const debugRecSet = false
-
-/** @return {Env} */
-thunkOfNodeType.RecSet = (node, state, env) => {
-
-  // depends on Var
-  // TODO refactor with Set
-
-  checkInfiniteLoop();
-
-  const childEnv = new Env(env);
-
-  //console.log('thunkOfNodeType.Set: typeof(node)', typeof(node));
-
-  //console.log('thunkOfNodeType.Set: typeof(node.firstChild)', typeof(node.firstChild));
-
-  //if (!node.firstChild) {
-  //  throw NixEvalError('Set: node.firstChild is empty. node:', node)
-  //}
-
-  //console.log('thunkOfNodeType.Set ------------------------');
-  //console.log('thunkOfNodeType.Set: node', node);
-
-  let attrNode;
-
-  if (!(attrNode = firstChild(node))) {
-    // empty set
-    return childEnv;
-  }
-
-  while (true) {
-    //checkInfiniteLoop();
-    //console.log('thunkOfNodeType.Set: attrNode', attrNode);
-
-    const keyNode = firstChild(attrNode);
-    if (!keyNode) {
-      throw new NixEvalError('Set Attr: no key');
-    }
-    //console.log('thunkOfNodeType.Set: keyNode', keyNode);
-
-    const valueNode = nextSibling(keyNode);
-    if (!valueNode) {
-      throw new NixEvalError('Set Attr: no value');
-    }
-    //console.log('thunkOfNodeType.Set: valueNode', valueNode);
-
-    //const copyNode = (node) => node;
-    //const valueNodeCopy = copyNode(valueNode);
-
-    const key = state.source.slice(keyNode.from, keyNode.to);
-    debugRecSet && console.log(`thunkOfNodeType.RecSet:${node.from}: key`, key);
-
-    function getThunk(valueNodeCopy) {
-      // create local copy of valueNode
-      // TODO? const valueNodeCopy = valueNode
-      return () => {
-        //console.log(`Set value thunk: call thunk of valueNodeCopy`, valueNodeCopy)
-        return valueNodeCopy.type.thunk(
-          valueNodeCopy,
-          state, childEnv
-        );
-      }
-    }
-
-    Object.defineProperty(childEnv.data, key, {
-      get: getThunk(valueNode),
       enumerable: true,
       // fix: TypeError: Cannot redefine property: a
       configurable: true,
