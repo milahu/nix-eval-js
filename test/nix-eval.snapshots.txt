@@ -772,3 +772,8 @@ false
 "import /var/empty/does-not-exist.nix {}"
 ==>
 ERROR EvalError getting status of '/var/empty/does-not-exist.nix': No such file or directory
+
+# fixpoint
+"let fix = f: let x = f x; in x; in fix (self: { x = ''abc''; x2 = self.x + ''123''; })"
+==>
+{"x":"abc","x2":"abc123"}
