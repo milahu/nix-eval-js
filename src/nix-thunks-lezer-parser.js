@@ -820,6 +820,69 @@ thunkOfNodeType.Select = (node, state, env) => {
 
 
 
+const debugHasAttr = false
+
+/** @return {boolean} */
+thunkOfNodeType.HasAttr = (node, state, env) => {
+  // similar to Select, but dont return the value
+  checkInfiniteLoop();
+  const setNode = firstChild(node);
+  if (!setNode) {
+    throw new NixEvalError('HasAttr: no setNode')
+  }
+
+  // call thunk of Set or RecSet
+  /** @type {Env} */
+  const setValue = callThunk(setNode, state, env);
+  debugHasAttr && console.log(`thunkOfNodeType.HasAttr:${node.from}: setValue`, setValue)
+
+  let keyNode = nextSibling(setNode);
+  if (!keyNode) {
+    // this should be unreachable
+    throw new NixEvalError('HasAttr: no keyNode')
+  }
+
+  let result = setValue;
+
+  // loop attrPath
+  while (keyNode) {
+    const keyValue = callThunk(keyNode, state, env);
+
+    debugHasAttr && console.log(`thunkOfNodeType.HasAttr:${node.from}: result`, result)
+    if (!(result instanceof Env)) {
+      // nix-repl> 1?z  
+      // false
+      // nix-repl> {a=1;}?a.z
+      // false
+      return false
+    }
+    if (!Object.hasOwn(result.data, keyValue)) {
+      // nix-repl> {a=1;}?z
+      // false
+      return false;
+    }
+
+    const nextKeyNode = nextSibling(keyNode);
+
+    if (!nextKeyNode) {
+      // nix-repl> {a=1;}?a  
+      // true
+      return true;
+    }
+
+    // note: dont use result.get(keyValue)
+    // because that would also search in parent env's
+    result = result.data[keyValue];
+
+    keyNode = nextKeyNode;
+  }
+
+  // this should be unreachable
+  throw new NixEvalError('HasAttr: no keyNodes')
+};
+
+
+
 /** @return {any} */
 thunkOfNodeType.Var = (node, state, env) => {
   // input: a
