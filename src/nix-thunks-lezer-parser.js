@@ -576,6 +576,39 @@ thunkOfNodeType.List = (node, state, env) => {
 
 
 
+const debugConcat = false
+
+/** @return {LazyArray} */
+thunkOfNodeType.Concat = (node, state, env) => {
+
+  // list concat
+
+  checkInfiniteLoop();
+
+  const [list1, list2] = get2Values(node, state, env, { caller: 'Concat' })
+
+  debugConcat && console.log(`thunkOfNodeType.Concat: list1`, typeof(list1), list1.length, list1);
+  debugConcat && console.log(`thunkOfNodeType.Concat: list2`, typeof(list2), list2.length, list2);
+
+  // TODO check types
+
+  if (list1.length == 0) {
+    return list2;
+  }
+
+  if (list2.length == 0) {
+    return list1;
+  }
+
+  for (const itemThunk of list2) {
+    list1.push(itemThunk);
+  }
+
+  return list1;
+};
+
+
+
 /** @return {string} */
 thunkOfNodeType.String = (node, state, env) => {
   // similar to list: zero or more childNodes
