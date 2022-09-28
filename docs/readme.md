@@ -1346,61 +1346,7 @@ TLDR for now, but has all the details on performance optimization
 
 ### Nix thesis
 
-[The Purely Functional Software Deployment Model. by Eelco Dolstra](https://edolstra.github.io/pubs/phd-thesis.pdf)
-
-PDF page 89, print page 81
-
-<blockquote>
-
-4.4. Implementation
-
-Maximal laziness Nix expression evaluation is implemented using the ATerm library
-\[166], which is a library for the efficient storage and runtime manipulation of terms.
-
-</blockquote>
-
-<blockquote>
-
-A very nice property of the ATerm library is its maximal sharing: if two terms are
-syntactically equal, then they occupy the same location in memory. This means that a
-shallow pointer equality test is sufficient to perform a deep syntactic equality test. Maximal
-sharing is implemented through a hash table. Whenever a new term is created, the term is
-looked up in the hash table. If the term already exists, the address of the term obtained from
-the hash table is returned. Otherwise, the term is allocated, initialised, and added to the
-hash table. A garbage collector takes care of freeing terms that are no longer referenced.
-Maximal sharing is extremely useful in the implementation of a Nix expression interpreter since it allows easy caching of evaluation results, which speeds up expression evaluation by removing unnecessary evaluation of identical terms. The interpreter maintains a
-hash lookup table cache : ATerm → ATerm that maps ATerms representing Nix expressions
-to their normal form.
-
-</blockquote>
-
-<blockquote>
-
-\[166] Mark van den Brand, Hayco de Jong, Paul Klint, and Pieter Olivier. Efficient annotated terms. Software—
-Practice and Experience, 30:259–291, 2000.
-
-</blockquote>
-
-### Maximal Laziness
-
-[Maximal Laziness. An Efficient Interpretation Technique for Purely Functional DSLs. by Eelco Dolstra](https://edolstra.github.io/pubs/laziness-ldta2008-final.pdf)
-
-<blockquote>
-
-In interpreters for functional languages based on term rewriting, maximal laziness is much easier to achieve. In a term rewriting approach, the abstract syntax
-term representing the program is rewritten according to the semantic rules of the
-language until a normal form — the evaluation result — is reached. In fact, maximal
-laziness comes naturally when one implements the interpreter in a term rewriting
-system that has the property of maximal sharing, such as ASF+SDF \[23] or the
-Stratego/XT program transformation system \[24], both of which rely on the ATerm
-library \[20] to implement maximal sharing of terms. In such systems, if two terms
-are syntactically equal, then they occupy the same location in memory — i.e., any
-term is stored only once (a technique known as hash-consing in Lisp). This makes
-it easy and cheap to add a simple memoisation to the term rewriting code to map
-abstract syntax trees to their normal forms, thus “caching” evaluation results and
-achieving maximal laziness.
-
-</blockquote>
+see [nix-thesis.md](nix-thesis.md)
 
 ### javascript bindings for nix
 
