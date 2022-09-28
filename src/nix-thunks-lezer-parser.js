@@ -729,24 +729,13 @@ thunkOfNodeType.PathRelative = (node, state, env) => {
 /** @return {Env} */
 thunkOfNodeType.Set = (node, state, env) => {
 
-  checkInfiniteLoop();
+  const debugSet = true
 
-  //if (!node) {
-  //  throw NixEvalError('Set: node is null')
-  //}
+  checkInfiniteLoop();
 
   const childEnv = new Env(env);
 
-  //console.log('thunkOfNodeType.Set: typeof(node)', typeof(node));
-
-  //console.log('thunkOfNodeType.Set: typeof(node.firstChild)', typeof(node.firstChild));
-
-  //if (!node.firstChild) {
-  //  throw NixEvalError('Set: node.firstChild is empty. node:', node)
-  //}
-
-  //console.log('thunkOfNodeType.Set ------------------------');
-  //console.log('thunkOfNodeType.Set: node', node);
+  debugSet && printNode(node, state, env, { label: 'node' });
 
   let attrNode;
 
@@ -757,45 +746,38 @@ thunkOfNodeType.Set = (node, state, env) => {
 
   while (true) {
     //checkInfiniteLoop();
-    //console.log('thunkOfNodeType.Set: attrNode', attrNode);
+    debugSet && printNode(attrNode, state, env, { label: 'attrNode' });
 
     const keyNode = firstChild(attrNode);
     if (!keyNode) {
       throw new NixEvalError('Set Attr: no key');
     }
-    //console.log('thunkOfNodeType.Set: keyNode', keyNode);
+    debugSet && printNode(keyNode, state, env, { label: 'keyNode' });
 
     const valueNode = nextSibling(keyNode);
     if (!valueNode) {
       throw new NixEvalError('Set Attr: no value');
     }
-    //console.log('thunkOfNodeType.Set: valueNode', valueNode);
-
-    //const copyNode = (node) => node;
-    //const valueNodeCopy = copyNode(valueNode);
+    debugSet && printNode(valueNode, state, env, { label: 'valueNode' });
 
     const key = state.source.slice(keyNode.from, keyNode.to);
-    //console.log('thunkOfNodeType.Set: key', key);
+    console.log('thunkOfNodeType.Set: key', key);
 
-    function getThunk(valueNodeCopy) {
-      // create local copy of valueNode
-      return () => {
-        //console.log(`Set key=${key}: value thunk: call thunk of valueNodeCopy`, valueNodeCopy)
-        return valueNodeCopy.type.thunk(
-          valueNodeCopy,
-          //state, childEnv // RecSet
-          state, env // Set
-        );
-      }
-    }
+    const getValue = () => {
+      return valueNode.type.thunk(
+        valueNode,
+        // TODO refactor with RecSet
+        //state, childEnv // RecSet
+        state, env // Set
+      );
+    };
 
     Object.defineProperty(childEnv.data, key, {
-      get: getThunk(valueNode),
+      get: getValue,
       enumerable: true,
       // fix: TypeError: Cannot redefine property: a
       configurable: true,
     });
-
 
     if (!(attrNode = nextSibling(attrNode))) {
       break;
