@@ -1261,11 +1261,20 @@ thunkOfNodeType.Lambda = (node, state, env) => {
 
 
 
+/**
+ * Let
+ *
+ * @return {any}
+ */
+
 thunkOfNodeType.Let = (node, state, env) => {
-  // syntax sugar: let a=1; in a -> rec {a=1;}.a
+
+  // let a=1; in a == rec {a=1;}.a
 
   // depends on Var
   // TODO refactor with Set, RecSet
+
+  const debugLet = false;
 
   checkInfiniteLoop();
 
@@ -1285,48 +1294,36 @@ thunkOfNodeType.Let = (node, state, env) => {
 
     let nextChildNode = nextSibling(childNode);
 
-    if (nextChildNode) {
-      const attrNode = childNode;
-
-      // copy paste from Set, RecSet
-      const keyNode = firstChild(attrNode);
-      if (!keyNode) {
-        throw new NixEvalError('Let Attr: no key');
-      }
-      //console.log('thunkOfNodeType.Let: keyNode', keyNode);
-
-      const valueNode = nextSibling(keyNode);
-      if (!valueNode) {
-        throw new NixEvalError('Let Attr: no value');
-      }
-      //console.log('thunkOfNodeType.Let: valueNode', valueNode);
-
-      const key = state.source.slice(keyNode.from, keyNode.to);
-      //console.log('thunkOfNodeType.Let: key', key);
-
-      function getThunk(valueNodeCopy) {
-        // create local copy of valueNode
-        return () => {
-          return valueNodeCopy.type.thunk(
-            valueNodeCopy,
-            state, childEnv
-          );
-        }
-      }
-
-      Object.defineProperty(childEnv.data, key, {
-        get: getThunk(valueNode),
-        enumerable: true,
-        configurable: true,
-      });
-
-      childNode = nextChildNode;
-    }
-
-    else {
+    if (!nextChildNode) {
       // last childNode: similar to bodyNode in Lambda
       return callThunk(childNode, state, childEnv);
     }
+
+    const attrNode = childNode;
+
+    // copy paste from LetOld
+    const keyNode = firstChild(attrNode);
+    if (!keyNode) {
+      throw new NixEvalError('Let Attr: no key');
+    }
+    debugLet && printNode(keyNode, state, env, { label: 'keyNode' })
+
+    const valueNode = nextSibling(keyNode);
+    if (!valueNode) {
+      throw new NixEvalError('Let Attr: no value');
+    }
+    debugLet && printNode(valueNode, state, env, { label: 'valueNode' })
+
+    const key = state.source.slice(keyNode.from, keyNode.to);
+    debugLet && console.log('thunkOfNodeType.Let: key', key);
+
+    Object.defineProperty(childEnv.data, key, {
+      get: () => valueNode.type.thunk(valueNode, state, childEnv),
+      enumerable: true,
+      configurable: true,
+    });
+
+    childNode = nextChildNode;
   }
 };
 
