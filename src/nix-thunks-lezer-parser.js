@@ -750,22 +750,22 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
     return childEnv;
   }
 
-  while (true) {
+  while (attrNode) {
     //checkInfiniteLoop();
     debugSet && printNode(attrNode, state, env, { label: 'attrNode' });
 
-    const keyNode = firstChild(attrNode);
-    if (!keyNode) {
-      throw new NixEvalError('Set Attr: no key');
-    }
-    debugSet && printNode(keyNode, state, env, { label: 'keyNode' });
+    if (attrNode.type.name == 'Attr') {
 
-    const key = state.source.slice(keyNode.from, keyNode.to);
-    debugSet && console.log(`thunkOfNodeType.${node.type.name}: key`, key);
+      const keyNode = firstChild(attrNode);
+      if (!keyNode) {
+        throw new NixEvalError('Set Attr: no key');
+      }
+      debugSet && printNode(keyNode, state, env, { label: 'keyNode' });
 
-    const valueNode = nextSibling(keyNode);
+      const key = state.source.slice(keyNode.from, keyNode.to);
+      debugSet && console.log(`thunkOfNodeType.${node.type.name}: key`, key);
 
-    if (valueNode) {
+      const valueNode = nextSibling(keyNode);
       debugSet && printNode(valueNode, state, env, { label: 'valueNode' });
 
       const valueEnv = (node.type.name == 'Set'
@@ -786,29 +786,74 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
     }
 
     else if (attrNode.type.name == 'AttrInherit') {
-      /** @type {Env} */
-      const inheritSet = env.get(key);
-      if (inheritSet === undefined) {
-        throw new NixEvalError(`undefined variable '${key}'`)
-      }
-      for (const inheritKey in inheritSet.data) {
+      // loop inherit keys. zero or more
+      let inheritKeyNode = firstChild(attrNode);
+      while (inheritKeyNode) {
+        const inheritKey = nodeText(inheritKeyNode, state);
+        // greedy eval of unused value:
+        // nix-repl> (let a=1; in { inherit a z; }).a
+        // error: undefined variable 'z'
+        // greedy eval
+        const inheritValue = env.get(inheritKey);
+        if (inheritValue === undefined) {
+          throw new NixEvalError(`undefined variable '${inheritKey}'`)
+        }
+        const getInheritValue = () => inheritValue;
+        // lazy eval
+        //const getValue = () => env.get(inheritKey);
         Object.defineProperty(childEnv.data, inheritKey, {
-          // TODO better? copy the getter function
-          get: () => inheritSet.data[inheritKey],
+          get: getInheritValue,
           enumerable: true,
           configurable: true,
         });
+
+        inheritKeyNode = nextSibling(inheritKeyNode);
+      }
+    }
+
+    else if (attrNode.type.name == 'AttrInheritFrom') {
+      const inheritSetNode = firstChild(attrNode);
+      let inheritKeyNode = nextSibling(inheritSetNode);
+      if (!inheritKeyNode) {
+        // no inheritKeys -> ignore inheritSet type errors
+        // nix-repl> let a=1; in { inherit (a); }
+        // { }
+        attrNode = nextSibling(attrNode);
+        continue;
+      }
+      // 1 or more inheritKeys -> eval inheritSet
+      const inheritSetValue = callThunk(inheritSetNode, state, env);
+      if (!(inheritSetValue instanceof Env)) {
+        throw new NixEvalError(`error: value is ${nixTypeWithArticle(inheritSetValue)} while a set was expected`)
+      }
+      while (inheritKeyNode) {
+        const inheritKey = nodeText(inheritKeyNode, state);
+        // greedy eval of unused value:
+        // nix-repl> (let a=1; in { inherit a z; }).a
+        // error: undefined variable 'z'
+        // greedy eval
+        const inheritValue = inheritSetValue.data[inheritKey];
+        if (inheritValue === undefined) {
+          throw new NixEvalError(`attribute '${inheritKey}' missing`)
+        }
+        const getInheritValue = () => inheritValue;
+        // lazy eval
+        //const getValue = () => env.get(inheritKey);
+        Object.defineProperty(childEnv.data, inheritKey, {
+          get: getInheritValue,
+          enumerable: true,
+          configurable: true,
+        });
+
+        inheritKeyNode = nextSibling(inheritKeyNode);
       }
     }
 
     else {
-      // this should be not reachable
-      throw new NixEvalError('Set Attr: no value');
+      throw new NixEvalNotImplemented(`Set Attr: attrNode type ${attrNode.type.name}`);
     }
 
-    if (!(attrNode = nextSibling(attrNode))) {
-      break;
-    }
+    attrNode = nextSibling(attrNode);
   }
 
   return childEnv;
