@@ -492,12 +492,35 @@ thunkOfNodeType.List = (node, state, env) => {
 
   checkInfiniteLoop();
 
+  class LazyArrayThunk {
+    constructor(thunk) {
+      this.thunk = thunk;
+    }
+  }
+
+  const debugLazyArray = false
+
   // https://codetagteam.com/questions/any-way-to-define-getters-for-lazy-variables-in-javascript-arrays
   function LazyArray() {
     return new Proxy([], {
       get: (obj, prop) => {
-        //if (typeof obj[prop] === 'function') {
-        if (obj[prop] instanceof Function) {
+        // note: prop can be Symbol.iterator
+        debugLazyArray && console.log(`LazyArray.get`, prop, typeof(prop), )
+        // TODO benchmark. less conditions = faster?
+        /*
+        if (obj[prop] instanceof LazyArrayThunk) {
+          obj[prop] = obj[prop].thunk()
+        }
+        */
+        if (
+          obj[prop] instanceof Function &&
+          (
+            (typeof(prop) == 'string' && /^[0-9]+$/.test(prop)) ||
+            typeof(prop) == 'number' // not reachable?
+          )
+          // TODO benchmark
+          //(obj[prop].__isLazyArrayThunk == true)
+        ) {
           // replace the function with the result
           obj[prop] = obj[prop]()
         }
@@ -530,6 +553,14 @@ thunkOfNodeType.List = (node, state, env) => {
         //console.log(`thunkOfNodeType.List: call thunk of childNode`, childNode);
         return callThunk(childNodeCopy, state, env);
       };
+
+      /* TODO benchmark
+      const thunk = function () {
+        return callThunk(childNodeCopy, state, env);
+      }
+      thunk.__isLazyArrayThunk == true;
+      return thunk;
+      */
     }
     list[idx] = getThunk(childNode);
 
