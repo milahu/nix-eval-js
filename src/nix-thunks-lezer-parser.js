@@ -947,6 +947,51 @@ thunkOfNodeType.HasAttr = (node, state, env) => {
 
 
 
+const debugUpdate = false
+
+/** @return {LazyArray} */
+thunkOfNodeType.Update = (node, state, env) => {
+
+  // list concat
+
+  checkInfiniteLoop();
+
+  const [set1, set2] = get2Values(node, state, env, { caller: 'Update' })
+
+  debugUpdate && console.log(`thunkOfNodeType.Update: set1`, typeof(set1), set1);
+  debugUpdate && console.log(`thunkOfNodeType.Update: set2`, typeof(set2), set2);
+
+  if (!(set1 instanceof Env)) {
+    throw new NixEvalError(`value is ${nixTypeWithArticle(set1)} while a set was expected`)
+  }
+
+  if (!(set2 instanceof Env)) {
+    throw new NixEvalError(`value is ${nixTypeWithArticle(set2)} while a set was expected`)
+  }
+
+  if (Object.keys(set1.data).length == 0) {
+    return set2;
+  }
+
+  if (Object.keys(set2.data).length == 0) {
+    return set1;
+  }
+
+  for (const key in set2.data) {
+    // TypeError: Cannot set property a of #<Object> which has only a getter
+    //set1.data[key] = set2.data[key];
+    Object.defineProperty(set1.data, key, {
+      get: () => set2.data[key], // TODO better? copy the getter function
+      enumerable: true,
+      configurable: true,
+    });
+  }
+
+  return set1;
+};
+
+
+
 /** @return {any} */
 thunkOfNodeType.Var = (node, state, env) => {
   // input: a
