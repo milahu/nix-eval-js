@@ -123,10 +123,40 @@ ERROR EvalError attribute 'z' missing
 ==>
 ERROR EvalError undefined variable 'z'
 
+# set inherit: greedy eval of unused value
+"(let a=1; in { inherit a z; }).a"
+==>
+ERROR EvalError undefined variable 'z'
+
 # set inherit 2
 "let a=1; b=2; in { inherit a b; }"
 ==>
 {"a":1,"b":2}
+
+# set inherit: empty
+"{inherit;}"
+==>
+{}
+
+# set inherit from
+"let a={b=2;}; in { inherit (a) b; }"
+==>
+{"b":2}
+
+# set inherit from: empty
+"let a={}; in { inherit (a); }"
+==>
+{}
+
+# set inherit from: empty, ignore type error
+"let a=1; in { inherit (a); }"
+==>
+{}
+
+# set inherit from: type error
+"let a=1; in { inherit (a) b; }"
+==>
+ERROR EvalError error: value is an integer while a set was expected
 
 # let
 "let a=1; in a"
