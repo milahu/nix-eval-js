@@ -1,5 +1,387 @@
 # nix-eval-js/doc/todo
 
+## autocompletion
+
+https://codemirror.net/examples/autocompletion/#completing-from-syntax
+
+[demo/src/codemirror-lang-nix/src/index.js](../demo/src/codemirror-lang-nix/src/index.js)
+
+lookup: source location &rarr; node in syntax tree &rarr; env in eval state
+
+problem: one node can be visited many times in one eval
+
+&rarr; use the first or last visit?
+
+can we do both?
+
+first visit = better performance on re-eval
+
+last visit = final state = fixpoint https://en.wikipedia.org/wiki/Fixed_point_(mathematics)
+
+= "final, non-recursive representation" https://github.com/NixOS/nixpkgs/blob/master/lib/fixed-points.nix
+
+## fixpoint
+
+nix/docs/phd-thesis.pdf
+
+search:
+
+* infinite recursion
+* normal form
+
+pdf page 81
+
+<blockquote>
+
+Recursive attribute sets introduce
+the possibility of recursion, including non-termination:
+
+```nix
+rec { x = x; }.x
+```
+
+A let-expression, constructed using the let keyword, is syntactic sugar for a recursive
+attribute set that automatically selects the special attribute body from the set. Thus,
+
+```nix
+let { body = a ++ b; a = "foo"; b = "bar"; }
+```
+
+evaluates to "foobar".
+
+As we saw above, when defining an attribute set, attributes values can be inherited from
+the surrounding lexical scope or from other attribute sets. The expression
+
+```nix
+x: { inherit x; y = 123; }
+```
+
+defines a function that returns an attribute set with two attributes: x which is inherited from
+the function argument named x, and y which is declared normally. The inherit construct is
+just syntactic sugar. The example above could also be written as
+
+```nix
+x: { x = x; y = 123; }
+```
+
+Note that the right-hand side of the attribute x = x refers to the function argument x, not to
+the attribute x. Thus, x = x is not a recursive definition.
+Likewise, attributes can be inherited from other attribute sets:
+
+```nix
+rec {
+as1 = {x = 1; y = 2; z = 3;};
+as2 = {inherit (as1) x y; z = 4;};
+}
+```
+
+Here the set as2 copies attributes x and y from set as1. It desugars to
+
+```nix
+rec {
+as1 = {x = 1; y = 2; z = 3;};
+as2 = {x = as1.x; y = as1.y; z = 4;};
+}
+```
+
+However, the situation is a bit more complicated for rec attribute sets, whose attributes
+are mutually recursive, i.e., are in each other’s scope. The intended semantics of inherit is
+still the same: values are inherited from the surrounding scope. But simply desugaring is
+no longer enough. So if we desugar
+
+```nix
+x: rec { inherit x; y = 123; }
+```
+
+to
+
+```nix
+x: rec { x = x; y = 123; }
+```
+
+we have incorrectly created an **infinite recursion**: the attribute x now evaluates to itself,
+rather than the value of the function argument x. For this reason **rec is actually internally
+stored as two sets of attributes: the recursive attributes, and the non-recursive attributes.**
+The latter are simply the inherited attributes. We denote this internally used representation
+of rec sets as
+
+```
+rec {as1/as2}
+```
+
+where as1 and as2 are the recursive and non-recursive attributes,
+respectively.
+
+</blockquote>
+
+pdf page 84
+
+<blockquote>
+
+4.3.4. Evaluation rules
+
+The operational semantics of the language is specified using semantic rules of the form
+e1 7→ e2 that transform expression e1 into e2. Rules may only be applied to closed terms,
+i.e., terms that have no free variables. Thus it is not allowed to arbitrary apply rules to
+subterms.
+An expression e is in normal form if no rules are applicable. Not all normal forms are
+acceptable evaluation results. For example, no rule applies to the following expressions:
+
+```nix
+x
+123 x
+assert false; 123
+{x = 123;}.y
+({x}: x) {y = 123;}
+```
+
+The predicate good(e) defines whether an expression is a valid evaluation result. It is true
+if e is a basic or compound value or a function (lambda), and false otherwise. Since rules
+are only allowed to be applied to an expression at top level (i.e., not to subexpressions),
+a good normal form is in weak head normal form (WHNF) [133, Section 11.3.1]. Weak
+head normal form differs from the notion of head normal form in that right-hand sides of
+functions need not be normalised. A nice property of this style of evaluation is that there
+can be no name capture [10], which simplifies the evaluation machinery.
+
+An expression e1 is said to evaluate to e2, notation e1
+∗
+7→ e2, if there exists a sequence
+of zero or more applications of semantic rules to e1 that transform it into e2 such that
+good(e2) is true; i.e., the normal form must be good. In the implementation, if the normal
+form of e1 is not good, its evaluation triggers a runtime error (e.g., “undefined variable” or
+“assertion failed”).
+
+Not all expressions have a normal form. For instance, the expression
+
+```nix
+(rec {x = x;}).x
+```
+
+does not terminate. But if evaluation does terminate, there must be a single normal form.
+That is, evaluation is confluent [5]. The confluence property follows from the fact that at
+most one rule applies to any expression. The implementation detects some types of infinite
+recursion, as discussed below.
+
+</blockquote>
+
+pdf page 90
+
+<blockquote>
+
+Maximal sharing is extremely useful in the implementation of a Nix expression interpreter
+since it allows easy caching of evaluation results, which speeds up expression evaluation
+by removing unnecessary evaluation of identical terms. The interpreter maintains a
+hash lookup table cache : ATerm → ATerm that maps ATerms representing Nix expressions
+to their normal form.
+
+Figure 4.7 shows pseudo-code for the caching evaluation function
+eval, which “wraps” the evaluation rules defined in Section 4.3.4 in a caching layer. The
+function eval simply implements those evaluation rules. It is assumed that eval calls back
+into eval to evaluate subterms
+
+and that it aborts with an appropriate error message if e does not evaluate to a good normal
+form. Thus we obtain the desired caching. The special value ε denotes that no mapping
+exists in the cache for the expression. Note that thanks to maximal sharing, the lookup
+cache[e] is very cheap: it is a lookup of a pointer in a hash table
+
+The function eval also perform a trick known as blackholing [134, 110] that allows
+detection of certain simple kinds of infinite recursion. When we evaluate an expression e,
+we store in the cache a preliminary “fake” normal form blackhole. If, during the evaluation
+of e, we need to evaluate e again, the cache will contain blackhole as the normal form for
+e. Due to the determinism and purity of the language, this necessarily indicates an infinite
+loop, since if we start evaluating e again, we will eventually encounter it another time, and
+so on.
+
+Note that blackholing as implemented here differs from conventional blackholing, which
+overwrites a value being evaluated with a black hole. This allows discovery of selfreferential
+values, e.g., x = ... x ...;. But it does not detect infinite recursions like this:
+
+```nix
+(rec {f = x: f x;}).f 10
+```
+
+since every recursive call to f creates a new value of x, and so blackholing will not catch
+the infinite recursion. In contrast, our blackholing does detect it, since it is keyed on
+maximally shared ATerms that represent syntactically equal expressions. The example
+above is evaluated as follows:
+
+
+This final expression is equal to the first (which is blackholed at this time), and so an
+infinite recursion is signalled.
+
+The current evaluation cache never forgets the evaluation result of any term. This obviously
+does not scale very well, so one might want to clear or prune the cache eventually,
+possibly using a least-recently used (LRU) eviction scheme. However, the size of current
+Nix expressions (such as those produced during the evaluation of Nixpkgs) has not
+compelled me to implement cache pruning yet. It should also be noted that due to maximal
+sharing, cached values are stored quite efficiently.
+
+The expression caching scheme described here makes the Nix expression evaluator maximally
+lazy. Languages such as Haskell are non-strict, meaning that values such as function
+arguments or let-bindings are evaluated only when necessary. A stronger property is
+laziness, which means that these values are evaluated at most once. 
+
+Finally, maximal laziness means that syntactically identical terms are evaluated at most
+once.
+
+Maximal laziness simplifies the implementation of the Nix expression evaluator. 
+
+</blockquote>
+
+https://duckduckgo.com/?q=implementing+lazy+cached+evaluation+infinite+recursion+fixpoint
+
+https://nixos.org/guides/nix-pills/nixpkgs-overriding-packages.html
+
+```nix
+# fix: Take a function and evaluate it with its own returned value.
+let
+  fix = f: let x = f x; in x;
+in
+fix (self: { x = "abc"; x2 = self.x + "123"; })
+```
+
+> At first sight, it's an infinite loop. With lazy evaluation it isn't, because the call is done only when needed.
+
+http://r6.ca/blog/20140422T142911Z.html
+
+> Static scoping means that variables are statically bound; all variable references are resolved based on their scope at declaration time.
+
+> If we write `nixpkgs // { boost = boost149; }` then we only update the boost field of the nix package collection and none of the packages depending on boost will change. Instead we need to use the `config.packageOverrides` to change boost in such a way that all expressions depending on boost are also updated. Our goal is to understand the technique that packageOverrides and other similar overrides employ to achieve this sort of dynamic binding in a statically scoped language such as Nix.
+
+```nix
+let fix = f: let fixpoint = f fixpoint; in fixpoint; in
+   let a = fix (self: { x = "abc"; x2 = self.x + "123"; }); in
+   a
+```
+
+### what would nix do
+
+how does nix know
+
+* when there is nothing left to call
+* when a recursion has reached its fixpoint
+* when an expression is in "normal form"
+
+nix/src/libexpr/eval.cc
+
+```cc
+void ExprCall::eval(EvalState & state, Env & env, Value & v)
+{
+    Value vFun;
+    fun->eval(state, env, vFun);
+
+    Value * vArgs[args.size()];
+    for (size_t i = 0; i < args.size(); ++i)
+        vArgs[i] = args[i]->maybeThunk(state, env);
+
+    state.callFunction(vFun, args.size(), vArgs, v, pos);
+}
+```
+
+```cc
+void EvalState::callFunction(Value & fun, size_t nrArgs, Value * * args, Value & vRes, const PosIdx pos)
+{
+    auto trace = evalSettings.traceFunctionCalls
+        ? std::make_unique<FunctionCallTrace>(positions[pos])
+        : nullptr;
+
+    forceValue(fun, pos);
+
+    Value vCur(fun);
+
+    auto makeAppChain = [&]()
+    {
+        vRes = vCur;
+        for (size_t i = 0; i < nrArgs; ++i) {
+            auto fun2 = allocValue();
+            *fun2 = vRes;
+            vRes.mkPrimOpApp(fun2, args[i]);
+        }
+    };
+
+    Attr * functor;
+
+    while (nrArgs > 0) {
+
+        if (vCur.isLambda()) {
+
+            ExprLambda & lambda(*vCur.lambda.fun);
+
+            auto size =
+                (!lambda.arg ? 0 : 1) +
+                (lambda.hasFormals() ? lambda.formals->formals.size() : 0);
+            Env & env2(allocEnv(size));
+            env2.up = vCur.lambda.env;
+
+            Displacement displ = 0;
+
+            if (!lambda.hasFormals())
+                env2.values[displ++] = args[0];
+            else {
+                // ...
+            }
+
+            nrFunctionCalls++;
+            if (countCalls) incrFunctionCall(&lambda);
+
+            /* Evaluate the body. */
+            try {
+                // ...
+
+                lambda.body->eval(*this, env2, vCur);
+            } catch (Error & e) {
+                // ...
+                throw;
+            }
+
+            nrArgs--;
+            args += 1;
+        }
+
+        else if (vCur.isPrimOp()) {
+            // ...
+        }
+
+        else if (vCur.isPrimOpApp()) {
+            // ...
+        }
+
+        else if (vCur.type() == nAttrs && (functor = vCur.attrs->get(sFunctor))) {
+            // ...
+        }
+
+        else
+            throwTypeError(pos, "attempt to call something which is not a function but %1%", vCur);
+    }
+
+    vRes = vCur;
+}
+```
+
+```cc
+void ExprLambda::eval(EvalState & state, Env & env, Value & v)
+{
+    v.mkLambda(&env, this);
+}
+```
+
+nix/src/libexpr/value.hh
+
+```cc
+struct Value
+{
+    inline void mkLambda(Env * e, ExprLambda * f)
+    {
+        internalType = tLambda;
+        lambda.env = e;
+        lambda.fun = f;
+    }
+```
+
+## Nix Evaluation Performance
+
+https://nixos.wiki/wiki/Nix_Evaluation_Performance
+
 ## implement global functions and objects
 
 as reporeted by `nix repl` when hitting `Tab` key
