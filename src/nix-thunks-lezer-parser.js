@@ -1332,6 +1332,64 @@ thunkOfNodeType.Let = (node, state, env) => {
 
 
 
+/**
+ * LetOld
+ *
+ * @return {any}
+ */
+
+thunkOfNodeType.LetOld = (node, state, env) => {
+
+  // let { a=1; body=a; } == rec {a=1;body=a;}.body
+
+  const debugLetOld = false
+
+  checkInfiniteLoop();
+
+  const childEnv = new Env(env, {});
+
+  //console.log('thunkOfNodeType.LetOld: node', node);
+
+  let attrNode = firstChild(node);
+
+  while (attrNode) {
+
+    // copy paste from Set, RecSet
+    const keyNode = firstChild(attrNode);
+    if (!keyNode) {
+      throw new NixEvalError('LetOld Attr: no key');
+    }
+    debugLetOld && printNode(keyNode, state, env, { label: 'keyNode' })
+
+    const valueNode = nextSibling(keyNode);
+    if (!valueNode) {
+      throw new NixEvalError('LetOld Attr: no value');
+    }
+    debugLetOld && printNode(valueNode, state, env, { label: 'valueNode' })
+
+    const key = state.source.slice(keyNode.from, keyNode.to);
+    debugLetOld && console.log('thunkOfNodeType.LetOld: key', key);
+
+    Object.defineProperty(childEnv.data, key, {
+      get: () => valueNode.type.thunk(valueNode, state, childEnv),
+      enumerable: true,
+      configurable: true,
+    });
+
+    attrNode = nextSibling(attrNode);
+  }
+
+  if (!Object.hasOwn(childEnv.data, 'body')) {
+    throw new NixEvalError(`attribute 'body' missing`)
+  }
+
+  debugLetOld && console.log('thunkOfNodeType.LetOld: body', childEnv.data.body);
+
+  return childEnv.data.body;
+};
+
+
+
 /*
 
 TODO LibraryPath
