@@ -887,6 +887,7 @@ thunkOfNodeType.Lambda = (node, state, env) => {
 
   let formalsBindingName = null;
   const formalNameSet = new Set();
+  const formalDefaultNodeMap = {};
   let formalsRest = false;
 
   if (argumentNode.type.name == 'Identifier') {
@@ -904,11 +905,17 @@ thunkOfNodeType.Lambda = (node, state, env) => {
   let formalNode = firstChild(argumentNode);
   while (formalNode) {
     if (formalNode.type.name == 'Formal') {
-      const formalName = nodeText(formalNode, state);
+      const formalNameNode = firstChild(formalNode);
+      const formalName = nodeText(formalNameNode, state);
       if (formalNameSet.has(formalName)) {
         throw new NixEvalError(`duplicate formal function argument '${formalName}'`)
       }
       formalNameSet.add(formalName);
+      const formalDefaultNode = nextSibling(formalNameNode);
+      if (formalDefaultNode) {
+        // use expr as default value
+        formalDefaultNodeMap[formalName] = formalDefaultNode;
+      }
     }
     else if (formalNode.type.name == 'FormalsRest') {
       formalsRest = true;
@@ -943,13 +950,28 @@ thunkOfNodeType.Lambda = (node, state, env) => {
     // bind arguments
     const childEnv = new Env(env);
     for (const formalName of formalNameSet) {
-      if (!argumentEnv.has(formalName)) {
+      if (argumentEnv.has(formalName)) {
+        // TODO does this copy the value or the getter?
+        // do we need this?
+        // Object.defineProperty(childEnv.data, formalName, { get() { ... } })
+        childEnv.data[formalName] = argumentEnv.data[formalName];
+      }
+      else if (Object.hasOwn(formalDefaultNodeMap, formalName)) {
+        // use default value
+        //childEnv.data[formalName] = formalDefaultNodeMap[formalName];
+        const formalDefaultNode = formalDefaultNodeMap[formalName];
+        Object.defineProperty(childEnv.data, formalName, {
+          get() {
+            // TODO env or childEnv
+            return callThunk(formalDefaultNode, state, env);
+          },
+          enumerable: true,
+          configurable: true,
+        });
+      }
+      else {
         throw new NixEvalError(`function at (string)+${node.from} called without required argument '${formalName}'`)
       }
-      // TODO does this copy the value or the getter?
-      // do we need this?
-      // Object.defineProperty(childEnv.data, formalName, { get() { ... } })
-      childEnv.data[formalName] = argumentEnv.data[formalName];
     }
 
     if (formalsRest == false) {
