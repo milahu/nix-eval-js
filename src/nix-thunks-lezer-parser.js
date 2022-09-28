@@ -494,6 +494,23 @@ thunkOfNodeType.Or = (node, state, env) => {
   return (value1 || value2);
 };
 
+/** @return {boolean} */
+thunkOfNodeType.Imply = (node, state, env) => {
+  // Logical implication
+  // (a -> b) == (!a || b)
+  const [value1, value2] = get2Values(node, state, env, { caller: 'thunkOfNodeType.Imply' })
+  if (value1 !== true && value1 !== false) {
+    throw new NixEvalError(`value is ${nixTypeWithArticle(value1)} while a Boolean was expected`)
+  }
+  if (value1 === false) {
+    return true;
+  }
+  if (value2 !== true && value2 !== false) {
+    throw new NixEvalError(`value is ${nixTypeWithArticle(value2)} while a Boolean was expected`)
+  }
+  return value2;
+};
+
 
 
 /** @return {boolean} */
