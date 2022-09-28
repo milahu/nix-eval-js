@@ -1,5 +1,59 @@
 # nix-eval-js/doc/todo
 
+## implement global functions and objects
+
+as reporeted by `nix repl` when hitting `Tab` key
+
+### done
+
+* builtins.true
+* builtins.false
+* builtins.null
+
+### started
+
+* builtins.import
+
+### todo
+
+builtins = primop builtins + extra builtins
+
+primop builtins:
+
+```
+builtins.add
+builtins.addErrorContext
+builtins.all
+builtins.any
+...
+```
+
+[nix-builtins-primops.txt](nix-builtins-primops.txt)
+
+extra builtins:
+
+```
+...
+builtins.abort
+builtins.baseNameOf
+builtins.builtins
+builtins.derivation
+```
+
+[nix-builtins-extra.txt](nix-builtins-extra.txt)
+
+primops
+
+```
+__add
+__addErrorContext
+__all
+__any
+...
+```
+
+[nix-primops.txt](nix-primops.txt)
+
 ## avoid recursion
 
 implement tail call?
