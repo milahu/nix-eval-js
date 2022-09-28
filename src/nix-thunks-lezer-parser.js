@@ -301,6 +301,20 @@ function get2Values(node, state, env, options) {
 
 
 
+/** @type {function(SyntaxNode, State, Env, Record<string, any>): [boolean, boolean]} */
+function get2Bools(node, state, env, options) {
+  const [value1, value2] = get2Values(node, state, env, options)
+  if (value1 !== true && value1 !== false) {
+    throw new NixEvalError(`value is ${nixTypeWithArticle(value1)} while a Boolean was expected`)
+  }
+  if (value2 !== true && value2 !== false) {
+    throw new NixEvalError(`value is ${nixTypeWithArticle(value2)} while a Boolean was expected`)
+  }
+  return [value1, value2];
+}
+
+
+
 /*
 thunkOfNodeType.Add = (node, state, env) => {
   const [value1, value2] = get2Numbers(node, state, { caller: 'Add' });
@@ -464,6 +478,20 @@ thunkOfNodeType.Eq = (node, state, env) => {
   let [value1, value2] = get2Values(node, state, env, { caller: 'thunkOfNodeType.Eq' })
   // TODO? types
   return (value1 == value2);
+};
+
+
+
+/** @return {boolean} */
+thunkOfNodeType.And = (node, state, env) => {
+  const [value1, value2] = get2Bools(node, state, env, { caller: 'thunkOfNodeType.And' })
+  return (value1 && value2);
+};
+
+/** @return {boolean} */
+thunkOfNodeType.Or = (node, state, env) => {
+  const [value1, value2] = get2Bools(node, state, env, { caller: 'thunkOfNodeType.Or' })
+  return (value1 || value2);
 };
 
 
