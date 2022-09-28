@@ -8,10 +8,10 @@ import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
 //import { parser as LezerParserNix } from "../demo/src/codemirror-lang-nix/dist/index.js"
 
 import { thunkOfNodeType } from './nix-thunks-lezer-parser.js';
+import { NixPrimops } from './nix-primops-lezer-parser.js';
 import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from "./nix-errors.js"
 import { configure as getStringifyResult } from '../src/nix-eval-stringify/index.js'
 import { resetInfiniteLoopCounter, } from './infinite-loop-counter.js';
-
 
 
 // "export { ... } from '...'" is not working in vite
@@ -194,6 +194,15 @@ export class NixEval {
         return env
       })
     })
+    const builtinsEnv = evalEnv.data.builtins = new Env(evalEnv);
+
+    //builtinsEnv.data.typeOf = NixPrimops.__typeOf;
+    for (const primopKey in NixPrimops) {
+      // remove the "__" prefix
+      const primopName = primopKey.slice(2);
+      builtinsEnv.data[primopName] = NixPrimops[primopKey];
+    }
+
     const topNode = tree.topNode;
     return topNode.type.thunk(topNode, evalState, evalEnv);
   }
