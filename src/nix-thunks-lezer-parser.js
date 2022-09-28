@@ -1271,35 +1271,19 @@ thunkOfNodeType.Let = (node, state, env) => {
 
   // let a=1; in a == rec {a=1;}.a
 
-  // depends on Var
-  // TODO refactor with Set, RecSet
-
   const debugLet = false;
 
   checkInfiniteLoop();
 
   const childEnv = new Env(env, {});
 
-  //console.log('thunkOfNodeType.Let: node', node);
+  debugLet && printNode(node, state, env);
 
-  let childNode;
+  let attrNode = firstChild(node);
+  let nextNode = nextSibling(attrNode);
 
-  if (!(childNode = firstChild(node))) {
-    throw new NixEvalError('Let: no key')
-  }
-
-  while (true) {
-    //checkInfiniteLoop();
-    //console.log('thunkOfNodeType.Let: childNode', childNode);
-
-    let nextChildNode = nextSibling(childNode);
-
-    if (!nextChildNode) {
-      // last childNode: similar to bodyNode in Lambda
-      return callThunk(childNode, state, childEnv);
-    }
-
-    const attrNode = childNode;
+  // loop all but the last child node
+  while (nextNode) {
 
     // copy paste from LetOld
     const keyNode = firstChild(attrNode);
@@ -1323,8 +1307,12 @@ thunkOfNodeType.Let = (node, state, env) => {
       configurable: true,
     });
 
-    childNode = nextChildNode;
+    attrNode = nextNode;
+    nextNode = nextSibling(attrNode);
   }
+
+  // last child node
+  return callThunk(attrNode, state, childEnv);
 };
 
 
