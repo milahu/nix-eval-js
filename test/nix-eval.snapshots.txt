@@ -713,6 +713,11 @@ ERROR EvalError value is a string while a set was expected
 ==>
 ERROR SyntaxError unexpected invalid token
 
+# call lambda with formals: binding without default values https://nixos.wiki/wiki/Nix_Language_Quirks
+"(args@{a ? 1}: args) {}"
+==>
+{}
+
 # default arguments
 "let f = { a ? 1, b ? 2 }: a + b; in f {}"
 ==>
