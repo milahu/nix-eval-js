@@ -448,6 +448,36 @@ true
 ==>
 false
 
+# and
+"true && true"
+==>
+true
+
+# and
+"true && false"
+==>
+false
+
+# and: type error
+"1 && 2.0"
+==>
+ERROR EvalError value is an integer while a Boolean was expected
+
+# or
+"false || false"
+==>
+false
+
+# or
+"true || false"
+==>
+true
+
+# or: type error
+"1 || 2.0"
+==>
+ERROR EvalError value is an integer while a Boolean was expected
+
 # if
 "if (!true) then 1 else 2"
 ==>
