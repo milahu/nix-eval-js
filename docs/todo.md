@@ -1,5 +1,21 @@
 # nix-eval-js/doc/todo
 
+## generalize
+
+* cheerp: C++ to javascript
+  * could be useful for porting nix.cc to nix.js
+  * https://github.com/NixOS/nixpkgs/issues/193648
+  * backed by leaningtech.com
+* dart: compile to javascript or binary (x64 desktop, ARM mobile)
+  * https://dart.dev/
+  * nice tooling (hot reload)
+  * backed by google.com
+* cito: compile to javascript, C, C++, python, java
+  * https://github.com/pfusik/cito
+  * cito is not a general-purpose programming language. Instead, it is meant for implementing portable reusable libraries.
+* nim: compile to javascript, C, C++
+* reasonML: functional. compile to javascript or OCaml (OCaml compiles to binary)
+
 ## autocompletion
 
 https://codemirror.net/examples/autocompletion/#completing-from-syntax
