@@ -723,6 +723,44 @@ thunkOfNodeType.String = (node, state, env) => {
 
 
 
+// TODO remove indent
+/** @return {string} */
+thunkOfNodeType.IndentedString = (node, state, env) => {
+  // similar to list: zero or more childNodes
+
+  checkInfiniteLoop();
+
+  let childNode;
+
+  /** @type {string} */
+  let result = '';
+
+  if (!(childNode = firstChild(node))) {
+    // empty string
+    return result;
+  }
+
+  //console.log(`thunkOfNodeType.String: first childNode`, childNode);
+  let idx = 0;
+
+  // TODO remove indent
+
+  while (true) {
+    //checkInfiniteLoop();
+    const stringPart = callThunk(childNode, state, env);
+    result += stringPart;
+    if (!(childNode = nextSibling(childNode))) {
+      break;
+    }
+    //console.log(`thunkOfNodeType.String: next childNode`, childNode);
+    idx++;
+  }
+
+  return result;
+};
+
+
+
 /** @return {string} */
 thunkOfNodeType.StringInterpolation = (node, state, env) => {
 
@@ -746,7 +784,17 @@ thunkOfNodeType.StringInterpolation = (node, state, env) => {
 
 
 /** @return {string} */
+thunkOfNodeType.IndentedStringInterpolation = thunkOfNodeType.StringInterpolation;
+
+
+
+/** @return {string} */
 thunkOfNodeType.StringContent = thunkOfNodeType.Identifier;
+
+
+
+/** @return {string} */
+thunkOfNodeType.IndentedStringContent = thunkOfNodeType.StringContent;
 
 
 
