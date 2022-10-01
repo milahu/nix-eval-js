@@ -73,10 +73,24 @@ export class Env {
   /** @type {Record<string, any>} */
   data = {}
   parent = null // aka "outer env"
-  constructor(parent = null, data = {}) {
+  node = null
+  constructor(
+    /** @type {Env} */
+    parent = null,
+    /** @type {SyntaxNode} */
+    node = null,
+  ) {
     if (parent) this.parent = parent
     this.depth = parent ? (parent.depth + 1) : 0
-    if (data) this.data = data
+    if (node) this.node = node
+    if (node) {
+      //console.log(`Env: node`, node)
+      //console.log(`Env: node.constructor.name`, node.constructor.name)
+      if (node.constructor.name != 'BufferNode') {
+        throw new Error(`expected node type BufferNode, actual node type ${node.constructor.name}`)
+
+      }
+    }
   }
   /** @type {function(): string} */
   toString() {
@@ -169,7 +183,8 @@ export class NixEval {
     const evalState = new State({
       source,
     })
-    const evalEnv = new Env(null, {
+    const evalEnv = new Env();
+    evalEnv.data = {
       // import is just a global function, which can be shadowed
       // nix-repl> let import = x: "shadow"; in import 1
       // "shadow"
@@ -193,7 +208,7 @@ export class NixEval {
         */
         return env
       })
-    })
+    }
     const builtinsEnv = evalEnv.data.builtins = new Env(evalEnv);
 
     //builtinsEnv.data.typeOf = NixPrimops.__typeOf;

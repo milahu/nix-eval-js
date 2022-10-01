@@ -182,9 +182,10 @@ export default function App() {
         source,
       })
 
-      const evalEnv = new NixEval.Env(null, {
+      const evalEnv = new NixEval.Env();
+      evalEnv.data = {
         test: 'hello world',
-      })
+      };
 
       const topNode = editorState.tree.topNode;
 
