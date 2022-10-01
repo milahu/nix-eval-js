@@ -826,7 +826,7 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
 
   checkInfiniteLoop();
 
-  const childEnv = new Env(env, node);
+  const childEnv = env.newChild(node);
 
   debugSet && printNode(node, state, env, { label: 'node' });
 
@@ -1149,7 +1149,7 @@ thunkOfNodeType.With = (node, state, env) => {
     return callThunk(exprNode, state, env);
   }
 
-  const childEnv = new Env(env, node);
+  const childEnv = env.newChild(node);
   childEnv.data = setValue.data;
   return callThunk(exprNode, state, childEnv);
 };
@@ -1209,7 +1209,7 @@ thunkOfNodeType.Lambda = (node, state, env) => {
     const argumentName = nodeText(argumentNode, state);
     /** @type {function(any): any} */
     const lambda = function lambda(argumentValue) {
-      const childEnv = new Env(env, node);
+      const childEnv = env.newChild(node);
       childEnv.data[argumentName] = argumentValue;
       // eval function body
       return callThunk(bodyNode, state, childEnv);
@@ -1287,7 +1287,7 @@ thunkOfNodeType.Lambda = (node, state, env) => {
     }
 
     // bind arguments
-    const childEnv = new Env(env, node);
+    const childEnv = env.newChild(node);
     for (const formalName of formalNameSet) {
       if (argumentEnv.has(formalName)) {
         // TODO does this copy the value or the getter?
@@ -1326,7 +1326,7 @@ thunkOfNodeType.Lambda = (node, state, env) => {
       // add one more env
       debugFormals && console.log(`Lambda: formalsBindingName ${formalsBindingName}`)
       // FIXME 
-      const childChildEnv = new Env(childEnv, node);
+      const childChildEnv = childEnv.newChild(node);
       //childChildEnv.data[formalsBindingName] = childEnv; // wrong
       childChildEnv.data[formalsBindingName] = argumentEnv;
       // eval function body
@@ -1365,7 +1365,7 @@ thunkOfNodeType.Let = (node, state, env) => {
 
   checkInfiniteLoop();
 
-  const childEnv = new Env(env, node);
+  const childEnv = env.newChild(node);
 
   debugLet && printNode(node, state, env);
 
@@ -1421,7 +1421,7 @@ thunkOfNodeType.LetOld = (node, state, env) => {
 
   checkInfiniteLoop();
 
-  const childEnv = new Env(env, node);
+  const childEnv = env.newChild(node);
 
   //console.log('thunkOfNodeType.LetOld: node', node);
 

@@ -73,6 +73,8 @@ export class Env {
   /** @type {Record<string, any>} */
   data = {}
   parent = null // aka "outer env"
+  /** @type {Env[]} */
+  children = []
   node = null
   constructor(
     /** @type {Env} */
@@ -91,6 +93,14 @@ export class Env {
 
       }
     }
+  }
+  newChild(
+    /** @type {SyntaxNode} */
+    node = null,
+  ) {
+    const env = new this.constructor(this, node);
+    this.children.push(env);
+    return env;
   }
   /** @type {function(): string} */
   toString() {
@@ -192,7 +202,7 @@ export class NixEval {
         //console.log(`NixEval.evalTree: nix called import:`, path, args);
         // TODO what is the parent env? evalEnv?
         // TODO actually load the nix file from path
-        const env = new Env(evalEnv)
+        const env = evalEnv.newChild()
         if (path == '/var/empty/nix-eval.test.nix') {
           env.data.test = 'hello world'
         }
@@ -209,7 +219,7 @@ export class NixEval {
         return env
       })
     }
-    const builtinsEnv = evalEnv.data.builtins = new Env(evalEnv);
+    const builtinsEnv = evalEnv.data.builtins = evalEnv.newChild();
 
     //builtinsEnv.data.typeOf = NixPrimops.__typeOf;
     for (const primopKey in NixPrimops) {
