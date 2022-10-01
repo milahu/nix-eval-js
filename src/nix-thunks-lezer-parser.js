@@ -724,6 +724,28 @@ thunkOfNodeType.String = (node, state, env) => {
 
 
 /** @return {string} */
+thunkOfNodeType.StringInterpolation = (node, state, env) => {
+
+  checkInfiniteLoop();
+
+  let childNode = firstChild(node);
+
+  if (!childNode) {
+    return '';
+  }
+
+  const childValue = callThunk(childNode, state, env);
+
+  if (typeof(childValue) != 'string') {
+    throw new NixEvalError(`cannot coerce ${nixTypeWithArticle(childValue)} to a string`)
+  }
+
+  return childValue;
+};
+
+
+
+/** @return {string} */
 thunkOfNodeType.StringContent = thunkOfNodeType.Identifier;
 
 
