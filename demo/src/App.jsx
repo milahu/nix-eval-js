@@ -17,6 +17,8 @@ import { TreeViewCodeMirror } from './treeview.jsx';
 
 import * as NixEval from "../../src/nix-eval.js";
 
+import { formatErrorContext } from '../../src/lezer-parser-nix/src/format-error-context.js'
+
 // https://codemirror.net/examples/autocompletion/#completing-from-syntax
 import {syntaxTree} from "@codemirror/language"
 
@@ -227,6 +229,14 @@ export default function App() {
     catch (error) {
       if (error instanceof NixEval.NixSyntaxError || error instanceof NixEval.NixEvalError) {
         console.warn(error);
+
+        if (error instanceof NixEval.NixSyntaxError) {
+          // pretty syntax error
+          const pos = parseInt(error.message.match(/error at position ([0-9]+)/)[1]);
+          const contextLines = 5;
+          console.log(formatErrorContext(evalState.source, pos, contextLines))
+        }
+
         evalError = (
           <div class="eval-error">
             <span color="red">{error.name}</span> {error.message}
