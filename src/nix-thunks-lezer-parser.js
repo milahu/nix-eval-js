@@ -64,7 +64,7 @@ function skipComments(node) {
 }
 
 /** @type {function(SyntaxNode): SyntaxNode} */
-function firstChild(node) {
+export function firstChild(node) {
   if (!(node = node.firstChild)) {
     //console.log(`firstChild: node.firstChild is empty`);
     return null;
@@ -77,7 +77,7 @@ function firstChild(node) {
 }
 
 /** @type {function(SyntaxNode): SyntaxNode} */
-function nextSibling(node) {
+export function nextSibling(node) {
   if (!(node = node.nextSibling)) {
     //console.log(`nextSibling: node.nextSibling is empty`);
     return null;
@@ -90,14 +90,14 @@ function nextSibling(node) {
 }
 
 /** @type {function(SyntaxNode, State): string} */
-function nodeText(node, state) {
+export function nodeText(node, state) {
   // source = full source code of the Nix file
   // text = source code of this node
   return state.source.slice(node.from, node.to);
 }
 
 /** @type {function(SyntaxNode, State, Env): any} */
-function callThunk(node, state, env) {
+export function callThunk(node, state, env) {
   if (!node.type.thunk) {
     throw new NixEvalNotImplemented(`thunk is undefined for type ${node.type.name}`);
   }
