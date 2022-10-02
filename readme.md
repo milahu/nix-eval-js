@@ -8,6 +8,14 @@ early draft
 
 for a list of implemented features, see [test/nix-eval.snapshots.txt](test/nix-eval.snapshots.txt)
 
+### autocompletion
+
+a very simple version of autocompletion is working
+
+this is based on the last valid eval state
+
+see the demo
+
 ## demo
 
 [nix-eval-js demo](https://milahu.github.io/nix-eval-js/demo/dist/)
