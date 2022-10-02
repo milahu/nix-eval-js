@@ -7,6 +7,7 @@ specifiers:
   '@codemirror/lint': ^6.0.0
   '@codemirror/search': ^6.2.0
   '@codemirror/state': ^6.1.2
+  '@codemirror/theme-one-dark': ^6.1.0
   '@codemirror/view': ^6.2.4
   '@lezer/highlight': ^1.0.0
   '@solid-codemirror/core': ^1.0.1
@@ -29,6 +30,7 @@ devDependencies:
   '@codemirror/lint': 6.0.0
   '@codemirror/search': 6.2.0
   '@codemirror/state': 6.1.2
+  '@codemirror/theme-one-dark': 6.1.0
   '@codemirror/view': 6.2.5
   '@lezer/highlight': 1.1.1
   '@solid-codemirror/core': 1.0.1_qbbmz4fyx7afb2c5bzex4vci4y
@@ -408,6 +410,15 @@ packages:
     resolution: {integrity: sha512-Mxff85Hp5va+zuj+H748KbubXjrinX/k28lj43H14T2D0+4kuvEFIEIO7hCEcvBT8ubZyIelt9yGOjj2MWOEQA==}
     dev: true
 
+  /@codemirror/theme-one-dark/6.1.0:
+    resolution: {integrity: sha512-AiTHtFRu8+vWT9wWUWDM+cog6ZwgivJogB1Tm/g40NIpLwph7AnmxrSzWfvJN5fBVufsuwBxecQCNmdcR5D7Aw==}
+    dependencies:
+      '@codemirror/language': 6.2.1
+      '@codemirror/state': 6.1.2
+      '@codemirror/view': 6.2.5
+      '@lezer/highlight': 1.1.1
+    dev: true
+
   /@codemirror/view/6.2.5:
     resolution: {integrity: sha512-4kVS3RZi3nkPNfG2X/7+2L8IhoJv6dJ9yJz4KUlw4rwxI8OmVCKJzC/jnJqp+bVNOml+oA3gSF1kX2VvOiI72Q==}
     dependencies:
@@ -492,6 +503,9 @@ packages:
     resolution: {integrity: sha512-4pbcU4J/nS+zuHk+c+OL3WtmEQhqxlZ9uqfjQMQDOHOPld7PsCd8k5LWs8h5wjwJN7MgnAn768F2sDxEP4eNFQ==}
     peerDependencies:
       rollup: ^1.20.0 || ^2.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
     dependencies:
       '@rollup/pluginutils': 3.1.0
       estree-walker: 2.0.2
@@ -503,6 +517,9 @@ packages:
     engines: {node: '>= 8.0.0'}
     peerDependencies:
       rollup: ^1.20.0||^2.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
     dependencies:
       '@types/estree': 0.0.39
       estree-walker: 1.0.1
