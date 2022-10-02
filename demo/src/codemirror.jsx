@@ -119,7 +119,7 @@ export function CodeMirror(props) {
       /**/
       syntaxHighlighting: syntaxHighlighting(defaultHighlightStyle, {fallback: true}),
 
-      /** /
+      /**/
       lineNumbers: lineNumbers(),
       /** /
       highlightActiveLineGutter: highlightActiveLineGutter(),
