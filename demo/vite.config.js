@@ -42,11 +42,36 @@ export default defineConfig({
       }
     },
   },
+  esbuild: {
+    // keep names of functions an classes
+    // dont rename class BufferNode to class BufferNode$1
+    // https://github.com/evanw/esbuild/issues/510#event-3983228566
+    // https://github.com/vitejs/vite/issues/7916
+    // see src/nix-eval.js
+    // no effect
+    keepNames: true,
+  },
   worker: {
     rollupOptions: {
       output: {
         ...outputDefaults,
       }
     },
+  },
+  resolve: {
+    // https://vitejs.dev/config/shared-options.html#resolve-dedupe
+    // If you have duplicated copies of the same dependency in your app
+    // (likely due to hoisting or linked packages in monorepos),
+    // use this option to force Vite to always resolve listed dependencies
+    // to the same copy (from project root).
+    dedupe: [
+      // fix: Error: Unrecognized extension value in extension set ([object Object]).
+      // This sometimes happens because multiple instances of @codemirror/state are loaded,
+      // breaking instanceof checks.
+      //'@codemirror/state',
+      // this breaks syntax highlighting 0__o
+      // -> back to
+      // rm -rf src/codemirror-lang-nix/node_modules/
+    ],
   },
 });
