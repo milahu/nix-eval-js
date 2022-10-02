@@ -792,3 +792,13 @@ ERROR EvalError getting status of '/var/empty/does-not-exist.nix': No such file 
 "let fix = f: let x = f x; in x; in fix (self: { x = ''abc''; x2 = self.x + ''123''; })"
 ==>
 {"x":"abc","x2":"abc123"}
+
+# string
+"\"a\""
+==>
+"a"
+
+# string interpolation
+"let b = \"b\"; in \"a${b}\""
+==>
+"ab"
