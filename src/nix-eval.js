@@ -101,7 +101,21 @@ export class Env {
     if (node) {
       //console.log(`Env: node`, node)
       //console.log(`Env: node.constructor.name`, node.constructor.name)
-      if (node.constructor.name != 'BufferNode') {
+      // this breaks in production build
+      // Error expected node type BufferNode, actual node type BufferNode$1
+      //if (node.constructor.name != 'BufferNode') {
+      // no. BufferNode is not exported in node_modules/@lezer/common/dist/index.js
+      // TODO feature request: export BufferNode (etc) from @lezer/common for instanceof checks
+      //if (!(node instanceof BufferNode)) {
+      // no. typeof(node) == 'object'
+      //if (typeof(node) != 'BufferNode') {
+      if (
+        node.constructor.name != 'BufferNode'
+        // quickfix for vite production build
+        // TODO disable mangling of class names in esbuild?
+        // see vite.config.js
+        && node.constructor.name != 'BufferNode$1'
+      ) {
         throw new Error(`expected node type BufferNode, actual node type ${node.constructor.name}`)
 
       }
