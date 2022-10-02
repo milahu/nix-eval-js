@@ -12,14 +12,14 @@ import { createCodeMirror } from "./createCodeMirror.js";
 
 // https://github.com/codemirror/basic-setup
 
-/*
+/**/
 import {
   EditorView,
   keymap, highlightSpecialChars, drawSelection, highlightActiveLine, dropCursor,
   rectangularSelection, crosshairCursor, lineNumbers, highlightActiveLineGutter
 } from "@codemirror/view"
 //} from "./@codemirror/view"
-*/
+/**/
 
 // FIXME Uncaught Error: Unrecognized extension value in extension set ([object Object]).
 // This sometimes happens because multiple instances of @codemirror/state are loaded, breaking instanceof checks.
@@ -119,16 +119,16 @@ export function CodeMirror(props) {
 
       syntaxHighlighting: syntaxHighlighting(defaultHighlightStyle, {fallback: true}),
 
-      /*
+      /**/
       lineNumbers: lineNumbers(),
-      /** /
+      /**/
       highlightActiveLineGutter: highlightActiveLineGutter(),
       highlightSpecialChars: highlightSpecialChars(),
       history: history(),
       foldGutter: foldGutter(), // FIXME Uncaught Error: Unrecognized extension value in extension set ([object Object]). This sometimes happens because multiple instances of @codemirror/state are loaded, breaking instanceof checks.
       drawSelection: drawSelection(),
 
-      /** /
+      /**/
       dropCursor: dropCursor(),
       allowMultipleSelections: EditorState.allowMultipleSelections.of(true),
       indentOnInput: indentOnInput(),
@@ -139,14 +139,14 @@ export function CodeMirror(props) {
 
       // FIXME TypeError: Cannot read properties of null (reading 'addEventListener')
       // https://github.com/codemirror/dev/issues/945
-      /** /
+      /**/
       autocompletion: autocompletion(), // -> tooltipPlugin
 
       rectangularSelection: rectangularSelection(),
       crosshairCursor: crosshairCursor(),
       highlightActiveLine: highlightActiveLine(),
       highlightSelectionMatches: highlightSelectionMatches(),
-      /** /
+      /**/
 
       keymap: keymap.of([
         ...closeBracketsKeymap,
@@ -159,8 +159,12 @@ export function CodeMirror(props) {
       ]),
       /**/
 
-      codemirrorLangNix: codemirrorLangNix(),
-
+      codemirrorLangNix: codemirrorLangNix({
+        data: {
+          //autocomplete: completeFromGlobalScope,
+          autocomplete: props.onAutoComplete,
+        }
+      }),
       // https://github.com/sachinraja/rodemirror/blob/1e8a52f9d5c78859441d11a80211fc6f7538deb7/src/index.tsx#L36
       // FIXME not called
       /*
@@ -169,6 +173,19 @@ export function CodeMirror(props) {
       }),
       */
       // -> codeMirror.on('change', (update) => { ... })
+      // -> use dispatch in createCodeMirror
+      // https://discuss.codemirror.net/t/codemirror-6-proper-way-to-listen-for-changes/2395/10
+
+      // same as dispatch
+      /*
+      onEditorViewUpdate: EditorView.updateListener.of((viewUpdate) => {
+        //console.log(`onEditorViewUpdate`, Date.now())
+        if (viewUpdate.docChanged) {
+          // Document changed
+          console.log(`onEditorViewUpdate docChanged`, Date.now())
+        }
+      }),
+      */
 
       //javascript: javascript(),
       /**/
@@ -217,21 +234,28 @@ export function CodeMirror(props) {
   return (
     <div>
       <div ref={ref} />
-      {/* Buttons to show/hide line numbers */}
-      {/* FIXME this is broken since...? https://github.com/codemirror/dev/issues/945
-      // -> wrong fix? * /}
-      <div>
-        <button onClick={() => codeMirrorExtensions.lineNumbers.reconfigure([])}>
-          Hide line numbers
-        </button>
-        <button onClick={(
-          () => codeMirrorExtensions.lineNumbers.reconfigure(
-            codeMirrorExtensions.lineNumbers.extension
-          )
-        )}>
-          Show line numbers
-        </button>
-      </div>
+      <Switch>
+        <Match when={false}>
+          <div>
+            {
+              // Buttons to show/hide line numbers
+              // FIXME this is broken since...? https://github.com/codemirror/dev/issues/945
+              // -> wrong fix?
+              // working now. ok
+            }
+            <button onClick={() => codeMirrorExtensions.lineNumbers.reconfigure([])}>
+              Hide line numbers
+            </button>
+            <button onClick={(
+              () => codeMirrorExtensions.lineNumbers.reconfigure(
+                codeMirrorExtensions.lineNumbers.extension
+              )
+            )}>
+              Show line numbers
+            </button>
+          </div>
+        </Match>
+      </Switch>
       {/**/}
     </div>
   );

@@ -16,6 +16,12 @@ export function createCodeMirror(props, ref) {
         // FIXME parser is not ready
         props.onEditorState?.(state);
 
+        // workaround for "dispatch is called FOUR times on every change"
+        // no
+        //state.__lastTransactionTime = 0;
+
+        const debugDispatch = false
+
         // Construct a new EditorView instance
         view = new EditorView({
             state,
@@ -42,6 +48,31 @@ export function createCodeMirror(props, ref) {
                 if (!tr.docChanged) {
                     return;
                 }
+
+                // FIXME dispatch is called FOUR times on every change
+                console.log(`createCodeMirror.dispatch`, Date.now())
+
+                /* no
+                if (tr.__seen) {
+                    return;
+                }
+                tr.__seen = true;
+                */
+
+                /* no
+                const sinceLastTransaction = Date.now() - state.__lastTransactionTime;
+                console.log(`createCodeMirror.dispatch: lastTransactionTime`, state.__lastTransactionTime);
+                console.log(`createCodeMirror.dispatch: sinceLastTransaction`, sinceLastTransaction);
+
+                if (sinceLastTransaction < 1000) return;
+
+                state.__lastTransactionTime = Date.now();
+                */
+
+                // blame codemirror plugins?
+
+                debugDispatch && console.log(`createCodeMirror.dispatch: tr`, tr);
+                //console.log(`createCodeMirror.dispatch: tr.changes`, tr.changes);
                 if (props.onEditorStateChange) {
                     const newEditorState = tr.state; // call: get state
                     props.onEditorStateChange(newEditorState);
