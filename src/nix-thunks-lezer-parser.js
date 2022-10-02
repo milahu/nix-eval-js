@@ -20,7 +20,7 @@ import { Env, getStringifyResult } from './nix-eval.js';
 const debugAllThunks = false
 
 // Let Lambda Call var
-const debugCallStack = true
+const debugCallStack = false
 
 
 
@@ -390,7 +390,7 @@ thunkOfNodeType.Call = (node, state, env) => {
   //debugCall && console.log(`thunkOfNodeType.Call: state.stack:\n${state.stack}`)
   debugCall && console.log(`thunkOfNodeType.Call: stack size: ${state.stack.stack.length}`);
   debugVar && console.log(`Call: stack`, new Error().stack);
-  if (state.stack.stack.length > 5) {
+  if (debugCall && state.stack.stack.length > 5) {
     throw new Error('stack size')
   }
 
@@ -1156,7 +1156,7 @@ thunkOfNodeType.With = (node, state, env) => {
 
 
 
-const debugVar = debugAllThunks || true
+const debugVar = debugAllThunks || false
 
 /** @return {any} */
 thunkOfNodeType.Var = (node, state, env) => {
@@ -1167,7 +1167,7 @@ thunkOfNodeType.Var = (node, state, env) => {
   //     Identifier: a
   checkInfiniteLoop();
   debugVar && printNode(node, state, env);
-  debugVar && console.log(`Var: stack`, new Error().stack);
+  //debugVar && console.log(`Var: stack`, new Error().stack);
   const keyNode = firstChild(node);
   if (!keyNode) {
     throw new NixEvalError('Var: no keyNode')
