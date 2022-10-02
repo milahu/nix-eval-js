@@ -94,9 +94,8 @@ export function CodeMirror(props) {
         //newTree.topNode.firstChild // ConcatStrings: 1+1
       },
       */
-      //value: props.value,
+      // TODO called too often?
       value: props.value,
-      //value: (() => props.value)(),
     }, () => ref);
 
     // listen for changes in props.value
@@ -117,31 +116,35 @@ export function CodeMirror(props) {
 
     const basicSetupSolid = {
 
+      /**/
       syntaxHighlighting: syntaxHighlighting(defaultHighlightStyle, {fallback: true}),
 
-      /**/
+      /** /
       lineNumbers: lineNumbers(),
-      /**/
+      /** /
       highlightActiveLineGutter: highlightActiveLineGutter(),
       highlightSpecialChars: highlightSpecialChars(),
+      /**/
       history: history(),
+      /** /
       foldGutter: foldGutter(), // FIXME Uncaught Error: Unrecognized extension value in extension set ([object Object]). This sometimes happens because multiple instances of @codemirror/state are loaded, breaking instanceof checks.
       drawSelection: drawSelection(),
 
-      /**/
+      /** /
       dropCursor: dropCursor(),
       allowMultipleSelections: EditorState.allowMultipleSelections.of(true),
       indentOnInput: indentOnInput(),
       /**/
       bracketMatching: bracketMatching(), // FIXME Uncaught Error: Unrecognized extension value in extension set ([object Object]). This sometimes happens because multiple instances of @codemirror/state are loaded, breaking instanceof checks.
       closeBrackets: closeBrackets(),
-      /**/
+      /** /
 
       // FIXME TypeError: Cannot read properties of null (reading 'addEventListener')
       // https://github.com/codemirror/dev/issues/945
       /**/
       autocompletion: autocompletion(), // -> tooltipPlugin
 
+      /** /
       rectangularSelection: rectangularSelection(),
       crosshairCursor: crosshairCursor(),
       highlightActiveLine: highlightActiveLine(),
