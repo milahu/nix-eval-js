@@ -29,8 +29,8 @@ import { configure as getStringifyEvalResult } from '../../src/nix-eval-stringif
 
 
 const stringifyEvalResult = getStringifyEvalResult({
-  maximumDepth: 2,
-  maximumBreadth: 10,
+  maximumDepth: 10,
+  maximumBreadth: 100,
   indent: "  ",
 })
 
