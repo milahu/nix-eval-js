@@ -65,6 +65,7 @@ function skipComments(node) {
 
 /** @type {function(SyntaxNode): SyntaxNode} */
 export function firstChild(node) {
+  if (!node) return null;
   if (!(node = node.firstChild)) {
     //console.log(`firstChild: node.firstChild is empty`);
     return null;
@@ -78,6 +79,7 @@ export function firstChild(node) {
 
 /** @type {function(SyntaxNode): SyntaxNode} */
 export function nextSibling(node) {
+  if (!node) return null;
   if (!(node = node.nextSibling)) {
     //console.log(`nextSibling: node.nextSibling is empty`);
     return null;
