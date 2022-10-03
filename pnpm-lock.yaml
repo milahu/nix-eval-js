@@ -5,9 +5,11 @@ specifiers:
   '@lezer/lr': ^1.2.3
   ava: ^4.3.3
   bipbip: github:milahu/bipbip
+  compare-versions: ^5.0.1
 
 dependencies:
   '@lezer/lr': 1.2.3
+  compare-versions: 5.0.1
 
 devDependencies:
   '@lezer/common': 1.0.1
@@ -346,6 +348,10 @@ packages:
   /common-path-prefix/3.0.0:
     resolution: {integrity: sha512-QE33hToZseCH3jS0qN96O/bSh3kaw/h+Tq7ngyY9eWDUnTlTNUyqfqvCXioLe5Na5jFsL78ra/wuBU4iuEgd4w==}
     dev: true
+
+  /compare-versions/5.0.1:
+    resolution: {integrity: sha512-v8Au3l0b+Nwkp4G142JcgJFh1/TUhdxut7wzD1Nq1dyp5oa3tXaqb03EXOAB6jS4gMlalkjAUPZBMiAfKUixHQ==}
+    dev: false
 
   /concat-map/0.0.1:
     resolution: {integrity: sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=}

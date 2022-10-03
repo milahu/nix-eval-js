@@ -1,6 +1,7 @@
 //import { printNode } from './nix-thunks-lezer-parser.js'
 
 import process from 'node:process'
+import { compareVersions as compareVersionsJS } from 'compare-versions'
 
 export function functionArgs(lambda) {
   //console.log("builtins.functionArgs:"); console.dir(lambda)
@@ -29,4 +30,12 @@ export function intersectAttrs(set1) {
 export function getEnv(key) {
   //console.log("builtins.getEnv:"); console.dir(key)
   return process.env[key]
+}
+
+// TODO what would nix.cc do?
+export function compareVersions(version1) {
+  return function compareVersions2(version2) {
+    // BigInt: float to int
+    return BigInt(compareVersionsJS(version1, version2))
+  }
 }

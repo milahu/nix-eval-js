@@ -847,3 +847,18 @@ ERROR EvalError getting status of '/var/empty/does-not-exist.nix': No such file 
 "builtins.getEnv \"PAGER\""
 ==>
 "less"
+
+#
+"builtins.compareVersions \"1\" \"2\""
+==>
+-1
+
+#
+"builtins.compareVersions \"1\" \"1\""
+==>
+0
+
+#
+"builtins.compareVersions \"2\" \"1\""
+==>
+1
