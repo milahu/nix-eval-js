@@ -842,3 +842,8 @@ ERROR EvalError getting status of '/var/empty/does-not-exist.nix': No such file 
 "builtins.intersectAttrs {a=1;} {a=2;}"
 ==>
 {"a":2}
+
+#
+"builtins.getEnv \"PAGER\""
+==>
+"less"

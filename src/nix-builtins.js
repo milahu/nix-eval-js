@@ -1,5 +1,7 @@
 //import { printNode } from './nix-thunks-lezer-parser.js'
 
+import process from 'node:process'
+
 export function functionArgs(lambda) {
   //console.log("builtins.functionArgs:"); console.dir(lambda)
   return lambda.formalHasDefault || {};
@@ -22,4 +24,9 @@ export function intersectAttrs(set1) {
     }
     return resultEnv
   }
+}
+
+export function getEnv(key) {
+  //console.log("builtins.getEnv:"); console.dir(key)
+  return process.env[key]
 }
