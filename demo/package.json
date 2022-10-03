@@ -5,6 +5,7 @@
   "scripts": {
     "start": "vite",
     "dev": "vite --clearScreen false",
+    "dev-debug": "vite --clearScreen false --debug",
     "build": "rm -rf src/codemirror-lang-nix/node_modules ; vite build",
     "serve": "vite preview"
   },
