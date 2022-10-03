@@ -832,3 +832,13 @@ ERROR EvalError getting status of '/var/empty/does-not-exist.nix': No such file 
 "builtins.functionArgs ({x?1}: x)"
 ==>
 {"x":true}
+
+#
+"builtins.intersectAttrs {a=1;} {b=2;}"
+==>
+{}
+
+#
+"builtins.intersectAttrs {a=1;} {a=2;}"
+==>
+{"a":2}
