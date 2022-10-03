@@ -798,12 +798,12 @@ false
 ==>
 ERROR EvalError getting status of '/var/empty/does-not-exist.nix': No such file or directory
 
-# SKIP FIXME fixpoint
+# SKIP FIXME fixpoint recursion
 "let fix = f: let x = f x; in x; in fix (self: { x = ''abc''; x2 = self.x + ''123''; })"
 ==>
 {"x":"abc","x2":"abc123"}
 
-# SKIP fixpoint, trace
+# SKIP fixpoint recursion, trace
 "let fix = f: let x = builtins.trace ''call'' f x; in x; in fix (self: { x = ''abc''; x2 = self.x + ''123''; })"
 ==>
 {"x":"abc","x2":"abc123"}
