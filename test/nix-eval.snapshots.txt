@@ -419,9 +419,9 @@ ERROR EvalError list index 2 is out of bounds
 20
 
 # path not div
-"1/2"
+"__typeOf 1/2"
 ==>
-"/home/user/1/2"
+"path"
 
 # call not div
 "1 /2"
@@ -473,15 +473,20 @@ ERROR EvalError attempt to call something which is not a function but an integer
 ==>
 "set"
 
-# typeof string 1
+# typeof string
 "__typeOf \"\""
 ==>
 "string"
 
-# SKIP typeof string 2
+# typeof indented string
 "__typeOf ''''"
 ==>
 "string"
+
+# typeof path
+"__typeOf /file.txt"
+==>
+"path"
 
 # syntax error ~
 "~"
@@ -783,12 +788,12 @@ false
 ==>
 false
 
-# library: import
+# SKIP library: import
 "(import /var/empty/nix-eval.test.nix {}).test"
 ==>
 "hello world"
 
-# library: builtins.import
+# SKIP library: builtins.import
 "(builtins.import /var/empty/nix-eval.test.nix {}).test"
 ==>
 "hello world"

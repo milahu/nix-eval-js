@@ -52,7 +52,7 @@ import { nix as codemirrorLangNix } from "./codemirror-lang-nix/dist/index.js";
 // eval
 // nix-eval-js/src/nix-thunks.js
 //import { setThunkOfNodeType } from '../../src/nix-thunks.js';
-import { thunkOfNodeType } from '../../src/nix-thunks-lezer-parser.js';
+import * as thunkOfNodeType from '../../src/nix-thunks-lezer-parser.js';
 
 
 
@@ -207,6 +207,12 @@ export function CodeMirror(props) {
     const parser = codeMirrorExtensions.codemirrorLangNix.extension.language.parser;
     for (const nodeType of parser.nodeSet.types) {
       nodeType.thunk = thunkOfNodeType[nodeType.name];
+      if (!nodeType.thunk) {
+        // not found in thunkOfNodeType
+        if (nodeType.name == '⚠') {
+          nodeType.thunk = thunkOfNodeType['SyntaxError'];
+        }
+      }
     }
 
     // https://github.com/JedWatson/react-codemirror/blob/c3ae528465bcdc4f20780892f8a9111e785fa577/src/Codemirror.js#L49

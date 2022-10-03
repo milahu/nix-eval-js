@@ -40,3 +40,108 @@ export function getSourceProp(node, state) {
   });
   return source;
 }
+
+
+
+/** @type {(node: SyntaxNode, label: string) => void} */
+export function printNode(node, state, env, options = {}) {
+  if (!options) options = {};
+  const label = options.label || '';
+  let extraDepth = 0;
+  if (label) {
+    //console.log(label);
+    extraDepth = 1; // indent the node
+  }
+  // note: this will print a trailing newline
+  //console.log(node.toString(0, 5, "  ", extraDepth));
+  const nodeSource = state.source.slice(node.from, node.to)
+  console.log((label ? (label + ': ') : '') + `${node.type.name}: ${nodeSource}`);
+}
+
+
+
+/** @type {function(SyntaxNode): SyntaxNode} */
+function skipComments(node) {
+  //checkInfiniteLoop();
+  while (
+    node && (
+      node.type.name == 'Comment' ||
+      node.type.name == 'CommentBlock'
+    )
+  ) {
+    node = node.nextSibling;
+  }
+  return node;
+}
+
+
+
+/** @type {function(SyntaxNode): SyntaxNode} */
+export function firstChild(node) {
+  if (!node) return null;
+  if (!(node = node.firstChild)) {
+    //console.log(`firstChild: node.firstChild is empty`);
+    return null;
+  }
+  if (!(node = skipComments(node))) {
+    //console.log(`firstChild: skipComments failed`);
+    return null;
+  }
+  return node;
+}
+
+
+
+/** @type {function(SyntaxNode): SyntaxNode} */
+export function nextSibling(node) {
+  if (!node) return null;
+  if (!(node = node.nextSibling)) {
+    //console.log(`nextSibling: node.nextSibling is empty`);
+    return null;
+  }
+  if (!(node = skipComments(node))) {
+    //console.log(`nextSibling: skipComments failed`);
+    return null;
+  }
+  return node;
+}
+
+
+
+/** @type {function(SyntaxNode, State): string} */
+export function nodeText(node, state) {
+  // source = full source code of the Nix file
+  // text = source code of this node
+  return state.source.slice(node.from, node.to);
+}
+
+
+
+/** @type {function(SyntaxNode, State, Env): any} */
+export function callThunk(node, state, env) {
+  if (!node.type.thunk) {
+    throw new NixEvalNotImplemented(`thunk is undefined for type ${node.type.name}`);
+  }
+  return node.type.thunk(node, state, env);
+}
+// regex to inline callThunk:
+// a: callThunk\((.*?), (.*?), (.*?)\)
+// b: $1.type.thunk($1, $2, $3)
+
+
+
+// alias so we can shadow Set in nix-thunks
+export class JavascriptSet extends Set {
+}
+
+
+
+// different type than string
+export class Path {
+  constructor(path) {
+    this.path = path
+  }
+  toString() {
+    return this.path
+  }
+}

@@ -7,14 +7,16 @@ import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
 //import { parser as LezerParserNix } from "../demo/src/codemirror-lang-nix/src/lezer-parser-nix/dist/index.js"
 //import { parser as LezerParserNix } from "../demo/src/codemirror-lang-nix/dist/index.js"
 
+import * as thunkOfNodeType from './nix-thunks-lezer-parser.js';
+
 import {
-  thunkOfNodeType,
   callThunk,
   firstChild,
   nextSibling,
   nodeText,
   printNode,
-} from './nix-thunks-lezer-parser.js';
+} from './nix-utils.js';
+
 import { NixPrimops } from './nix-primops-lezer-parser.js';
 import * as NixBuiltins from './nix-builtins.js';
 import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from "./nix-errors.js"

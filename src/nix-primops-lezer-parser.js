@@ -4,6 +4,7 @@ cat nix/src/libexpr/primops.cc | grep '.name = "__' | cut -d'"' -f2 | sed -E 's/
 
 import { NixEvalError } from "./nix-errors.js";
 import { Env } from "./nix-eval.js";
+import { Path } from "./nix-utils.js"
 
 export const NixPrimops = {
 
@@ -12,6 +13,7 @@ export const NixPrimops = {
     if (arg === true || arg === false) return 'bool';
     if (Array.isArray(arg)) return 'list';
     if (arg instanceof Env) return 'set';
+    if (arg instanceof Path) return 'path';
     const javascriptType = typeof(arg);
     if (javascriptType == 'bigint') {
       return 'int';

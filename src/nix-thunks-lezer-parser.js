@@ -1,7 +1,7 @@
 import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from './nix-errors.js';
 import { NixPrimops, nixTypeWithArticle } from './nix-primops-lezer-parser.js';
 import { checkInfiniteLoop, resetInfiniteLoopCounter, } from './infinite-loop-counter.js';
-import { getSourceProp } from './nix-utils.js'
+import { getSourceProp, firstChild, nextSibling, nodeText, printNode, JavascriptSet, Path } from './nix-utils.js'
 
 // https://github.com/voracious/vite-plugin-node-polyfills/issues/4
 import { join as joinPath, resolve as resolvePath } from 'node:path'
@@ -31,139 +31,55 @@ const stringifyValue = getStringifyResult({
 })
 
 
- 
-/** @type {(node: SyntaxNode, label: string) => void} */
-export function printNode(node, state, env, options = {}) {
-  if (!options) options = {};
-  const label = options.label || '';
-  let extraDepth = 0;
-  if (label) {
-    //console.log(label);
-    extraDepth = 1; // indent the node
-  }
-  // note: this will print a trailing newline
-  //console.log(node.toString(0, 5, "  ", extraDepth));
-  const nodeSource = state.source.slice(node.from, node.to)
-  console.log((label ? (label + ': ') : '') + `${node.type.name}: ${nodeSource}`);
-}
-
-
-
-/** @type {function(SyntaxNode): SyntaxNode} */
-function skipComments(node) {
-  //checkInfiniteLoop();
-  while (
-    node && (
-      node.type.name == 'Comment' ||
-      node.type.name == 'CommentBlock'
-    )
-  ) {
-    node = node.nextSibling;
-  }
-  return node;
-}
-
-/** @type {function(SyntaxNode): SyntaxNode} */
-export function firstChild(node) {
-  if (!node) return null;
-  if (!(node = node.firstChild)) {
-    //console.log(`firstChild: node.firstChild is empty`);
-    return null;
-  }
-  if (!(node = skipComments(node))) {
-    //console.log(`firstChild: skipComments failed`);
-    return null;
-  }
-  return node;
-}
-
-/** @type {function(SyntaxNode): SyntaxNode} */
-export function nextSibling(node) {
-  if (!node) return null;
-  if (!(node = node.nextSibling)) {
-    //console.log(`nextSibling: node.nextSibling is empty`);
-    return null;
-  }
-  if (!(node = skipComments(node))) {
-    //console.log(`nextSibling: skipComments failed`);
-    return null;
-  }
-  return node;
-}
-
-/** @type {function(SyntaxNode, State): string} */
-export function nodeText(node, state) {
-  // source = full source code of the Nix file
-  // text = source code of this node
-  return state.source.slice(node.from, node.to);
-}
-
-/** @type {function(SyntaxNode, State, Env): any} */
-export function callThunk(node, state, env) {
-  if (!node.type.thunk) {
-    throw new NixEvalNotImplemented(`thunk is undefined for type ${node.type.name}`);
-  }
-  return node.type.thunk(node, state, env);
-}
-// regex to inline callThunk:
-// a: callThunk\((.*?), (.*?), (.*?)\)
-// b: $1.type.thunk($1, $2, $3)
-
-
-
-/** @type {Record<string, (node: SyntaxNode, state: State, env: Env) => any>} */
-const thunkOfNodeType = {};
-
-
 
 /** @return {never} */
 // TODO ignore typescript error: 'state' is declared but its value is never read. ts(6133)
 // @ts-ignore
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-thunkOfNodeType['⚠'] = (node, state, env) => {
+// not working
+//export const ⚠ = (node, _state, _env) => {
+export const SyntaxError = (node, _state, _env) => {
   checkInfiniteLoop();
-  //console.log('thunkOfNodeType.Error: node', node);
+  //console.log('Error: node', node);
   // add context from _source? mostly not needed -> on demand or debounced
   throw new NixSyntaxError(`error at position ${node.from}`);
 };
 
-
-
 /** @return {any} */
-thunkOfNodeType.Nix = (node, state, env) => {
+export const Nix = (node, state, env) => {
   resetInfiniteLoopCounter();
-  //console.log('thunkOfNodeType.Nix: node', node);
+  //console.log('Nix: node', node);
   const childNode = firstChild(node);
   if (!childNode) {
     // input is empty
     return;
   }
-  //console.log(`thunkOfNodeType.Nix: call thunk of node`, childNode);
+  //console.log(`Nix: call thunk of node`, childNode);
   return childNode.type.thunk(childNode, state, env);
 };
 
 
 
 /** @return {null} */
-thunkOfNodeType.NULL = () => {
+export const NULL = () => {
   return null;
 };
 
 /** @return {boolean} */
-thunkOfNodeType.TRUE = () => {
+export const TRUE = () => {
   return true;
 };
 
 /** @return {boolean} */
-thunkOfNodeType.FALSE = () => {
+export const FALSE = () => {
   return false;
 };
 
 
 
 /** @return {any} */
-thunkOfNodeType.Parens = (node, state, env) => {
-  //console.log('thunkOfNodeType.Parens: node', node);
+export const Parens = (node, state, env) => {
+  //console.log('Parens: node', node);
   const childNode = firstChild(node);
   if (!childNode) {
     throw NixSyntaxError("unexpected ')'");
@@ -174,8 +90,8 @@ thunkOfNodeType.Parens = (node, state, env) => {
 
 
 /** @return {bigint} */
-thunkOfNodeType.Int = (node, state, env) => {
-  //console.log('thunkOfNodeType.Int: node', node);
+export const Int = (node, state, env) => {
+  //console.log('Int: node', node);
   //return parseInt(nodeText(node, state));
   // we need BigInt to diff Int vs Float
   // otherwise typeof(1.0) == "int"
@@ -185,28 +101,28 @@ thunkOfNodeType.Int = (node, state, env) => {
 
 
 /** @return {number} */
-thunkOfNodeType.Float = (node, state, env) => {
-  //console.log('thunkOfNodeType.Int: node', node);
+export const Float = (node, state, env) => {
+  //console.log('Int: node', node);
   return parseFloat(nodeText(node, state));
 };
 
 
 
 /** @return {string} */
-thunkOfNodeType.Identifier = (node, state, env) => {
-  //console.log('thunkOfNodeType.Identifier: node', node);
+export const Identifier = (node, state, env) => {
+  //console.log('Identifier: node', node);
   return nodeText(node, state);
 };
 
 
 
 /** @return {function} */
-thunkOfNodeType.Primop = (node, state, env) => {
-  //console.log('thunkOfNodeType.Primop: node', node);
+export const Primop = (node, state, env) => {
+  //console.log('Primop: node', node);
   const name = nodeText(node, state);
-  //console.log('thunkOfNodeType.Primop: name', name);
+  //console.log('Primop: name', name);
   const func = NixPrimops[name];
-  //console.log('thunkOfNodeType.Primop: func', func);
+  //console.log('Primop: func', func);
   if (!func) {
     throw new NixEvalNotImplemented(`primop ${name}`);
   }
@@ -216,7 +132,7 @@ thunkOfNodeType.Primop = (node, state, env) => {
 
 
 /** @return {number | bigint | string} */
-thunkOfNodeType.Add = (node, state, env) => {
+export const Add = (node, state, env) => {
 
   // arithmetic addition or string concat
 
@@ -274,7 +190,7 @@ function get2Values(node, state, env, options) {
   if (!options) options = {};
   if (!options.caller) options.caller = 'get2Values';
   //checkInfiniteLoop();
-  //console.log('thunkOfNodeType.Mul: node', node);
+  //console.log('Mul: node', node);
   let childNode1 = firstChild(node);
   if (!childNode1) {
     throw new NixEvalError(`${options.caller}: no childNode1`)
@@ -289,24 +205,24 @@ function get2Values(node, state, env, options) {
     if (!childNode2) {
       throw new NixEvalError(`${options.caller}: no childNode2`)
     }
-    //console.log('thunkOfNodeType.Mul: arg1 ...');
+    //console.log('Mul: arg1 ...');
     value1 = childNode1.type.thunk(childNode1, state, env);
-    //console.log('thunkOfNodeType.Mul: arg1', arg1);
+    //console.log('Mul: arg1', arg1);
   }
   else {
     // eval deep first
-    //console.log('thunkOfNodeType.Mul: arg1 ...');
+    //console.log('Mul: arg1 ...');
     value1 = childNode1.type.thunk(childNode1, state, env);
-    //console.log('thunkOfNodeType.Mul: arg1', arg1);
+    //console.log('Mul: arg1', arg1);
     childNode2 = nextSibling(childNode1);
     if (!childNode2) {
       throw new NixEvalError(`${options.caller}: no childNode2`)
     }
   }
 
-  //console.log('thunkOfNodeType.Mul: arg2 ...');
+  //console.log('Mul: arg2 ...');
   let value2 = childNode2.type.thunk(childNode2, state, env);
-  //console.log('thunkOfNodeType.Mul: arg2', arg2);
+  //console.log('Mul: arg2', arg2);
 
   return [value1, value2];
 }
@@ -328,23 +244,23 @@ function get2Bools(node, state, env, options) {
 
 
 /*
-thunkOfNodeType.Add = (node, state, env) => {
+export const Add = (node, state, env) => {
   const [value1, value2] = get2Numbers(node, state, { caller: 'Add' });
   return value1 + value2;
 };
 */
 
-thunkOfNodeType.Sub = (node, state, env) => {
+export const Sub = (node, state, env) => {
   const [value1, value2] = get2Numbers(node, state, env, { caller: 'Sub' });
   return value1 - value2;
 };
 
-thunkOfNodeType.Mul = (node, state, env) => {
+export const Mul = (node, state, env) => {
   const [value1, value2] = get2Numbers(node, state, env, { caller: 'Mul' });
   return value1 * value2;
 };
 
-thunkOfNodeType.Div = (node, state, env) => {
+export const Div = (node, state, env) => {
   const [value1, value2] = get2Numbers(node, state, env, { caller: 'Div' });
   if (value2 == 0) {
     throw NixEvalError('division by zero')
@@ -355,9 +271,9 @@ thunkOfNodeType.Div = (node, state, env) => {
 
 
 /** @return {boolean} */
-thunkOfNodeType.Not = (node, state, env) => {
+export const Not = (node, state, env) => {
   checkInfiniteLoop();
-  //console.log('thunkOfNodeType.Add: node', node);
+  //console.log('Add: node', node);
   let childNode = firstChild(node);
   if (!childNode) {
     throw new NixEvalError('Not: no childNode')
@@ -369,9 +285,9 @@ thunkOfNodeType.Not = (node, state, env) => {
 
 
 /** @return {number | bigint} */
-thunkOfNodeType.Neg = (node, state, env) => {
+export const Neg = (node, state, env) => {
   checkInfiniteLoop();
-  //console.log('thunkOfNodeType.Neg: node', node);
+  //console.log('Neg: node', node);
   let childNode = firstChild(node);
   if (!childNode) {
     throw new NixEvalError('Neg: no childNode')
@@ -388,12 +304,12 @@ thunkOfNodeType.Neg = (node, state, env) => {
 const debugCall = debugAllThunks || debugCallStack || false
 
 /** @return {any} */
-thunkOfNodeType.Call = (node, state, env) => {
+export const Call = (node, state, env) => {
 
   state.stack.push(node)
 
-  //debugCall && console.log(`thunkOfNodeType.Call: state.stack:\n${state.stack}`)
-  debugCall && console.log(`thunkOfNodeType.Call: stack size: ${state.stack.stack.length}`);
+  //debugCall && console.log(`Call: state.stack:\n${state.stack}`)
+  debugCall && console.log(`Call: stack size: ${state.stack.stack.length}`);
   debugVar && console.log(`Call: stack`, new Error().stack);
   if (debugCall && state.stack.stack.length > 5) {
     throw new Error('stack size')
@@ -403,14 +319,14 @@ thunkOfNodeType.Call = (node, state, env) => {
   // TODO check types
 
   checkInfiniteLoop();
-  //console.log('thunkOfNodeType.Call: node', node);
+  //console.log('Call: node', node);
 
   let functionNode = firstChild(node);
   if (!functionNode) {
     throw new NixEvalError('Call: no functionNode')
   }
   // eval deep first: get functionValue now, childNode2 later
-  //console.log('thunkOfNodeType.Call: functionNode', functionNode.type.name, functionNode);
+  //console.log('Call: functionNode', functionNode.type.name, functionNode);
 
   //if (functionNode.type.name == 'Primop' && nodeText(functionNode, state) == '__typeOf') {
     // call primop with syntax tree
@@ -425,7 +341,7 @@ thunkOfNodeType.Call = (node, state, env) => {
   //}
 
   const functionValue = functionNode.type.thunk(functionNode, state, env);
-  //console.log('thunkOfNodeType.Call: functionValue', functionValue);
+  //console.log('Call: functionValue', functionValue);
 
   if (typeof(functionValue) != 'function') {
     throw new NixEvalError(`attempt to call something which is not a function but ${nixTypeWithArticle(functionValue)}`);
@@ -436,10 +352,10 @@ thunkOfNodeType.Call = (node, state, env) => {
     throw new NixEvalError('Call: no arg2')
   }
 
-  //console.log('thunkOfNodeType.Call: argumentNode', argumentNode.type.name, argumentNode);
+  //console.log('Call: argumentNode', argumentNode.type.name, argumentNode);
 
   const argumentValue = argumentNode.type.thunk(argumentNode, state, env);
-  //console.log('thunkOfNodeType.Call: argumentValue', argumentValue);
+  //console.log('Call: argumentValue', argumentValue);
 
   // TODO env? or is this done in Lambda?
   // nix.cc does this in EvalState::callFunction
@@ -461,12 +377,12 @@ thunkOfNodeType.Call = (node, state, env) => {
 
 
 /** @return {any} */
-thunkOfNodeType.If = (node, state, env) => {
+export const If = (node, state, env) => {
 
   // if condition then expression else alternative
 
   checkInfiniteLoop();
-  //console.log('thunkOfNodeType.If: node', node);
+  //console.log('If: node', node);
 
   let ifNode = firstChild(node);
   if (!ifNode) {
@@ -474,7 +390,7 @@ thunkOfNodeType.If = (node, state, env) => {
   }
 
   const ifValue = ifNode.type.thunk(ifNode, state, env);
-  //console.log('thunkOfNodeType.If: ifValue', ifValue);
+  //console.log('If: ifValue', ifValue);
 
   const thenNode = nextSibling(ifNode);
   if (!thenNode) {
@@ -496,8 +412,8 @@ thunkOfNodeType.If = (node, state, env) => {
 
 
 /** @return {boolean} */
-thunkOfNodeType.Eq = (node, state, env) => {
-  let [value1, value2] = get2Values(node, state, env, { caller: 'thunkOfNodeType.Eq' })
+export const Eq = (node, state, env) => {
+  let [value1, value2] = get2Values(node, state, env, { caller: 'Eq' })
   // TODO? types
   return (value1 == value2);
 };
@@ -505,22 +421,22 @@ thunkOfNodeType.Eq = (node, state, env) => {
 
 
 /** @return {boolean} */
-thunkOfNodeType.And = (node, state, env) => {
-  const [value1, value2] = get2Bools(node, state, env, { caller: 'thunkOfNodeType.And' })
+export const And = (node, state, env) => {
+  const [value1, value2] = get2Bools(node, state, env, { caller: 'And' })
   return (value1 && value2);
 };
 
 /** @return {boolean} */
-thunkOfNodeType.Or = (node, state, env) => {
-  const [value1, value2] = get2Bools(node, state, env, { caller: 'thunkOfNodeType.Or' })
+export const Or = (node, state, env) => {
+  const [value1, value2] = get2Bools(node, state, env, { caller: 'Or' })
   return (value1 || value2);
 };
 
 /** @return {boolean} */
-thunkOfNodeType.Imply = (node, state, env) => {
+export const Imply = (node, state, env) => {
   // Logical implication
   // (a -> b) == (!a || b)
-  const [value1, value2] = get2Values(node, state, env, { caller: 'thunkOfNodeType.Imply' })
+  const [value1, value2] = get2Values(node, state, env, { caller: 'Imply' })
   if (value1 !== true && value1 !== false) {
     throw new NixEvalError(`value is ${nixTypeWithArticle(value1)} while a Boolean was expected`)
   }
@@ -536,33 +452,33 @@ thunkOfNodeType.Imply = (node, state, env) => {
 
 
 /** @return {boolean} */
-thunkOfNodeType.NEq = (node, state, env) => {
-  let [value1, value2] = get2Values(node, state, env, { caller: 'thunkOfNodeType.NEq' })
+export const NEq = (node, state, env) => {
+  let [value1, value2] = get2Values(node, state, env, { caller: 'NEq' })
   // TODO? types
   return (value1 != value2);
 };
 
 /** @return {boolean} */
-thunkOfNodeType.GT = (node, state, env) => {
-  let [value1, value2] = get2Numbers(node, state, env, { caller: 'thunkOfNodeType.GT' })
+export const GT = (node, state, env) => {
+  let [value1, value2] = get2Numbers(node, state, env, { caller: 'GT' })
   return (value1 > value2);
 };
 
 /** @return {boolean} */
-thunkOfNodeType.GE = (node, state, env) => {
-  let [value1, value2] = get2Numbers(node, state, env, { caller: 'thunkOfNodeType.GE' })
+export const GE = (node, state, env) => {
+  let [value1, value2] = get2Numbers(node, state, env, { caller: 'GE' })
   return (value1 >= value2);
 };
 
 /** @return {boolean} */
-thunkOfNodeType.LT = (node, state, env) => {
-  let [value1, value2] = get2Numbers(node, state, env, { caller: 'thunkOfNodeType.LT' })
+export const LT = (node, state, env) => {
+  let [value1, value2] = get2Numbers(node, state, env, { caller: 'LT' })
   return (value1 < value2);
 };
 
 /** @return {boolean} */
-thunkOfNodeType.LE = (node, state, env) => {
-  let [value1, value2] = get2Numbers(node, state, env, { caller: 'thunkOfNodeType.LE' })
+export const LE = (node, state, env) => {
+  let [value1, value2] = get2Numbers(node, state, env, { caller: 'LE' })
   return (value1 <= value2);
 };
 
@@ -570,9 +486,9 @@ thunkOfNodeType.LE = (node, state, env) => {
 
 /** @typedef {any[]} LazyArray */
 /** @return {LazyArray} */
-thunkOfNodeType.List = (node, state, env) => {
-  //console.log('thunkOfNodeType.List: list node type', node.type.name);
-  //console.log('thunkOfNodeType.List: call stack', new Error());
+export const List = (node, state, env) => {
+  //console.log('List: list node type', node.type.name);
+  //console.log('List: call stack', new Error());
 
   checkInfiniteLoop();
 
@@ -623,18 +539,18 @@ thunkOfNodeType.List = (node, state, env) => {
     return list;
   }
 
-  //console.log(`thunkOfNodeType.List: first childNode`, childNode);
+  //console.log(`List: first childNode`, childNode);
   let idx = 0;
   while (true) {
     //checkInfiniteLoop();
     function getThunk(childNodeCopy) {
       // force copy of childNode
-      // fix: thunkOfNodeType.List: call thunk of childNode null
-      // this will "move" childNode from thunkOfNodeType.List to thunk
+      // fix: List: call thunk of childNode null
+      // this will "move" childNode from List to thunk
       // TODO better?
       return () => {
-        //console.log('thunkOfNodeType.List value thunk: node', node.type.name, node);
-        //console.log(`thunkOfNodeType.List: call thunk of childNode`, childNode);
+        //console.log('List value thunk: node', node.type.name, node);
+        //console.log(`List: call thunk of childNode`, childNode);
         return childNodeCopy.type.thunk(childNodeCopy, state, env);
       };
 
@@ -651,10 +567,10 @@ thunkOfNodeType.List = (node, state, env) => {
     if (!(childNode = nextSibling(childNode))) {
       break;
     }
-    //console.log(`thunkOfNodeType.List: next childNode`, childNode);
+    //console.log(`List: next childNode`, childNode);
     idx++;
   }
-  //console.log('thunkOfNodeType.List: list parent node type', node.type.name);
+  //console.log('List: list parent node type', node.type.name);
   return list;
 };
 
@@ -663,7 +579,7 @@ thunkOfNodeType.List = (node, state, env) => {
 const debugConcat = debugAllThunks || false
 
 /** @return {LazyArray} */
-thunkOfNodeType.Concat = (node, state, env) => {
+export const Concat = (node, state, env) => {
 
   // list concat
 
@@ -671,8 +587,8 @@ thunkOfNodeType.Concat = (node, state, env) => {
 
   const [list1, list2] = get2Values(node, state, env, { caller: 'Concat' })
 
-  debugConcat && console.log(`thunkOfNodeType.Concat: list1`, typeof(list1), list1.length, list1);
-  debugConcat && console.log(`thunkOfNodeType.Concat: list2`, typeof(list2), list2.length, list2);
+  debugConcat && console.log(`Concat: list1`, typeof(list1), list1.length, list1);
+  debugConcat && console.log(`Concat: list2`, typeof(list2), list2.length, list2);
 
   // TODO check types
 
@@ -694,7 +610,7 @@ thunkOfNodeType.Concat = (node, state, env) => {
 
 
 /** @return {string} */
-thunkOfNodeType.String = (node, state, env) => {
+export const String = (node, state, env) => {
   // similar to list: zero or more childNodes
 
   checkInfiniteLoop();
@@ -709,7 +625,7 @@ thunkOfNodeType.String = (node, state, env) => {
     return result;
   }
 
-  //console.log(`thunkOfNodeType.String: first childNode`, childNode);
+  //console.log(`String: first childNode`, childNode);
   let idx = 0;
 
   while (true) {
@@ -719,7 +635,7 @@ thunkOfNodeType.String = (node, state, env) => {
     if (!(childNode = nextSibling(childNode))) {
       break;
     }
-    //console.log(`thunkOfNodeType.String: next childNode`, childNode);
+    //console.log(`String: next childNode`, childNode);
     idx++;
   }
 
@@ -730,7 +646,7 @@ thunkOfNodeType.String = (node, state, env) => {
 
 // TODO remove indent
 /** @return {string} */
-thunkOfNodeType.IndentedString = (node, state, env) => {
+export const IndentedString = (node, state, env) => {
   // similar to list: zero or more childNodes
 
   checkInfiniteLoop();
@@ -745,7 +661,7 @@ thunkOfNodeType.IndentedString = (node, state, env) => {
     return result;
   }
 
-  //console.log(`thunkOfNodeType.String: first childNode`, childNode);
+  //console.log(`String: first childNode`, childNode);
   let idx = 0;
 
   // TODO remove indent
@@ -757,7 +673,7 @@ thunkOfNodeType.IndentedString = (node, state, env) => {
     if (!(childNode = nextSibling(childNode))) {
       break;
     }
-    //console.log(`thunkOfNodeType.String: next childNode`, childNode);
+    //console.log(`String: next childNode`, childNode);
     idx++;
   }
 
@@ -767,7 +683,7 @@ thunkOfNodeType.IndentedString = (node, state, env) => {
 
 
 /** @return {string} */
-thunkOfNodeType.StringInterpolation = (node, state, env) => {
+export const StringInterpolation = (node, state, env) => {
 
   checkInfiniteLoop();
 
@@ -789,30 +705,33 @@ thunkOfNodeType.StringInterpolation = (node, state, env) => {
 
 
 /** @return {string} */
-thunkOfNodeType.IndentedStringInterpolation = thunkOfNodeType.StringInterpolation;
+export const IndentedStringInterpolation = StringInterpolation;
 
 
 
 /** @return {string} */
-thunkOfNodeType.StringContent = thunkOfNodeType.Identifier;
+export const StringContent = Identifier;
 
 
 
 /** @return {string} */
-thunkOfNodeType.IndentedStringContent = thunkOfNodeType.StringContent;
+export const IndentedStringContent = StringContent;
 
 
 
-/** @return {string} */
-thunkOfNodeType.PathAbsolute = thunkOfNodeType.Identifier;
+/** @return {Path} */
+export const PathAbsolute = (node, state, env) => {
+  const absolutePath = nodeText(node, state);
+  return new Path(absolutePath);
+};
 
 
 
-/** @return {string} */
-thunkOfNodeType.PathRelative = (node, state, env) => {
+/** @return {Path} */
+export const PathRelative = (node, state, env) => {
   const relativePath = nodeText(node, state);
   const absolutePath = resolvePath(state.options.workdir, relativePath);
-  return absolutePath;
+  return new Path(absolutePath);
 };
 
 
@@ -825,7 +744,7 @@ thunkOfNodeType.PathRelative = (node, state, env) => {
 * @return {Env}
 */
 
-thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
+export const Set = (node, state, env) => {
 
   const debugSet = debugAllThunks || debugCallStack || false
 
@@ -867,7 +786,7 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
         let keyNode = childNode;
         debugSet && printNode(keyNode, state, env, { label: 'keyNode' });
         key = keyNode.type.thunk(keyNode, state, env);
-        debugSet && console.log(`thunkOfNodeType.${node.type.name}: key`, key);
+        debugSet && console.log(`${node.type.name}: key`, key);
         if (nextNextNode) {
           finalSetEnv.data[key] = finalSetEnv.newChild();
           finalSetEnv = finalSetEnv.data[key];
@@ -979,11 +898,17 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
 
 
 
+/** @return {Env} */
+
+export const RecSet = Set
+
+
+
 const debugSelect = debugAllThunks || false
 
 // void ExprSelect::eval(EvalState & state, Env & env, Value & v)
 /** @return {any} */
-thunkOfNodeType.Select = (node, state, env) => {
+export const Select = (node, state, env) => {
   // first child: Set
   // other children: attr keys
   checkInfiniteLoop();
@@ -996,7 +921,7 @@ thunkOfNodeType.Select = (node, state, env) => {
   // call thunk of Set or RecSet
   /** @type {Env} */
   const setValue = setNode.type.thunk(setNode, state, env);
-  debugSelect && console.log(`thunkOfNodeType.Select:${node.from}: setValue`, setValue)
+  debugSelect && console.log(`Select:${node.from}: setValue`, setValue)
 
   let keyNode = nextSibling(setNode);
   if (!keyNode) {
@@ -1017,7 +942,7 @@ thunkOfNodeType.Select = (node, state, env) => {
 
     // if (j == vAttrs->attrs->end())
     //   state.throwEvalError(pos, , "attribute '%1%' missing"
-    debugSelect && console.log(`thunkOfNodeType.Select:${node.from}: result`, result)
+    debugSelect && console.log(`Select:${node.from}: result`, result)
     if (!Object.hasOwn(result.data, keyValue)) {
       throw new NixEvalError(`attribute '${keyValue}' missing`)
     }
@@ -1038,7 +963,7 @@ thunkOfNodeType.Select = (node, state, env) => {
 const debugHasAttr = debugAllThunks || false
 
 /** @return {boolean} */
-thunkOfNodeType.HasAttr = (node, state, env) => {
+export const HasAttr = (node, state, env) => {
   // similar to Select, but dont return the value
   checkInfiniteLoop();
   const setNode = firstChild(node);
@@ -1049,7 +974,7 @@ thunkOfNodeType.HasAttr = (node, state, env) => {
   // call thunk of Set or RecSet
   /** @type {Env} */
   const setValue = setNode.type.thunk(setNode, state, env);
-  debugHasAttr && console.log(`thunkOfNodeType.HasAttr:${node.from}: setValue`, setValue)
+  debugHasAttr && console.log(`HasAttr:${node.from}: setValue`, setValue)
 
   let keyNode = nextSibling(setNode);
   if (!keyNode) {
@@ -1063,7 +988,7 @@ thunkOfNodeType.HasAttr = (node, state, env) => {
   while (keyNode) {
     const keyValue = keyNode.type.thunk(keyNode, state, env);
 
-    debugHasAttr && console.log(`thunkOfNodeType.HasAttr:${node.from}: result`, result)
+    debugHasAttr && console.log(`HasAttr:${node.from}: result`, result)
     if (!(result instanceof Env)) {
       // nix-repl> 1?z  
       // false
@@ -1101,7 +1026,7 @@ thunkOfNodeType.HasAttr = (node, state, env) => {
 const debugUpdate = debugAllThunks || false
 
 /** @return {LazyArray} */
-thunkOfNodeType.Update = (node, state, env) => {
+export const Update = (node, state, env) => {
 
   // list concat
 
@@ -1109,8 +1034,8 @@ thunkOfNodeType.Update = (node, state, env) => {
 
   const [set1, set2] = get2Values(node, state, env, { caller: 'Update' })
 
-  debugUpdate && console.log(`thunkOfNodeType.Update: set1`, typeof(set1), set1);
-  debugUpdate && console.log(`thunkOfNodeType.Update: set2`, typeof(set2), set2);
+  debugUpdate && console.log(`Update: set1`, typeof(set1), set1);
+  debugUpdate && console.log(`Update: set2`, typeof(set2), set2);
 
   if (!(set1 instanceof Env)) {
     throw new NixEvalError(`value is ${nixTypeWithArticle(set1)} while a set was expected`)
@@ -1150,7 +1075,7 @@ thunkOfNodeType.Update = (node, state, env) => {
 * @return {any}
 */
 
-thunkOfNodeType.With = (node, state, env) => {
+export const With = (node, state, env) => {
 
   const debugWith = debugAllThunks || false;
 
@@ -1170,7 +1095,7 @@ thunkOfNodeType.With = (node, state, env) => {
   // call thunk of Set or RecSet
   /** @type {Env} */
   const setValue = setNode.type.thunk(setNode, state, env);
-  debugWith && console.log(`thunkOfNodeType.With:${node.from}: setValue`, setValue)
+  debugWith && console.log(`With:${node.from}: setValue`, setValue)
   if (!(setValue instanceof Env)) {
     // ignore type errors
     // nix-repl> with null; 1
@@ -1190,7 +1115,7 @@ thunkOfNodeType.With = (node, state, env) => {
 const debugVar = debugAllThunks || false
 
 /** @return {any} */
-thunkOfNodeType.Var = (node, state, env) => {
+export const Var = (node, state, env) => {
   // input: a
   // tree:
   // Nix: a
@@ -1205,7 +1130,7 @@ thunkOfNodeType.Var = (node, state, env) => {
   }
   // FIXME source is undefined when called from Call
   const key = nodeText(keyNode, state);
-  //console.log(`thunkOfNodeType.Var: key`, key);
+  //console.log(`Var: key`, key);
 
   const value = env.get(key)
 
@@ -1219,7 +1144,7 @@ thunkOfNodeType.Var = (node, state, env) => {
 
 
 /** @return {function} */
-thunkOfNodeType.Lambda = (node, state, env) => {
+export const Lambda = (node, state, env) => {
   checkInfiniteLoop();
   let argumentNode = firstChild(node);
   if (!argumentNode) {
@@ -1256,7 +1181,7 @@ thunkOfNodeType.Lambda = (node, state, env) => {
   const debugFormals = debugAllThunks || false;
 
   let formalsBindingName = null;
-  const formalNameSet = new Set();
+  const formalNameSet = new JavascriptSet();
   const formalDefaultNodeMap = {};
   let formalsRest = false;
 
@@ -1400,7 +1325,7 @@ thunkOfNodeType.Lambda = (node, state, env) => {
  * @return {any}
  */
 
-thunkOfNodeType.Let = (node, state, env) => {
+export const Let = (node, state, env) => {
 
   // let a=1; in a == rec {a=1;}.a
 
@@ -1432,7 +1357,7 @@ thunkOfNodeType.Let = (node, state, env) => {
     debugLet && printNode(valueNode, state, env, { label: 'valueNode' })
 
     const key = state.source.slice(keyNode.from, keyNode.to);
-    debugLet && console.log('thunkOfNodeType.Let: key', key);
+    debugLet && console.log('Let: key', key);
 
     Object.defineProperty(childEnv.data, key, {
       get: () => valueNode.type.thunk(valueNode, state, childEnv),
@@ -1456,7 +1381,7 @@ thunkOfNodeType.Let = (node, state, env) => {
  * @return {any}
  */
 
-thunkOfNodeType.LetOld = (node, state, env) => {
+export const LetOld = (node, state, env) => {
 
   // let { a=1; body=a; } == rec {a=1;body=a;}.body
 
@@ -1466,7 +1391,7 @@ thunkOfNodeType.LetOld = (node, state, env) => {
 
   const childEnv = env.newChild(node);
 
-  //console.log('thunkOfNodeType.LetOld: node', node);
+  //console.log('LetOld: node', node);
 
   let attrNode = firstChild(node);
 
@@ -1486,7 +1411,7 @@ thunkOfNodeType.LetOld = (node, state, env) => {
     debugLetOld && printNode(valueNode, state, env, { label: 'valueNode' })
 
     const key = state.source.slice(keyNode.from, keyNode.to);
-    debugLetOld && console.log('thunkOfNodeType.LetOld: key', key);
+    debugLetOld && console.log('LetOld: key', key);
 
     Object.defineProperty(childEnv.data, key, {
       get: () => valueNode.type.thunk(valueNode, state, childEnv),
@@ -1501,7 +1426,7 @@ thunkOfNodeType.LetOld = (node, state, env) => {
     throw new NixEvalError(`attribute 'body' missing`)
   }
 
-  debugLetOld && console.log('thunkOfNodeType.LetOld: body', childEnv.data.body);
+  debugLetOld && console.log('LetOld: body', childEnv.data.body);
 
   return childEnv.data.body;
 };
@@ -1556,7 +1481,3 @@ Var("__findFile")
 -> primop __findFile
 
 */
-
-
-
-export { thunkOfNodeType }
