@@ -37,9 +37,11 @@ export function getEnv(key) {
 // TODO what would nix.cc do?
 export function compareVersions(version1) {
   const debug = false
-  debug && console.log(`builtins.compareVersions: version1:`); console.dir(version1)
+  debug && console.log(`builtins.compareVersions: version1:`)
+  debug && console.dir(version1)
   return function compareVersions2(version2) {
-    debug && console.log(`builtins.compareVersions: version2:`); console.dir(version2)
+    debug && console.log(`builtins.compareVersions: version2:`)
+    debug && console.dir(version2)
     // BigInt: float to int
     return BigInt(compareVersionsJS(version1, version2))
   }
