@@ -105,6 +105,9 @@ export function callThunk(node, state, env) {
   }
   return node.type.thunk(node, state, env);
 }
+// regex to inline callThunk:
+// a: callThunk\((.*?), (.*?), (.*?)\)
+// b: $1.type.thunk($1, $2, $3)
 
 
 
@@ -136,7 +139,7 @@ thunkOfNodeType.Nix = (node, state, env) => {
     return;
   }
   //console.log(`thunkOfNodeType.Nix: call thunk of node`, childNode);
-  return callThunk(childNode, state, env);
+  return childNode.type.thunk(childNode, state, env);
 };
 
 
@@ -165,7 +168,7 @@ thunkOfNodeType.Parens = (node, state, env) => {
   if (!childNode) {
     throw NixSyntaxError("unexpected ')'");
   }
-  return callThunk(childNode, state, env);
+  return childNode.type.thunk(childNode, state, env);
 };
 
 
@@ -287,13 +290,13 @@ function get2Values(node, state, env, options) {
       throw new NixEvalError(`${options.caller}: no childNode2`)
     }
     //console.log('thunkOfNodeType.Mul: arg1 ...');
-    value1 = callThunk(childNode1, state, env);
+    value1 = childNode1.type.thunk(childNode1, state, env);
     //console.log('thunkOfNodeType.Mul: arg1', arg1);
   }
   else {
     // eval deep first
     //console.log('thunkOfNodeType.Mul: arg1 ...');
-    value1 = callThunk(childNode1, state, env);
+    value1 = childNode1.type.thunk(childNode1, state, env);
     //console.log('thunkOfNodeType.Mul: arg1', arg1);
     childNode2 = nextSibling(childNode1);
     if (!childNode2) {
@@ -302,7 +305,7 @@ function get2Values(node, state, env, options) {
   }
 
   //console.log('thunkOfNodeType.Mul: arg2 ...');
-  let value2 = callThunk(childNode2, state, env);
+  let value2 = childNode2.type.thunk(childNode2, state, env);
   //console.log('thunkOfNodeType.Mul: arg2', arg2);
 
   return [value1, value2];
@@ -359,7 +362,7 @@ thunkOfNodeType.Not = (node, state, env) => {
   if (!childNode) {
     throw new NixEvalError('Not: no childNode')
   }
-  const value = callThunk(childNode, state, env);
+  const value = childNode.type.thunk(childNode, state, env);
   return !value;
 };
 
@@ -373,7 +376,7 @@ thunkOfNodeType.Neg = (node, state, env) => {
   if (!childNode) {
     throw new NixEvalError('Neg: no childNode')
   }
-  const value = callThunk(childNode, state, env);
+  const value = childNode.type.thunk(childNode, state, env);
   // TODO check type
   // nix-repl> -{}
   // error: value is a set while an integer was expected
@@ -421,7 +424,7 @@ thunkOfNodeType.Call = (node, state, env) => {
     // let x = 0; in __typeOf (x + 1.0)
   //}
 
-  const functionValue = callThunk(functionNode, state, env);
+  const functionValue = functionNode.type.thunk(functionNode, state, env);
   //console.log('thunkOfNodeType.Call: functionValue', functionValue);
 
   if (typeof(functionValue) != 'function') {
@@ -435,7 +438,7 @@ thunkOfNodeType.Call = (node, state, env) => {
 
   //console.log('thunkOfNodeType.Call: argumentNode', argumentNode.type.name, argumentNode);
 
-  const argumentValue = callThunk(argumentNode, state, env);
+  const argumentValue = argumentNode.type.thunk(argumentNode, state, env);
   //console.log('thunkOfNodeType.Call: argumentValue', argumentValue);
 
   // TODO env? or is this done in Lambda?
@@ -470,7 +473,7 @@ thunkOfNodeType.If = (node, state, env) => {
     throw new NixEvalError('If: no ifNode')
   }
 
-  const ifValue = callThunk(ifNode, state, env);
+  const ifValue = ifNode.type.thunk(ifNode, state, env);
   //console.log('thunkOfNodeType.If: ifValue', ifValue);
 
   const thenNode = nextSibling(ifNode);
@@ -479,7 +482,7 @@ thunkOfNodeType.If = (node, state, env) => {
   }
 
   if (ifValue) {
-    return callThunk(thenNode, state, env);
+    return thenNode.type.thunk(thenNode, state, env);
   }
 
   const elseNode = nextSibling(thenNode);
@@ -487,7 +490,7 @@ thunkOfNodeType.If = (node, state, env) => {
     throw new NixEvalError('If: no elseNode')
   }
 
-  return callThunk(elseNode, state, env);
+  return elseNode.type.thunk(elseNode, state, env);
 };
 
 
@@ -632,12 +635,12 @@ thunkOfNodeType.List = (node, state, env) => {
       return () => {
         //console.log('thunkOfNodeType.List value thunk: node', node.type.name, node);
         //console.log(`thunkOfNodeType.List: call thunk of childNode`, childNode);
-        return callThunk(childNodeCopy, state, env);
+        return childNodeCopy.type.thunk(childNodeCopy, state, env);
       };
 
       /* TODO benchmark
       const thunk = function () {
-        return callThunk(childNodeCopy, state, env);
+        return childNodeCopy.type.thunk(childNodeCopy, state, env);
       }
       thunk.__isLazyArrayThunk == true;
       return thunk;
@@ -711,7 +714,7 @@ thunkOfNodeType.String = (node, state, env) => {
 
   while (true) {
     //checkInfiniteLoop();
-    const stringPart = callThunk(childNode, state, env);
+    const stringPart = childNode.type.thunk(childNode, state, env);
     result += stringPart;
     if (!(childNode = nextSibling(childNode))) {
       break;
@@ -749,7 +752,7 @@ thunkOfNodeType.IndentedString = (node, state, env) => {
 
   while (true) {
     //checkInfiniteLoop();
-    const stringPart = callThunk(childNode, state, env);
+    const stringPart = childNode.type.thunk(childNode, state, env);
     result += stringPart;
     if (!(childNode = nextSibling(childNode))) {
       break;
@@ -774,7 +777,7 @@ thunkOfNodeType.StringInterpolation = (node, state, env) => {
     return '';
   }
 
-  const childValue = callThunk(childNode, state, env);
+  const childValue = childNode.type.thunk(childNode, state, env);
 
   if (typeof(childValue) != 'string') {
     throw new NixEvalError(`cannot coerce ${nixTypeWithArticle(childValue)} to a string`)
@@ -863,7 +866,7 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
       while (nextNode) {
         let keyNode = childNode;
         debugSet && printNode(keyNode, state, env, { label: 'keyNode' });
-        key = callThunk(keyNode, state, env);
+        key = keyNode.type.thunk(keyNode, state, env);
         debugSet && console.log(`thunkOfNodeType.${node.type.name}: key`, key);
         if (nextNextNode) {
           finalSetEnv.data[key] = finalSetEnv.newChild();
@@ -935,7 +938,7 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
         continue;
       }
       // 1 or more inheritKeys -> eval inheritSet
-      const inheritSetValue = callThunk(inheritSetNode, state, env);
+      const inheritSetValue = inheritSetNode.type.thunk(inheritSetNode, state, env);
       if (!(inheritSetValue instanceof Env)) {
         throw new NixEvalError(`error: value is ${nixTypeWithArticle(inheritSetValue)} while a set was expected`)
       }
@@ -992,7 +995,7 @@ thunkOfNodeType.Select = (node, state, env) => {
   // e->eval(state, env, vTmp);
   // call thunk of Set or RecSet
   /** @type {Env} */
-  const setValue = callThunk(setNode, state, env);
+  const setValue = setNode.type.thunk(setNode, state, env);
   debugSelect && console.log(`thunkOfNodeType.Select:${node.from}: setValue`, setValue)
 
   let keyNode = nextSibling(setNode);
@@ -1006,7 +1009,7 @@ thunkOfNodeType.Select = (node, state, env) => {
   // for (auto & i : attrPath) {
   while (keyNode) {
     // auto name = getName(i, state, env);
-    const keyValue = callThunk(keyNode, state, env);
+    const keyValue = keyNode.type.thunk(keyNode, state, env);
 
     // state.forceAttrs(*vAttrs, pos);
 
@@ -1045,7 +1048,7 @@ thunkOfNodeType.HasAttr = (node, state, env) => {
 
   // call thunk of Set or RecSet
   /** @type {Env} */
-  const setValue = callThunk(setNode, state, env);
+  const setValue = setNode.type.thunk(setNode, state, env);
   debugHasAttr && console.log(`thunkOfNodeType.HasAttr:${node.from}: setValue`, setValue)
 
   let keyNode = nextSibling(setNode);
@@ -1058,7 +1061,7 @@ thunkOfNodeType.HasAttr = (node, state, env) => {
 
   // loop attrPath
   while (keyNode) {
-    const keyValue = callThunk(keyNode, state, env);
+    const keyValue = keyNode.type.thunk(keyNode, state, env);
 
     debugHasAttr && console.log(`thunkOfNodeType.HasAttr:${node.from}: result`, result)
     if (!(result instanceof Env)) {
@@ -1166,7 +1169,7 @@ thunkOfNodeType.With = (node, state, env) => {
 
   // call thunk of Set or RecSet
   /** @type {Env} */
-  const setValue = callThunk(setNode, state, env);
+  const setValue = setNode.type.thunk(setNode, state, env);
   debugWith && console.log(`thunkOfNodeType.With:${node.from}: setValue`, setValue)
   if (!(setValue instanceof Env)) {
     // ignore type errors
@@ -1174,12 +1177,12 @@ thunkOfNodeType.With = (node, state, env) => {
     // 1
     // nix-repl> with ""; 1
     // 1
-    return callThunk(exprNode, state, env);
+    return exprNode.type.thunk(exprNode, state, env);
   }
 
   const childEnv = env.newChild(node);
   childEnv.data = setValue.data;
-  return callThunk(exprNode, state, childEnv);
+  return exprNode.type.thunk(exprNode, state, childEnv);
 };
 
 
@@ -1240,7 +1243,7 @@ thunkOfNodeType.Lambda = (node, state, env) => {
       const childEnv = env.newChild(node);
       childEnv.data[argumentName] = argumentValue;
       // eval function body
-      return callThunk(bodyNode, state, childEnv);
+      return bodyNode.type.thunk(bodyNode, state, childEnv);
     }
     // store source location
     lambda.source = getSourceProp(node, state);
@@ -1330,7 +1333,7 @@ thunkOfNodeType.Lambda = (node, state, env) => {
         Object.defineProperty(childEnv.data, formalName, {
           get() {
             // TODO env or childEnv
-            return callThunk(formalDefaultNode, state, env);
+            return formalDefaultNode.type.thunk(formalDefaultNode, state, env);
           },
           enumerable: true,
           configurable: true,
@@ -1358,7 +1361,7 @@ thunkOfNodeType.Lambda = (node, state, env) => {
       //childChildEnv.data[formalsBindingName] = childEnv; // wrong
       childChildEnv.data[formalsBindingName] = argumentEnv;
       // eval function body
-      return callThunk(bodyNode, state, childChildEnv);
+      return bodyNode.type.thunk(bodyNode, state, childChildEnv);
     }
 
     /* no?
@@ -1369,7 +1372,7 @@ thunkOfNodeType.Lambda = (node, state, env) => {
     */
 
     // eval function body
-    return callThunk(bodyNode, state, childEnv);
+    return bodyNode.type.thunk(bodyNode, state, childEnv);
   };
   // store source location
   lambda.source = getSourceProp(node, state);
@@ -1442,7 +1445,7 @@ thunkOfNodeType.Let = (node, state, env) => {
   }
 
   // last child node
-  return callThunk(attrNode, state, childEnv);
+  return attrNode.type.thunk(attrNode, state, childEnv);
 };
 
 
