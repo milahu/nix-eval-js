@@ -6,8 +6,8 @@ import { NixEval, getStringifyResult } from "../src/nix-eval.js";
 import { fileTests } from './file-tests.js';
 
 const stringify = getStringifyResult({
-  maximumDepth: 2,
-  maximumBreadth: 10,
+  maximumDepth: 10,
+  maximumBreadth: 100,
 })
 
 let caseDir = path.dirname(fileURLToPath(import.meta.url))
