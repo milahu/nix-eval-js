@@ -3,7 +3,7 @@
 import process from 'node:process'
 import { compareVersions as compareVersionsJS } from 'compare-versions'
 
-export const nixVersion = "0.0.1"
+export const nixVersion = "2.3"
 
 export function functionArgs(lambda) {
   //console.log("builtins.functionArgs:"); console.dir(lambda)
