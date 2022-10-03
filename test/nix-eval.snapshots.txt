@@ -788,6 +788,21 @@ false
 ==>
 false
 
+#
+"import 1"
+==>
+ERROR EvalError cannot coerce an integer to a string
+
+#
+"import \"\""
+==>
+ERROR EvalError string '' doesn't represent an absolute path
+
+#
+"import \"file.nix\""
+==>
+ERROR EvalError string 'file.nix' doesn't represent an absolute path
+
 # SKIP library: import
 "(import /var/empty/nix-eval.test.nix {}).test"
 ==>
