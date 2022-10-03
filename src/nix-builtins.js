@@ -31,7 +31,7 @@ export function intersectAttrs(set1) {
 
 export function getEnv(key) {
   //console.log("builtins.getEnv:"); console.dir(key)
-  return process.env[key]
+  return process.env[key] || ""
 }
 
 // TODO what would nix.cc do?
