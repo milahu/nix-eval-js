@@ -15,9 +15,10 @@ import {
   nextSibling,
   nodeText,
   printNode,
+  Path,
 } from './nix-utils.js';
 
-import { NixPrimops } from './nix-primops-lezer-parser.js';
+import { NixPrimops, nixTypeWithArticle } from './nix-primops-lezer-parser.js';
 import * as NixBuiltins from './nix-builtins.js';
 import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from "./nix-errors.js"
 import { configure as getStringifyResult } from '../src/nix-eval-stringify/index.js'
@@ -243,8 +244,21 @@ export class NixEval {
       // import is just a global function, which can be shadowed
       // nix-repl> let import = x: "shadow"; in import 1
       // "shadow"
+      /** @type {function(Path): any} */
       import: (filePath) => {
         const debug = false
+        if (filePath instanceof Path) {
+          filePath = String(filePath)
+        }
+        else if (typeof(filePath) == 'string') {
+          if (filePath[0] != '/') {
+            throw new NixEvalError(`string '${filePath}' doesn't represent an absolute path`)
+          }
+        }
+        else {
+          throw new NixEvalError(`cannot coerce ${nixTypeWithArticle(filePath)} to a string`)
+        }
+
         debug && console.log(`NixEval.evalTree import: filePath`, filePath);
         // FIXME path is resolved in thunk PathRelative
         filePath = path.resolve(options.workdir, filePath)
