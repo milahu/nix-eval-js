@@ -508,7 +508,7 @@ export default function App() {
           let keyNode = NixEval.nextSibling(setNode);
           while (keyNode && keyNode.type.name != '⚠') {
             NixEval.printNode(keyNode, evalState, env, {label: 'onAutoComplete: select keyNode'});
-            const key = NixEval.callThunk(selectNode, evalState, env);
+            const key = NixEval.callThunk(keyNode, evalState, env);
             debugAutoComplete && console.log(`onAutoComplete: select key`, key)
             resultValue = resultValue.data[key];
             keyNode = NixEval.nextSibling(keyNode);
