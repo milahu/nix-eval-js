@@ -5,7 +5,7 @@
   "scripts": {
     "start": "vite",
     "dev": "vite --clearScreen false",
-    "build": "vite build",
+    "build": "rm -rf src/codemirror-lang-nix/node_modules ; vite build",
     "serve": "vite preview"
   },
   "license": "MIT",
