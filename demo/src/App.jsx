@@ -66,7 +66,7 @@ const exampleInputs = [
   `# autocomplete
 let pkgs = {
   hello = "echo hello";
-  a = { b = "hello nested"; };
+  a.b.c = "hello nested";
 }; in pkgs
 #         ^ write a dot
 # and maybe press Ctrl+Space
