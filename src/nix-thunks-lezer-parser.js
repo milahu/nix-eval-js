@@ -828,7 +828,7 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
 
   checkInfiniteLoop();
 
-  const childEnv = env.newChild(node);
+  const setEnv = env.newChild(node);
 
   debugSet && printNode(node, state, env, { label: 'node' });
 
@@ -836,7 +836,7 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
 
   if (!(attrNode = firstChild(node))) {
     // empty set
-    return childEnv;
+    return setEnv;
   }
 
   while (attrNode) {
@@ -845,28 +845,50 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
 
     if (attrNode.type.name == 'Attr') {
 
-      const keyNode = firstChild(attrNode);
-      if (!keyNode) {
+      // 2 or more children. last child = value
+      // similar to Let
+
+      let childNode = firstChild(attrNode);
+      let nextNode = nextSibling(childNode);
+      let nextNextNode = nextSibling(nextNode);
+
+      if (!childNode) {
         throw new NixEvalError('Set Attr: no key');
       }
-      debugSet && printNode(keyNode, state, env, { label: 'keyNode' });
 
-      const key = state.source.slice(keyNode.from, keyNode.to);
-      debugSet && console.log(`thunkOfNodeType.${node.type.name}: key`, key);
+      let finalSetEnv = setEnv;
+      let key;
 
-      const valueNode = nextSibling(keyNode);
+      // keys: all but the last child node
+      while (nextNode) {
+        let keyNode = childNode;
+        debugSet && printNode(keyNode, state, env, { label: 'keyNode' });
+        key = callThunk(keyNode, state, env);
+        debugSet && console.log(`thunkOfNodeType.${node.type.name}: key`, key);
+        if (nextNextNode) {
+          finalSetEnv.data[key] = finalSetEnv.newChild();
+          finalSetEnv = finalSetEnv.data[key];
+        }
+
+        childNode = nextNode;
+        nextNode = nextNextNode;
+        nextNextNode = nextSibling(nextNode);
+      }
+
+      // value: last child node
+      const valueNode = childNode;
       debugSet && printNode(valueNode, state, env, { label: 'valueNode' });
 
       const valueEnv = (node.type.name == 'Set'
         ? env // Set
-        : childEnv // RecSet
+        : setEnv // RecSet
       );
 
       const getValue = () => (
         valueNode.type.thunk(valueNode, state, valueEnv)
       );
 
-      Object.defineProperty(childEnv.data, key, {
+      Object.defineProperty(finalSetEnv.data, key, {
         get: getValue,
         enumerable: true,
         // fix: TypeError: Cannot redefine property: a
@@ -878,6 +900,8 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
       // loop inherit keys. zero or more
       let inheritKeyNode = firstChild(attrNode);
       while (inheritKeyNode) {
+        // TODO callThunk
+        // TODO loop keys
         const inheritKey = nodeText(inheritKeyNode, state);
         // greedy eval of unused value:
         // nix-repl> (let a=1; in { inherit a z; }).a
@@ -890,7 +914,7 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
         const getInheritValue = () => inheritValue;
         // lazy eval
         //const getValue = () => env.get(inheritKey);
-        Object.defineProperty(childEnv.data, inheritKey, {
+        Object.defineProperty(setEnv.data, inheritKey, {
           get: getInheritValue,
           enumerable: true,
           configurable: true,
@@ -916,6 +940,8 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
         throw new NixEvalError(`error: value is ${nixTypeWithArticle(inheritSetValue)} while a set was expected`)
       }
       while (inheritKeyNode) {
+        // TODO callThunk
+        // TODO loop keys
         const inheritKey = nodeText(inheritKeyNode, state);
         // greedy eval of unused value:
         // nix-repl> (let a=1; in { inherit a z; }).a
@@ -928,7 +954,7 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
         const getInheritValue = () => inheritValue;
         // lazy eval
         //const getValue = () => env.get(inheritKey);
-        Object.defineProperty(childEnv.data, inheritKey, {
+        Object.defineProperty(setEnv.data, inheritKey, {
           get: getInheritValue,
           enumerable: true,
           configurable: true,
@@ -945,7 +971,7 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
     attrNode = nextSibling(attrNode);
   }
 
-  return childEnv;
+  return setEnv;
 };
 
 
