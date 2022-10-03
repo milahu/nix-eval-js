@@ -1373,6 +1373,18 @@ thunkOfNodeType.Lambda = (node, state, env) => {
   };
   // store source location
   lambda.source = getSourceProp(node, state);
+
+  // set lambda.formals for builtins.functionArgs
+  if (formalNameSet.length == 0) {
+    lambda.formalHasDefault = null;
+  }
+  else {
+    lambda.formalHasDefault = {};
+    for (const formalName of formalNameSet) {
+      lambda.formalHasDefault[formalName] = Object.hasOwn(formalDefaultNodeMap, formalName);
+    }
+  }
+
   // lambda is called from Call
   return lambda;
 };

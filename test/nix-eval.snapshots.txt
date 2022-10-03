@@ -817,3 +817,18 @@ ERROR EvalError getting status of '/var/empty/does-not-exist.nix': No such file 
 "let b = \"b\"; in \"a${b}\""
 ==>
 "ab"
+
+# builtins.functionArgs
+"builtins.functionArgs (x: x)"
+==>
+{}
+
+# builtins.functionArgs
+"builtins.functionArgs ({x}: x)"
+==>
+{"x":false}
+
+# builtins.functionArgs
+"builtins.functionArgs ({x?1}: x)"
+==>
+{"x":true}

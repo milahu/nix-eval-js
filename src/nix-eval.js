@@ -16,6 +16,7 @@ import {
   printNode,
 } from './nix-thunks-lezer-parser.js';
 import { NixPrimops } from './nix-primops-lezer-parser.js';
+import * as NixBuiltins from './nix-builtins.js';
 import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from "./nix-errors.js"
 import { configure as getStringifyResult } from '../src/nix-eval-stringify/index.js'
 import { resetInfiniteLoopCounter, } from './infinite-loop-counter.js';
@@ -255,6 +256,10 @@ export class NixEval {
       // remove the "__" prefix
       const primopName = primopKey.slice(2);
       builtinsEnv.data[primopName] = NixPrimops[primopKey];
+    }
+
+    for (const key in NixBuiltins) {
+      builtinsEnv.data[key] = NixBuiltins[key];
     }
 
     builtinsEnv.data['true'] = true;
