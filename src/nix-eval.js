@@ -228,26 +228,29 @@ export class NixEval {
       // import is just a global function, which can be shadowed
       // nix-repl> let import = x: "shadow"; in import 1
       // "shadow"
-      import: (path) => ((args) => {
-        //console.log(`NixEval.evalTree: nix called import:`, path, args);
-        // TODO what is the parent env? evalEnv?
-        // TODO actually load the nix file from path
-        const env = evalEnv.newChild()
-        if (path == '/var/empty/nix-eval.test.nix') {
-          env.data.test = 'hello world'
+      import: function import1(path) {
+        //console.log(`NixEval.evalTree: nix called import1:`, path);
+        return function import2(args) {
+          //console.log(`NixEval.evalTree: nix called import2:`, path, args);
+          // TODO what is the parent env? evalEnv?
+          // TODO actually load the nix file from path
+          const env = evalEnv.newChild()
+          if (path == '/var/empty/nix-eval.test.nix') {
+            env.data.test = 'hello world'
+          }
+          else {
+            throw new NixEvalNotImplemented(`import`)
+          }
+          /*
+          // node
+          if (!existsSync(path)) {
+            throw new NixEvalError(`getting status of '${path}': No such file or directory`)
+          }
+          // TODO browser
+          */
+          return env
         }
-        else {
-          throw new NixEvalNotImplemented(`import`)
-        }
-        /*
-        // node
-        if (!existsSync(path)) {
-          throw new NixEvalError(`getting status of '${path}': No such file or directory`)
-        }
-        // TODO browser
-        */
-        return env
-      })
+      }
     }
     const builtinsEnv = evalEnv.data.builtins = evalEnv.newChild();
 
