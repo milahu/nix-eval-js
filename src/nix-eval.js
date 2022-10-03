@@ -79,8 +79,6 @@ export class State {
   }
 }
 
-
-
 const debugEnv = false
 
 export class Env {
@@ -229,9 +227,10 @@ export class NixEval {
       // nix-repl> let import = x: "shadow"; in import 1
       // "shadow"
       import: function import1(path) {
-        //console.log(`NixEval.evalTree: nix called import1:`, path);
+        const debug = false
+        debug && console.log(`NixEval.evalTree: nix called import1:`, path);
         return function import2(args) {
-          //console.log(`NixEval.evalTree: nix called import2:`, path, args);
+          debug && console.log(`NixEval.evalTree: nix called import2:`, path, args);
           // TODO what is the parent env? evalEnv?
           // TODO actually load the nix file from path
           const env = evalEnv.newChild()
