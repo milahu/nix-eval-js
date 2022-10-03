@@ -14,6 +14,13 @@ const stringify = getStringifyResult({
 
 function main(argv) {
 
+  if (argv[1] == '-f') {
+    const nix = new NixEval();
+    const result = nix.evalFile(argv[2]);
+    console.log(stringify(result));
+    return
+  }
+
   const { text } = (() => {
     if (!process.stdin.isTTY) { // FIXME condition for stdin
       return {

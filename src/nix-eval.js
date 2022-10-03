@@ -21,7 +21,8 @@ import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from "./nix-error
 import { configure as getStringifyResult } from '../src/nix-eval-stringify/index.js'
 import { resetInfiniteLoopCounter, } from './infinite-loop-counter.js';
 
-
+import fs from 'node:fs'
+import path from 'node:path'
 
 // "export { ... } from '...'" is not working in vite
 export {
@@ -72,9 +73,10 @@ export class State {
   /** @type {string} */
   source = ''
   // TODO refactor. make this more like EvalState in nix
-  /** @type {function({ source: string })} */
-  constructor({ source }) {
+  /** @type {function({ source: string, options: Object })} */
+  constructor({ source, options }) {
     this.source = source
+    this.options = options
     this.stack = new CallStack(this)
   }
 }
@@ -186,7 +188,10 @@ export class NixEval {
     resetInfiniteLoopCounter();
   }
 
-  eval(source) {
+  eval(source, options) {
+
+    if (!options) options = {}
+    if (!options.workdir) options.workdir = process.cwd();
 
     // default: strict is false
     //tree = LezerParserNix.parse(source);
@@ -214,42 +219,46 @@ export class NixEval {
     if (tree === undefined) {
       throw new Error('tree is undefined. FIXME handle large inputs over 3 KByte');
     }
-    return this.evalTree(tree, source);
+    return this.evalTree(tree, source, options);
   }
 
-  evalTree(tree, source) {
+  evalFile(filePath, options) {
+    if (!options) options = {}
+    if (!options.workdir) options.workdir = path.dirname(filePath)
+    const source = fs.readFileSync(filePath, 'utf8');
+    return this.eval(source, options)
+  }
+
+  evalTree(tree, source, options) {
+    if (!options) options = {}
+    if (!options.workdir) options.workdir = process.cwd();
     const evalState = new State({
       source,
+      options,
     })
     const evalEnv = new Env();
     evalEnv.data = {
       // import is just a global function, which can be shadowed
       // nix-repl> let import = x: "shadow"; in import 1
       // "shadow"
-      import: function import1(path) {
+      import: (filePath) => {
         const debug = false
-        debug && console.log(`NixEval.evalTree: nix called import1:`, path);
-        return function import2(args) {
-          debug && console.log(`NixEval.evalTree: nix called import2:`, path, args);
-          // TODO what is the parent env? evalEnv?
-          // TODO actually load the nix file from path
-          const env = evalEnv.newChild()
-          if (path == '/var/empty/nix-eval.test.nix') {
-            env.data.test = 'hello world'
-          }
-          else {
-            throw new NixEvalNotImplemented(`import`)
-          }
-          /*
-          // node
-          if (!existsSync(path)) {
-            throw new NixEvalError(`getting status of '${path}': No such file or directory`)
-          }
-          // TODO browser
-          */
-          return env
-        }
-      }
+        debug && console.log(`NixEval.evalTree import: filePath`, filePath);
+        // FIXME path is resolved in thunk PathRelative
+        filePath = path.resolve(options.workdir, filePath)
+        debug && console.log(`NixEval.evalTree import: resolved filePath`, filePath);
+        return this.evalFile(filePath);
+      },
+
+      abort: (message) => {
+        throw new NixEvalError(`aborted: ${message}`)
+      },
+
+      toString: (value) => {
+        // TODO ...
+        // use stringifyValue?
+        return String(value)
+      },
     }
     const builtinsEnv = evalEnv.data.builtins = evalEnv.newChild();
 

@@ -4,7 +4,7 @@ import { checkInfiniteLoop, resetInfiniteLoopCounter, } from './infinite-loop-co
 import { getSourceProp } from './nix-utils.js'
 
 // https://github.com/voracious/vite-plugin-node-polyfills/issues/4
-import { join as joinPath } from 'node:path'
+import { join as joinPath, resolve as resolvePath } from 'node:path'
 import { Env, getStringifyResult } from './nix-eval.js';
 //import { join as joinPath } from 'path'
 
@@ -808,7 +808,7 @@ thunkOfNodeType.PathAbsolute = thunkOfNodeType.Identifier;
 /** @return {string} */
 thunkOfNodeType.PathRelative = (node, state, env) => {
   const relativePath = nodeText(node, state);
-  const absolutePath = joinPath('/home/user', relativePath);
+  const absolutePath = resolvePath(state.options.workdir, relativePath);
   return absolutePath;
 };
 
