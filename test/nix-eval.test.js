@@ -1,6 +1,7 @@
 import test from 'ava';
 import * as fs from "node:fs"
 import * as path from "node:path"
+import process from "node:process"
 import { fileURLToPath } from 'node:url';
 import { NixEval, getStringifyResult } from "../src/nix-eval.js";
 import { fileTests } from './file-tests.js';
@@ -9,6 +10,8 @@ const stringify = getStringifyResult({
   maximumDepth: 10,
   maximumBreadth: 100,
 })
+
+process.env.NIX_EVAL_JS_TEST_ENV = "hello"
 
 let caseDir = path.dirname(fileURLToPath(import.meta.url))
 

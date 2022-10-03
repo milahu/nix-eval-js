@@ -864,9 +864,14 @@ ERROR EvalError getting status of '/var/empty/does-not-exist.nix': No such file 
 {"a":2}
 
 #
-"builtins.getEnv \"PAGER\""
+"builtins.getEnv \"NIX_EVAL_JS_TEST_ENV\""
 ==>
-"less"
+"hello"
+
+#
+"builtins.getEnv \"NIX_EVAL_JS_TEST_ENV_UNDEFINED\""
+==>
+""
 
 #
 "builtins.compareVersions \"1\" \"2\""
