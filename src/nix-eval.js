@@ -109,6 +109,7 @@ export class Env {
       //if (!(node instanceof BufferNode)) {
       // no. typeof(node) == 'object'
       //if (typeof(node) != 'BufferNode') {
+      /* TODO why error?
       if (
         node.constructor.name != 'BufferNode'
         // quickfix for vite production build
@@ -119,6 +120,7 @@ export class Env {
         throw new Error(`expected node type BufferNode, actual node type ${node.constructor.name}`)
 
       }
+      */
     }
   }
   newChild(
