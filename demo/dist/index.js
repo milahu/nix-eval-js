@@ -28979,7 +28979,6 @@ class CallStack {
     }
     return result.join('\n')
   }
-  // TODO length
 }
 
 class State {
@@ -29009,32 +29008,6 @@ class Env {
     if (parent) this.parent = parent;
     this.depth = parent ? (parent.depth + 1) : 0;
     if (node) this.node = node;
-    if (node) {
-      //console.log(`Env: node`, node)
-      //console.log(`Env: node.constructor.name`, node.constructor.name)
-      // this breaks in production build
-      // Error expected node type BufferNode, actual node type BufferNode$1
-      //if (node.constructor.name != 'BufferNode') {
-      // no. BufferNode is not exported in node_modules/@lezer/common/dist/index.js
-      // TODO feature request: export BufferNode (etc) from @lezer/common for instanceof checks
-      //if (!(node instanceof BufferNode)) {
-      // no. typeof(node) == 'object'
-      //if (typeof(node) != 'BufferNode') {
-      if (
-        node.constructor.name != 'BufferNode'
-        // quickfix for vite production build
-        // TODO disable mangling of class names in esbuild?
-        // see vite.config.js
-        && node.constructor.name != 'BufferNode$1'
-      ) {
-        throw new Error(`expected node type BufferNode, actual node type ${node.constructor.name}`)
-        //throw new Error(`expected node type BufferNode, actual node type ${typeof(node)}`)
-      }
-      // add link from node to env
-      // WONTFIX? storing envs in syntaxNode does not work
-      //if (!node.envs) node.envs = [];
-      //node.envs.push(this);
-    }
   }
   newChild(
     /** @type {SyntaxNode} */
@@ -29944,6 +29917,7 @@ function skipComments(node) {
 
 /** @type {function(SyntaxNode): SyntaxNode} */
 function firstChild(node) {
+  if (!node) return null;
   if (!(node = node.firstChild)) {
     //console.log(`firstChild: node.firstChild is empty`);
     return null;
@@ -29957,6 +29931,7 @@ function firstChild(node) {
 
 /** @type {function(SyntaxNode): SyntaxNode} */
 function nextSibling(node) {
+  if (!node) return null;
   if (!(node = node.nextSibling)) {
     //console.log(`nextSibling: node.nextSibling is empty`);
     return null;
@@ -30652,38 +30627,60 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
 
   checkInfiniteLoop();
 
-  const childEnv = env.newChild(node);
+  const setEnv = env.newChild(node);
 
   let attrNode;
 
   if (!(attrNode = firstChild(node))) {
     // empty set
-    return childEnv;
+    return setEnv;
   }
 
   while (attrNode) {
 
     if (attrNode.type.name == 'Attr') {
 
-      const keyNode = firstChild(attrNode);
-      if (!keyNode) {
+      // 2 or more children. last child = value
+      // similar to Let
+
+      let childNode = firstChild(attrNode);
+      let nextNode = nextSibling(childNode);
+      let nextNextNode = nextSibling(nextNode);
+
+      if (!childNode) {
         throw new NixEvalError('Set Attr: no key');
       }
 
-      const key = state.source.slice(keyNode.from, keyNode.to);
+      let finalSetEnv = setEnv;
+      let key;
 
-      const valueNode = nextSibling(keyNode);
+      // keys: all but the last child node
+      while (nextNode) {
+        let keyNode = childNode;
+        key = callThunk(keyNode, state, env);
+        if (nextNextNode) {
+          finalSetEnv.data[key] = finalSetEnv.newChild();
+          finalSetEnv = finalSetEnv.data[key];
+        }
+
+        childNode = nextNode;
+        nextNode = nextNextNode;
+        nextNextNode = nextSibling(nextNode);
+      }
+
+      // value: last child node
+      const valueNode = childNode;
 
       const valueEnv = (node.type.name == 'Set'
         ? env // Set
-        : childEnv // RecSet
+        : setEnv // RecSet
       );
 
       const getValue = () => (
         valueNode.type.thunk(valueNode, state, valueEnv)
       );
 
-      Object.defineProperty(childEnv.data, key, {
+      Object.defineProperty(finalSetEnv.data, key, {
         get: getValue,
         enumerable: true,
         // fix: TypeError: Cannot redefine property: a
@@ -30695,6 +30692,8 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
       // loop inherit keys. zero or more
       let inheritKeyNode = firstChild(attrNode);
       while (inheritKeyNode) {
+        // TODO callThunk
+        // TODO loop keys
         const inheritKey = nodeText(inheritKeyNode, state);
         // greedy eval of unused value:
         // nix-repl> (let a=1; in { inherit a z; }).a
@@ -30707,7 +30706,7 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
         const getInheritValue = () => inheritValue;
         // lazy eval
         //const getValue = () => env.get(inheritKey);
-        Object.defineProperty(childEnv.data, inheritKey, {
+        Object.defineProperty(setEnv.data, inheritKey, {
           get: getInheritValue,
           enumerable: true,
           configurable: true,
@@ -30733,6 +30732,8 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
         throw new NixEvalError(`error: value is ${nixTypeWithArticle(inheritSetValue)} while a set was expected`)
       }
       while (inheritKeyNode) {
+        // TODO callThunk
+        // TODO loop keys
         const inheritKey = nodeText(inheritKeyNode, state);
         // greedy eval of unused value:
         // nix-repl> (let a=1; in { inherit a z; }).a
@@ -30745,7 +30746,7 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
         const getInheritValue = () => inheritValue;
         // lazy eval
         //const getValue = () => env.get(inheritKey);
-        Object.defineProperty(childEnv.data, inheritKey, {
+        Object.defineProperty(setEnv.data, inheritKey, {
           get: getInheritValue,
           enumerable: true,
           configurable: true,
@@ -30762,7 +30763,7 @@ thunkOfNodeType.Set = thunkOfNodeType.RecSet = (node, state, env) => {
     attrNode = nextSibling(attrNode);
   }
 
-  return childEnv;
+  return setEnv;
 };
 
 // void ExprSelect::eval(EvalState & state, Env & env, Value & v)
@@ -31743,8 +31744,8 @@ const _tmpl$ = /*#__PURE__*/template(`<div class="eval-error"><span color="red">
       _tmpl$7 = /*#__PURE__*/template(`<ul></ul>`),
       _tmpl$8 = /*#__PURE__*/template(`<li></li>`);
 const stringifyEvalResult = configure({
-  maximumDepth: 2,
-  maximumBreadth: 10,
+  maximumDepth: 10,
+  maximumBreadth: 100,
   indent: "  "
 });
 /*
@@ -31778,7 +31779,7 @@ Nix
 const exampleInputs = [`# autocomplete
 let pkgs = {
   hello = "echo hello";
-  a = { b = "hello nested"; };
+  a.b.c = "hello nested";
 }; in pkgs
 #         ^ write a dot
 # and maybe press Ctrl+Space
@@ -32124,7 +32125,7 @@ function App() {
             printNode(keyNode, evalState, env, {
               label: 'onAutoComplete: select keyNode'
             });
-            const key = callThunk(selectNode, evalState, env);
+            const key = callThunk(keyNode, evalState, env);
             resultValue = resultValue.data[key];
             keyNode = nextSibling(keyNode);
           }
@@ -32181,10 +32182,6 @@ function App() {
 
     onEditorMount: view => {
       // initial state
-      // FIXME sometimes this is wrong:
-      // multiple parse errors at end of tree
-      // bug in lezer or codemirror?
-      // seems like parser returns too early
       // workaround for solidjs
       //onEditorState(view.state);
       setTimeout(() => {
