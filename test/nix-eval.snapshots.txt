@@ -364,9 +364,19 @@ ERROR EvalError attempt to call something which is not a function but a float
 ERROR EvalError list index 0 is out of bounds
 
 # call primop tail
+"__tail [ 1 ]"
+==>
+[]
+
+# call primop tail
 "__tail [ 1 2 ]"
 ==>
-2
+[2]
+
+# call primop tail
+"__tail [ 1 2 3 ]"
+==>
+[2,3]
 
 # call primop tail empty
 "__tail [ ]"
