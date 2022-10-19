@@ -3,6 +3,8 @@
 
 // TODO sharing = caching of node values, based on semantic equality of nodes
 
+const debug = false
+
 import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
 //import { parser as LezerParserNix } from "../demo/src/codemirror-lang-nix/src/lezer-parser-nix/dist/index.js"
 //import { parser as LezerParserNix } from "../demo/src/codemirror-lang-nix/dist/index.js"
@@ -203,8 +205,22 @@ export class NixEval {
       strict: true, // throw on parse error
     });
 
+    const valueCache = new Map();
+
     const evalNode = (node, state, env) => {
-      return node.type.thunk(node, state, env);
+      //debug && console.log("evalNode"); console.dir(node);
+      if (valueCache.has(node)) {
+        // cache hit -> read cache
+        debug && console.log("cache hit");
+        return valueCache.get(node);
+      }
+      // cache miss
+      debug && console.log("cache miss");
+      // compute value
+      const value = node.type.thunk(node, state, env);
+      // write cache
+      valueCache.set(node, value);
+      return value;
     };
 
     // add thunks to types
