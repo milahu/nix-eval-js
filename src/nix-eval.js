@@ -26,6 +26,8 @@ import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from "./nix-error
 import { configure as getStringifyResult } from '../src/nix-eval-stringify/index.js'
 import { resetInfiniteLoopCounter, } from './infinite-loop-counter.js';
 
+import { stringifyTree } from './lezer-parser-nix/src/nix-format.js'
+
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -42,6 +44,7 @@ export {
   NixEvalError,
   NixSyntaxError,
   NixEvalNotImplemented,
+  stringifyTree,
 }
 
 class CallStack {
@@ -209,17 +212,20 @@ export class NixEval {
 
     const evalNode = (node, state, env) => {
       //debug && console.log("evalNode"); console.dir(node);
-      if (valueCache.has(node)) {
+      //const cacheKey = node; // fail. no cache hits
+      const cacheKey = stringifyTree(node);
+      debug && console.log(`cacheKey: ${cacheKey}`);
+      if (valueCache.has(cacheKey)) {
         // cache hit -> read cache
         debug && console.log("cache hit");
-        return valueCache.get(node);
+        return valueCache.get(cacheKey);
       }
       // cache miss
       debug && console.log("cache miss");
       // compute value
       const value = node.type.thunk(node, state, env);
       // write cache
-      valueCache.set(node, value);
+      valueCache.set(cacheKey, value);
       return value;
     };
 
