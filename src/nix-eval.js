@@ -203,10 +203,15 @@ export class NixEval {
       strict: true, // throw on parse error
     });
 
+    const evalNode = (node, state, env) => {
+      return node.type.thunk(node, state, env);
+    };
+
     // add thunks to types
     // TODO? move to evalTree
     for (const nodeType of strictParser.nodeSet.types) {
       nodeType.thunk = thunkOfNodeType[nodeType.name];
+      nodeType.eval = evalNode;
     }
 
     let tree;
@@ -296,6 +301,6 @@ export class NixEval {
     builtinsEnv.data['import'] = evalEnv.data['import'];
 
     const topNode = tree.topNode;
-    return topNode.type.thunk(topNode, evalState, evalEnv);
+    return topNode.type.eval(topNode, evalState, evalEnv);
   }
 }
