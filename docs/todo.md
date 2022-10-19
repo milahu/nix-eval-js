@@ -1,5 +1,21 @@
 # nix-eval-js/doc/todo
 
+## fix rnix-lsp
+
+autocomplete should work
+
+https://github.com/nix-community/rnix-lsp/blob/master/src/eval.rs
+
+## LSP sucks
+
+because JSON is slow?
+
+https://news.ycombinator.com/item?id=26403814
+
+> So why can't you just write your language support library in whatever language you like, wrap that in something that supports the C ABI if it doesn't already, then call that from your editor? If you're going to use a language server, then you have to write code to call the LSP. Why not just call a library?
+
+> It is also definitely possible to design a better IPC protocol than JSON-RPC, but compared to the idea of isolating plugins (for me, it is one of the primary advantages of VSCode over any other editor with plugins I've used: it almost never crashes, and when it does, it preserves the state), and considering the resource-intensity of the language support itself, I think, JSON-RPC overhead is not as large as it looks.
+
 ## generalize
 
 * cheerp: C++ to javascript
