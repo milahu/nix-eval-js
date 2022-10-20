@@ -14,9 +14,21 @@ const stringify = getStringifyResult({
 
 function main(argv) {
 
-  if (argv[1] == '-f') {
+  // TODO remove argv[0]
+  //argv.shift();
+
+  const options = {};
+
+  if (argv[1] == '--normal') {
+    options.normal = true
+    argv = [argv[0], ...argv.slice(2)]
+    // TODO
+    //argv.shift();
+  }
+
+  if (argv[1] == '-f' || argv[1] == '--file') {
     const nix = new NixEval();
-    const result = nix.evalFile(argv[2]);
+    const result = nix.evalFile(argv[2], options);
     console.log(stringify(result));
     return
   }
@@ -27,12 +39,7 @@ function main(argv) {
         text: readFileSync(0).toString(), // read from stdin
       };
     }
-    if (argv[1] == '-f') {
-      return {
-        text: readFileSync(argv[2], 'utf8'),
-      };
-    }
-    if (argv[1] == '-e') {
+    if (argv[1] == '-e' || argv[1] == '--expr') {
       return {
         text: argv[2],
       };
@@ -42,6 +49,7 @@ function main(argv) {
     console.error(`node ${name} -e "__add 1 1"`);
     console.error(`node ${name} -f path/to/input.nix`);
     console.error(`echo "__add 1 1" | node ${name}`);
+    console.error(`node ${name} --normal -e "__add 1 1"`);
     process.exit(1);
   })();
 
@@ -51,10 +59,15 @@ function main(argv) {
 
   const nix = new NixEval();
 
-  const result = nix.eval(text || '');
+  const result = nix.eval(text || '', options);
 
   //console.dir(result, { depth: 2 }); // getter values are missing
   //console.log(Object.assign({}, result)); // print everything -> too much
+  if (options.normal) {
+    // dont stringify
+    console.log(result)
+    return
+  }
   console.log(stringify(result)); // TODO indent
   //console.log(JSON.stringify(result, null, 2)); // print everything -> too much
 

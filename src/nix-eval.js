@@ -3,13 +3,15 @@
 
 // TODO sharing = caching of node values, based on semantic equality of nodes
 
-const debug = false
+const debug = true
 
 import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
 //import { parser as LezerParserNix } from "../demo/src/codemirror-lang-nix/src/lezer-parser-nix/dist/index.js"
 //import { parser as LezerParserNix } from "../demo/src/codemirror-lang-nix/dist/index.js"
 
 import * as thunkOfNodeType from './nix-thunks-lezer-parser.js';
+import * as formatOfNodeType from "./lezer-parser-nix/src/nix-format-thunks.js"
+import * as normalOfNodeType from "./nix-normal-thunks.js"
 
 import {
   callThunk,
@@ -46,6 +48,12 @@ export {
   NixEvalNotImplemented,
   stringifyTree,
 }
+
+
+
+/** @typedef {Record<string, any>} Options */
+
+
 
 class CallStack {
   constructor(state) {
@@ -196,6 +204,13 @@ export class NixEval {
     resetInfiniteLoopCounter();
   }
 
+  /**
+  * evalute a nix expression
+  *
+  * @param {string} source
+  * @param {Options} options
+  * @return {any}
+  */
   eval(source, options) {
 
     if (!options) options = {}
@@ -204,16 +219,33 @@ export class NixEval {
     // default: strict is false
     //tree = LezerParserNix.parse(source);
 
-    const strictParser = LezerParserNix.configure({
-      strict: true, // throw on parse error
-    });
+    const parser = this.getParser();
+
+    /* not used
+    const trivialValueTypeSet = new Set([
+      'boolean',
+      'string',
+      'number',
+      'bigint',
+    ]);
+
+    // nix/src/libexpr/eval.cc
+    // bool Value::isTrivial() const
+    const isTrivialValue = (value) => (
+      trivialValueTypeSet.has(typeof value) ||
+      value === null ||
+      false
+    );
+    */
 
     const valueCache = new Map();
 
     const evalNode = (node, state, env) => {
       //debug && console.log("evalNode"); console.dir(node);
       //const cacheKey = node; // fail. no cache hits
+      console.log(`stringifyTree(node)`)
       const cacheKey = stringifyTree(node);
+      //throw new Error('todo')
       debug && console.log(`cacheKey: ${cacheKey}`);
       if (valueCache.has(cacheKey)) {
         // cache hit -> read cache
@@ -229,29 +261,22 @@ export class NixEval {
       return value;
     };
 
-    // add thunks to types
-    // TODO? move to evalTree
-    for (const nodeType of strictParser.nodeSet.types) {
-      nodeType.thunk = thunkOfNodeType[nodeType.name];
+    for (const nodeType of parser.nodeSet.types) {
       nodeType.eval = evalNode;
     }
 
-    let tree;
-    try {
-      tree = strictParser.parse(source);
-    }
-    catch (error) {
-      if (error instanceof SyntaxError) {
-        // TODO error message?
-        throw new NixSyntaxError('unexpected invalid token');
-      }
-    }
-    if (tree === undefined) {
-      throw new Error('tree is undefined. FIXME handle large inputs over 3 KByte');
-    }
+    const tree = this.getTree(source, {parser});
+
     return this.evalTree(tree, source, options);
   }
 
+  /**
+  * evalute a nix expression from a nix file
+  *
+  * @param {string} filePath
+  * @param {Options} options
+  * @return {any}
+  */
   evalFile(filePath, options) {
     if (!options) options = {}
     if (!options.workdir) options.workdir = path.dirname(filePath)
@@ -259,8 +284,21 @@ export class NixEval {
     return this.eval(source, options)
   }
 
+  /**
+  * evalute a nix expression from a parse tree
+  *
+  * @param {Tree} tree
+  * @param {string} source
+  * @param {Options} options
+  * @return {any}
+  */
   evalTree(tree, source, options) {
     if (!options) options = {}
+    // multicall hack ... todo refactor?
+    if (options.normal) {
+      // only nomalize
+      return this.normalTree(tree, source, options);
+    }
     if (!options.workdir) options.workdir = process.cwd();
     const evalState = new State({
       source,
@@ -273,7 +311,7 @@ export class NixEval {
       // "shadow"
       /** @type {function(Path): any} */
       import: (filePath) => {
-        const debug = false
+        const debug = true
         if (filePath instanceof Path) {
           filePath = String(filePath)
         }
@@ -322,7 +360,71 @@ export class NixEval {
 
     builtinsEnv.data['import'] = evalEnv.data['import'];
 
+    console.log(`stringifyTree(tree)`)
+    stringifyTree(tree);
+
     const topNode = tree.topNode;
     return topNode.type.eval(topNode, evalState, evalEnv);
   }
+
+  /**
+  * normalize a nix expression to its normal form
+  *
+  * @param {string} source
+  * @param {Options} options
+  * @return {string}
+  */
+  normal(source, options) {
+    const tree = this.getTree(source);
+    return this.normalTree(tree, source, options);
+  }
+
+  /**
+  * normalize a parsed nix expression to its normal form
+  *
+  * @param {Tree} tree
+  * @param {string} source
+  * @param {Options} options
+  * @return {string}
+  */
+  normalTree(tree, source, options) {
+    const state = { source };
+    // note: env ist not passed to format
+    return tree.topNode.type.format(tree.topNode, state);
+  }
+
+  /** @return {Parser} */
+  getParser() {
+    const parser = LezerParserNix.configure({
+      strict: true, // throw on parse error
+    });
+
+    // add thunks to types
+    for (const nodeType of parser.nodeSet.types) {
+      nodeType.thunk = thunkOfNodeType[nodeType.name];
+      nodeType.format = formatOfNodeType[nodeType.name];
+      nodeType.normal = normalOfNodeType[nodeType.name];
+    }
+
+    return parser
+  }
+
+  /** @return {Tree} */
+  getTree(source, options) {
+    if (!options) options = {};
+    const parser = options.parser || this.getParser();
+    try {
+      return parser.parse(source);
+    }
+    catch (error) {
+      if (error instanceof SyntaxError) {
+        // TODO error message?
+        throw new NixSyntaxError('unexpected invalid token');
+      }
+    }
+    if (tree === undefined) {
+      throw new Error('tree is undefined. FIXME handle large inputs over 3 KByte');
+    }
+  }
+
 }
