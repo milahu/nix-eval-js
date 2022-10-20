@@ -3,7 +3,7 @@
 
 // TODO sharing = caching of node values, based on semantic equality of nodes
 
-const debug = true
+const debug = false
 
 import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
 //import { parser as LezerParserNix } from "../demo/src/codemirror-lang-nix/src/lezer-parser-nix/dist/index.js"
@@ -243,7 +243,8 @@ export class NixEval {
     const evalNode = (node, state, env) => {
       //debug && console.log("evalNode"); console.dir(node);
       //const cacheKey = node; // fail. no cache hits
-      console.log(`stringifyTree(node)`)
+      debug && console.log(`stringifyTree(node)`)
+      // TODO normalize, use nix.normalNode
       const cacheKey = stringifyTree(node);
       //throw new Error('todo')
       debug && console.log(`cacheKey: ${cacheKey}`);
@@ -388,9 +389,21 @@ export class NixEval {
   * @return {string}
   */
   normalTree(tree, source, options) {
+    return this.normalNode(tree.topNode, source, options)
+  }
+
+  /**
+  * normalize a parsed nix expression to its normal form
+  *
+  * @param {TreeNode} node
+  * @param {string} source
+  * @param {Options} options
+  * @return {string}
+  */
+  normalNode(node, source, options) {
     const state = { source };
     // note: env ist not passed to format
-    return tree.topNode.type.format(tree.topNode, state);
+    return node.type.normal(node, state);
   }
 
   /** @return {Parser} */
