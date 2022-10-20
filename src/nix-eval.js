@@ -243,9 +243,7 @@ export class NixEval {
     const evalNode = (node, state, env) => {
       //debug && console.log("evalNode"); console.dir(node);
       //const cacheKey = node; // fail. no cache hits
-      debug && console.log(`stringifyTree(node)`)
-      // TODO normalize, use nix.normalNode
-      const cacheKey = stringifyTree(node);
+      const cacheKey = this.normalNode(node, state.source);
       //throw new Error('todo')
       debug && console.log(`cacheKey: ${cacheKey}`);
       if (valueCache.has(cacheKey)) {
@@ -360,9 +358,6 @@ export class NixEval {
     builtinsEnv.data['null'] = null;
 
     builtinsEnv.data['import'] = evalEnv.data['import'];
-
-    console.log(`stringifyTree(tree)`)
-    stringifyTree(tree);
 
     const topNode = tree.topNode;
     return topNode.type.eval(topNode, evalState, evalEnv);
