@@ -1,5 +1,7 @@
 // based on nix-thunks-lezer-parser.js
 
+// https://github.com/NixOS/nix/blob/master/src/libexpr/nixexpr.cc
+
 const space = ' ' // debug
 
 // TODO remove unneeded parens
@@ -8,11 +10,11 @@ const space = ' ' // debug
 import { NixEvalError, NixSyntaxError, NixEvalNotImplemented } from './nix-errors.js';
 import { NixPrimops, nixTypeWithArticle } from './nix-primops-lezer-parser.js';
 import { checkInfiniteLoop, resetInfiniteLoopCounter, } from './infinite-loop-counter.js';
-import { getSourceProp, firstChild, nextSibling, nodeText, printNode, JavascriptSet, Path } from './nix-utils.js'
+import { getSourceProp, firstChild, nextSibling, nodeText, printNode, JavascriptSet, Path, stripIndentation } from './nix-utils.js'
 
 // https://github.com/voracious/vite-plugin-node-polyfills/issues/4
 import { join as joinPath, resolve as resolvePath } from 'node:path'
-import { Env, getStringifyResult } from './nix-eval.js';
+import { Env, getStringifyResult, NixEval } from './nix-eval.js';
 //import { join as joinPath } from 'path'
 
 // jsdoc types
@@ -39,7 +41,7 @@ const stringifyValue = getStringifyResult({
 
 
 
-/** @return {never} */
+/** @return {string} */
 // TODO ignore typescript error: 'state' is declared but its value is never read. ts(6133)
 // @ts-ignore
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -52,7 +54,7 @@ export const SyntaxError = (node, _state, _env) => {
   throw new NixSyntaxError(`error at position ${node.from}`);
 };
 
-/** @return {any} */
+/** @return {string} */
 export const Nix = (node, state, env) => {
   resetInfiniteLoopCounter();
   //console.log('Nix: node', node);
@@ -68,66 +70,84 @@ export const Nix = (node, state, env) => {
 
 
 
-/** @return {null} */
-export const NULL = () => {
-  return 'null';
-};
+// constants
 
-/** @return {boolean} */
-export const TRUE = () => {
-  return 'true';
-};
+/** @return {string} */
+export const NULL = () => 'null';
 
-/** @return {boolean} */
-export const FALSE = () => {
-  return 'false';
-};
+/** @return {string} */
+export const TRUE = () => 'true';
+
+/** @return {string} */
+export const FALSE = () => 'false';
 
 
 
-/** @return {any} */
-export const Parens = (node, state, env) => {
-  //console.log('Parens: node', node);
-  const childNode = firstChild(node);
-  if (!childNode) {
-    throw NixSyntaxError("unexpected ')'");
-  }
-  //return '(' + space + childNode.type.normal(childNode, state, env) + space + ')';
-  return '(' + childNode.type.normal(childNode, state, env) + ')';
-};
+// trivial
+
+/** @return {string} */
+export const Identifier = nodeText;
+
+/** @return {string} */
+export const Primop = nodeText;
 
 
 
-/** @return {bigint} */
+/** @return {string} */
 export const Int = (node, state, env) => {
-  //throw new Error("todo")
-  return nodeText(node, state);
-};
+  // TODO int overflow
+  // javascript limitation:
+  // (9223372036854775808 > 9223372036854775807) == false
+  // -> BigInt
+  // (BigInt("9223372036854775808") > BigInt("9223372036854775807")) == true
+  const nString = nodeText(node, state)
+  // check integer overflow
+  // nix can parse only positive integers
+  // "-1" is paresed as "(__sub 0 1)"
+  const n = BigInt(nString)
+  const nMax = BigInt("9223372036854775807") // 2**63-1
+  if (n > nMax) {
+    throw new NixEvalError(`invalid integer '${nString}'`)
+  }
+  return nString;
+}
 
-
-
-/** @return {number} */
+/** @return {string} */
 export const Float = (node, state, env) => {
-  return nodeText(node, state);
+  //console.log('Int: node', node);
+  const n = parseFloat(nodeText(node, state))
+  if ((n | 0) == n) {
+    // skip decimals
+    // nix-instantiate --parse --expr 1.0
+    // 1
+    return String(n)
+  }
+  if (n == Infinity) {
+    throw new NixEvalError(`invalid float '${nodeText(node, state)}'`)
+  }
+  return n.toFixed(6).replace(/0+$/, '');
 };
 
 
 
 /** @return {string} */
-export const Identifier = (node, state, env) => {
-  return nodeText(node, state);
+export const Parens = (node, state, env) => {
+  //console.log('Parens: node', node);
+  const childNode = firstChild(node);
+  //console.log('Parens: childNode', childNode);
+  if (!childNode) {
+    throw NixSyntaxError("unexpected ')'");
+  }
+  //return '(' + space + childNode.type.normal(childNode, state, env) + space + ')';
+  //return '(' + childNode.type.normal(childNode, state, env) + ')';
+  // note: no parens. parens are only needed for the parser,
+  // to force grouping of nodes (to override associativity)
+  return childNode.type.normal(childNode, state, env);
 };
 
 
 
-/** @return {function} */
-export const Primop = (node, state, env) => {
-  return nodeText(node, state);
-};
-
-
-
-/** @return {number | bigint | string} */
+/** @return {string} */
 export const Add = (node, state, env) => {
 
   // arithmetic addition or string concat
@@ -195,7 +215,9 @@ export const Add = (node, state, env) => {
 
 export const Sub = (node, state, env) => {
   const [value1, value2] = get2Values(node, state, env, { caller: 'Sub' });
-  return value1 + space + '-' + space + value2;
+  //return value1 + space + '-' + space + value2;
+  return `(__sub ${value1} ${value2})`;
+
 };
 
 export const Mul = (node, state, env) => {
@@ -211,7 +233,7 @@ export const Div = (node, state, env) => {
 
 
 
-/** @return {boolean} */
+/** @return {string} */
 export const Not = (node, state, env) => {
   checkInfiniteLoop();
   //console.log('Add: node', node);
@@ -225,7 +247,7 @@ export const Not = (node, state, env) => {
 
 
 
-/** @return {number | bigint} */
+/** @return {string} */
 export const Neg = (node, state, env) => {
   checkInfiniteLoop();
   //console.log('Neg: node', node);
@@ -237,14 +259,15 @@ export const Neg = (node, state, env) => {
   // TODO check type
   // nix-repl> -{}
   // error: value is a set while an integer was expected
-  return `-${value}`;
+  //return `-${value}`;
+  return `(__sub 0 ${value})`;
 };
 
 
 
 const debugCall = debugAllThunks || debugCallStack || false
 
-/** @return {any} */
+/** @return {string} */
 export const Call = (node, state, env) => {
 
   state.stack.push(node)
@@ -303,7 +326,7 @@ export const Call = (node, state, env) => {
 
 
 
-/** @return {any} */
+/** @return {string} */
 export const If = (node, state, env) => {
 
   // if condition then expression else alternative
@@ -338,7 +361,7 @@ export const If = (node, state, env) => {
 
 
 
-/** @return {boolean} */
+/** @return {string} */
 export const Eq = (node, state, env) => {
   let [value1, value2] = get2Values(node, state, env, { caller: 'Eq' })
   return `${value1} == ${value2}`;
@@ -346,19 +369,19 @@ export const Eq = (node, state, env) => {
 
 
 
-/** @return {boolean} */
+/** @return {string} */
 export const And = (node, state, env) => {
   const [value1, value2] = get2Values(node, state, env, { caller: 'And' })
   return `${value1} && ${value2}`;
 };
 
-/** @return {boolean} */
+/** @return {string} */
 export const Or = (node, state, env) => {
   const [value1, value2] = get2Values(node, state, env, { caller: 'Or' })
   return `${value1} || ${value2}`;
 };
 
-/** @return {boolean} */
+/** @return {string} */
 export const Imply = (node, state, env) => {
   // Logical implication
   // (a -> b) == (!a || b)
@@ -368,31 +391,31 @@ export const Imply = (node, state, env) => {
 
 
 
-/** @return {boolean} */
+/** @return {string} */
 export const NEq = (node, state, env) => {
   let [value1, value2] = get2Values(node, state, env, { caller: 'NEq' })
   return `${value1} != ${value2}`;
 };
 
-/** @return {boolean} */
+/** @return {string} */
 export const GT = (node, state, env) => {
   let [value1, value2] = get2Values(node, state, env, { caller: 'GT' })
   return `${value1} > ${value2}`;
 };
 
-/** @return {boolean} */
+/** @return {string} */
 export const GE = (node, state, env) => {
   let [value1, value2] = get2Values(node, state, env, { caller: 'GE' })
   return `${value1} >= ${value2}`;
 };
 
-/** @return {boolean} */
+/** @return {string} */
 export const LT = (node, state, env) => {
   let [value1, value2] = get2Values(node, state, env, { caller: 'LT' })
   return `${value1} < ${value2}`;
 };
 
-/** @return {boolean} */
+/** @return {string} */
 export const LE = (node, state, env) => {
   let [value1, value2] = get2Values(node, state, env, { caller: 'LE' })
   return `${value1} <= ${value2}`;
@@ -401,7 +424,7 @@ export const LE = (node, state, env) => {
 
 
 /** @typedef {any[]} LazyArray */
-/** @return {LazyArray} */
+/** @return {string} */
 export const List = (node, state, env) => {
   checkInfiniteLoop();
   let childNode;
@@ -423,7 +446,7 @@ export const List = (node, state, env) => {
 
 
 
-/** @return {LazyArray} */
+/** @return {string} */
 export const Concat = (node, state, env) => {
   // list concat
   checkInfiniteLoop();
@@ -437,75 +460,131 @@ export const Concat = (node, state, env) => {
 export const String = (node, state, env) => {
   // similar to list: zero or more childNodes
 
-  return '(TODO String)'
-
   checkInfiniteLoop();
 
   let childNode;
 
-  /** @type {string} */
-  let result = '';
+  /** @type {string[]} */
+  const result = [];
 
+  // TODO reachable?
   if (!(childNode = firstChild(node))) {
     // empty string
-    return result;
+    return '""';
   }
-
-  //console.log(`String: first childNode`, childNode);
-  let idx = 0;
 
   while (true) {
     //checkInfiniteLoop();
     const stringPart = childNode.type.normal(childNode, state, env);
-    result += stringPart;
+    result.push(stringPart);
     if (!(childNode = nextSibling(childNode))) {
       break;
     }
-    //console.log(`String: next childNode`, childNode);
-    idx++;
   }
 
-  return result;
+  if (result.length == 1) {
+    return result[0];
+  }
+
+  return '(' + result.join(' + ') + ')';
 };
 
 
 
 // TODO remove indent
+// see also stripIndentation in nix-utils.js
 /** @return {string} */
 export const IndentedString = (node, state, env) => {
   // similar to list: zero or more childNodes
-
-  return '(TODO IndentedString)'
 
   checkInfiniteLoop();
 
   let childNode;
 
-  /** @type {string} */
-  let result = '';
+  /** @type {string[]} */
+  const stringParts = [];
 
+  // TODO reachable?
   if (!(childNode = firstChild(node))) {
     // empty string
-    return result;
+    return '""';
   }
-
-  //console.log(`String: first childNode`, childNode);
-  let idx = 0;
-
-  // TODO remove indent
 
   while (true) {
     //checkInfiniteLoop();
-    const stringPart = childNode.type.normal(childNode, state, env);
-    result += stringPart;
+    //const stringPart = childNode.type.normal(childNode, state, env);
+    //result.push(stringPart);
+    if (childNode.type.name == 'IndentedStringContent') {
+      stringParts.push([
+        true, // child is string
+        nodeText(childNode, state),
+      ])
+    }
+    else {
+      stringParts.push([
+        false, // child is expression
+        childNode.type.normal(childNode, state, env),
+      ])
+    }
+    //else if (childNode.type.name == 'IndentedStringInterpolation') {
+    //}
+    //else {
+    //  // TODO not reachable?
+    //  throw new Error(`IndentedString: unexpected child node type ${childNode.type.name}`);
+    //}
     if (!(childNode = nextSibling(childNode))) {
       break;
     }
-    //console.log(`String: next childNode`, childNode);
-    idx++;
   }
 
-  return result;
+  console.dir(stringParts); throw new Error('todo'); // debug
+
+  // based on: "function stripIndentation" in nix-utils.js
+
+  let minIndent = 1000000
+
+  // first pass
+  for (let partIdx = 0; partIdx < stringParts.length; partIdx++) {
+    const [isString, part] = stringParts[partIdx];
+    if (!isString) continue;
+    const lines = part.split("\n")
+    if (partIdx == 0) {
+      // remove first line if empty or spaces
+      if (/^ *$/.test(lines[0])) lines.shift()
+    }
+    if (partIdx == (stringParts.length - 1)) {
+      // right trim last line
+      // note: keep empty last line -> unix line format, newline at end of file
+      lines[lines.length - 1] = lines[lines.length - 1].replace(/ +$/, '')
+    }
+    for (const line in lines) {
+      //// ignore whitespace lines
+      //if (/^ *$/.test(line)) continue
+      const curIndent = line.match(/^ */)[0].length
+      // ignore whitespace lines
+      if (curIndent == line.length) continue
+      if (curIndent < minIndent) minIndent = curIndent
+    }
+    // dont split again in second pass
+    stringParts[partIdx][1] = lines;
+  }
+
+  // second pass
+  for (let partIdx = 0; partIdx < stringParts.length; partIdx++) {
+    const [isString, lines] = stringParts[partIdx];
+    if (!isString) continue;
+    stringParts[partIdx][1] = JSON.stringify(
+      lines.map(line => line.slice(minIndent)).join("\n")
+    );
+  }
+
+  console.dir(stringParts); throw new Error('todo'); // debug
+
+  if (stringParts.length == 1) {
+    return stringParts[0][1];
+  }
+
+  return '(' + stringParts.map(part => part[1]).join(' + ') + ')';
 };
 
 
@@ -513,21 +592,34 @@ export const IndentedString = (node, state, env) => {
 /** @return {string} */
 export const StringInterpolation = (node, state, env) => {
 
-  return '(TODO StringInterpolation)'
+  /*
+
+    "a${"b"}c"
+    ("a" + "b" + "c")
+           ^^^
+
+    "a${}c"
+    error: syntax error, unexpected '}'
+
+    "a${1}c"
+    ("a" + 1 + "c")
+
+  */
 
   checkInfiniteLoop();
 
   let childNode = firstChild(node);
 
-  if (!childNode) {
-    return '';
-  }
+  // empty expression "a${}c" is syntax error
+  //if (!childNode) {
+  //  return '';
+  //}
 
   const childValue = childNode.type.normal(childNode, state, env);
 
-  if (typeof(childValue) != 'string') {
-    throw new NixEvalError(`cannot coerce ${nixTypeWithArticle(childValue)} to a string`)
-  }
+  //if (typeof(childValue) != 'string') {
+  //  throw new NixEvalError(`cannot coerce ${nixTypeWithArticle(childValue)} to a string`)
+  //}
 
   return childValue;
 };
@@ -540,16 +632,25 @@ export const IndentedStringInterpolation = StringInterpolation;
 
 
 /** @return {string} */
-export const StringContent = Identifier;
+export const StringContent = (node, state, env) => {
+  return JSON.stringify(nodeText(node, state));
+}
 
 
 
 /** @return {string} */
-export const IndentedStringContent = StringContent;
+// FIXME remove indent
+// note: not called from IndentedString
+export const IndentedStringContent = nodeText;
+/*
+export const IndentedStringContent = (node, state, env) => {
+  return JSON.stringify(nodeText(node, state));
+}
+*/
 
 
 
-/** @return {Path} */
+/** @return {string} */
 export const PathAbsolute = (node, state, env) => {
   return '(TODO PathAbsolute)'
 
@@ -559,13 +660,17 @@ export const PathAbsolute = (node, state, env) => {
 
 
 
-/** @return {Path} */
+/** @return {string} */
 export const PathRelative = (node, state, env) => {
   return '(TODO PathRelative)'
   const relativePath = nodeText(node, state);
   const absolutePath = resolvePath(state.options.workdir, relativePath);
   return new Path(absolutePath);
 };
+
+
+// ReferenceError: Cannot access 'Set' before initialization
+//const JavaScriptSet = Set;
 
 
 
@@ -577,9 +682,7 @@ export const PathRelative = (node, state, env) => {
 * @return {Env}
 */
 
-export const Set = (node, state, env) => {
-  return '(TODO Set)'
-
+const _Set = (node, state, env) => {
   const debugSet = debugAllThunks || debugCallStack || false
 
   checkInfiniteLoop();
@@ -732,7 +835,18 @@ export const Set = (node, state, env) => {
 
 
 
-/** @return {Env} */
+// TODO put all handlers into an object
+/*
+const handlers = {};
+handlers['Set'] = (node, state, env) => { ... };
+export default handlers
+*/
+
+export { _Set as Set }
+
+
+
+/** @return {string} */
 
 export const RecSet = Set
 
@@ -741,7 +855,7 @@ export const RecSet = Set
 const debugSelect = debugAllThunks || false
 
 // void ExprSelect::eval(EvalState & state, Env & env, Value & v)
-/** @return {any} */
+/** @return {string} */
 export const Select = (node, state, env) => {
   return '(TODO Select)'
   // first child: Set
@@ -797,7 +911,7 @@ export const Select = (node, state, env) => {
 
 const debugHasAttr = debugAllThunks || false
 
-/** @return {boolean} */
+/** @return {string} */
 export const HasAttr = (node, state, env) => {
   return '(TODO HasAttr)'
   // similar to Select, but dont return the value
@@ -861,7 +975,7 @@ export const HasAttr = (node, state, env) => {
 
 const debugUpdate = debugAllThunks || false
 
-/** @return {LazyArray} */
+/** @return {string} */
 export const Update = (node, state, env) => {
   return '(TODO Update)'
 
@@ -952,7 +1066,7 @@ export const With = (node, state, env) => {
 
 const debugVar = debugAllThunks || false
 
-/** @return {any} */
+/** @return {string} */
 export const Var = (node, state, env) => {
   const keyNode = firstChild(node);
   const key = nodeText(keyNode, state);
@@ -961,7 +1075,7 @@ export const Var = (node, state, env) => {
 
 
 
-/** @return {function} */
+/** @return {string} */
 export const Lambda = (node, state, env) => {
   checkInfiniteLoop();
   let argumentNode = firstChild(node);
@@ -1136,20 +1250,35 @@ export const Lambda = (node, state, env) => {
  */
 
 export const Let = (node, state, env) => {
-  return '(TODO Let)'
 
-  // let a=1; in a == rec {a=1;}.a
+  /*
+
+    let b=2; a=1; in a
+    (let b = 2; a = 1; in a)
+
+    let a=1; a=1; in a
+    error: attribute 'a' already defined at (string):1:5
+
+    let in ""
+    (let in "")
+
+  */
+
+  let result = '(let '
 
   const debugLet = debugAllThunks || debugCallStack || false;
 
   checkInfiniteLoop();
 
-  const childEnv = env.newChild(node);
+  //const childEnv = env.newChild(node);
+  const childEnv = env;
 
   debugLet && printNode(node, state, env);
 
   let attrNode = firstChild(node);
   let nextNode = nextSibling(attrNode);
+
+  const seenKeys = new Set();
 
   // loop all but the last child node
   while (nextNode) {
@@ -1169,19 +1298,26 @@ export const Let = (node, state, env) => {
 
     const key = state.source.slice(keyNode.from, keyNode.to);
     debugLet && console.log('Let: key', key);
+    if (seenKeys.has(key)) {
+      throw new NixEvalError(`attribute '${key}' already defined`);
+      // TODO source location: file, line, column
+      //throw new NixEvalError(`attribute '${key}' already defined at (string):1:5`);
+    }
+    seenKeys.add(key);
+    result += `${key} = `
 
-    Object.defineProperty(childEnv.data, key, {
-      get: () => valueNode.type.normal(valueNode, state, childEnv),
-      enumerable: true,
-      configurable: true,
-    });
+    const value = valueNode.type.normal(valueNode, state, childEnv);
+    result += `${value}; `
 
     attrNode = nextNode;
     nextNode = nextSibling(attrNode);
   }
 
   // last child node
-  return attrNode.type.normal(attrNode, state, childEnv);
+  const body = attrNode.type.normal(attrNode, state, childEnv);
+
+  result += `in ${body})`
+  return result;
 };
 
 
