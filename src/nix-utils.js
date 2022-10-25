@@ -145,3 +145,34 @@ export class Path {
     return this.path
   }
 }
+
+
+
+// nix/src/libexpr/parser-tab.cc
+// static Expr * stripIndentation
+
+export function stripIndentation(string) {
+
+  if (string == "") return string
+
+  const lines = string.split("\n")
+
+  // remove first line if empty or spaces
+  if (/^ *$/.test(lines[0])) lines.shift()
+
+  // right trim last line
+  // note: keep empty last line -> unix line format, newline at end of file
+  lines[lines.length - 1] = lines[lines.length - 1].replace(/ +$/, '')
+
+  let minIndent = 1000000
+  for (const line in lines) {
+    //// ignore whitespace lines
+    //if (/^ *$/.test(line)) continue
+    const curIndent = line.match(/^ */)[0].length
+    // ignore whitespace lines
+    if (curIndent == line.length) continue
+    if (curIndent < minIndent) minIndent = curIndent
+  }
+
+  return lines.map(line => line.slice(minIndent)).join("\n")
+}
