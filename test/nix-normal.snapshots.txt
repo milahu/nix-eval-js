@@ -1,0 +1,209 @@
+# remove parens
+"(((((((((1)))))))))"
+==>
+1
+
+# add: add parens
+"1+1"
+==>
+(1 + 1)
+
+#
+"1+1+1"
+==>
+((1 + 1) + 1)
+
+#
+"1+1+1+1"
+==>
+(((1 + 1) + 1) + 1)
+
+# add: int + string
+"1+\"a\""
+==>
+(1 + "a")
+
+# sub: add parens
+"1-1"
+==>
+(__sub 1 1)
+
+#
+"1-1-1"
+==>
+(__sub (__sub 1 1) 1)
+
+#
+"1-1-1-1"
+==>
+(__sub (__sub (__sub 1 1) 1) 1)
+
+# mul: add parens
+"1*1"
+==>
+(__mul 1 1)
+
+#
+"1*1*1"
+==>
+(__mul (__mul 1 1) 1)
+
+#
+"1*1*1*1"
+==>
+(__mul (__mul (__mul 1 1) 1) 1)
+
+# div: add parens
+"1/ 1"
+==>
+(__div 1 1)
+
+#
+"1/ 1/ 1"
+==>
+(__div (__div 1 1) 1)
+
+#
+"1/ 1/ 1/ 1"
+==>
+(__div (__div (__div 1 1) 1) 1)
+
+# relative path: resolve absolute path
+"a/b/c"
+==>
+/tmp/nix-eval-js/home/work/a/b/c
+
+#
+"./a/b/c"
+==>
+/tmp/nix-eval-js/home/work/a/b/c
+
+#
+"./a/b/c/../.."
+==>
+/tmp/nix-eval-js/home/work/a
+
+# home path
+"~/a/b/c"
+==>
+/tmp/nix-eval-js/home/a/b/c
+
+# absolute path
+"/a/b/c"
+==>
+/a/b/c
+
+# sort set keys
+"{b=2;a=1;}"
+==>
+{ a = 1; b = 2; }
+
+# dont sort formal keys
+"{ b ? 2, a ? 1 }: a + b"
+==>
+({ b ? 2, a ? 1 }: (a + b))
+
+# dont sort let keys
+"let b=2; a=1; in a + b"
+==>
+(let b = 2; a = 1; in (a + b))
+
+# inherit: split, sort keys
+"let b=2; a=1; in { inherit b a; }"
+==>
+(let b = 2; a = 1; in { inherit a ; inherit b ; })
+
+# inherit from
+"let s={b=2; a=1;}; in { inherit (s) b a; }"
+==>
+(let s = { a = 1; b = 2; }; in { a = (s).a; b = (s).b; })
+
+# set: inherit first, sort keys
+"let b=2; a=1; s={d=4; c=3;}; in { i=9; inherit (s) d; h=8; inherit b; g=7; inherit (s) c; f=6; inherit a; e=5; }"
+==>
+(let b = 2; a = 1; s = { c = 3; d = 4; }; in { inherit a ; inherit b ; c = (s).c; d = (s).d; e = 5; f = 6; g = 7; h = 8; i = 9; })
+
+# variable error
+"x"
+==>
+ERROR EvalError undefined variable 'x'
+
+# string ipol
+"let x=\"b\"; in \"a${x}c\""
+==>
+(let x = "b"; in ("a" + x + "c"))
+
+# indented string
+"let s = ''\n  a\n  b\n''; in s"
+==>
+(let s = "a\nb\n"; in s)
+
+#
+"let s = ''\n  a\nb\n''; in s"
+==>
+(let s = "  a\nb\n"; in s)
+
+#
+"let s = ''a''; in s"
+==>
+(let s = "a"; in s)
+
+# indented string: left trim
+"let s = ''  \n\na'';\nin s"
+==>
+(let s = "\na"; in s)
+
+# indented string: right trim
+"let s = ''a\n\n  '';\nin s"
+==>
+(let s = "a\n\n"; in s)
+
+# indented string: ignore whitespace lines
+"let s = ''\n    a\n  \n'';\nin s"
+==>
+(let s = "a\n\n"; in s)
+
+# indented string: ipol
+"let x = \"b\"; s = ''\n  a\n${x}\n  c''; in s"
+==>
+(let x = "b"; s = ("  a\n" + x + "\n  c"); in s)
+
+# integer max
+"9223372036854775807"
+==>
+9223372036854775807
+
+# negate string # wrap negate in parens https://github.com/NixOS/nix/issues/7198
+"(-\"\")"
+==>
+(__sub 0 "")
+
+# integer max # wrap negate in parens https://github.com/NixOS/nix/issues/7198
+"(-9223372036854775807-2)"
+==>
+(__sub (__sub 0 9223372036854775807) 2)
+
+# integer overflow at 2**63-1
+"9223372036854775808"
+==>
+ERROR EvalError invalid integer '9223372036854775808'
+
+# float overflow
+"999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999.9"
+==>
+ERROR EvalError invalid float '999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999.9'
+
+#
+"let b=2; a=1; in a"
+==>
+(let b = 2; a = 1; in a)
+
+#
+"let a=1; a=1; in a"
+==>
+ERROR EvalError attribute 'a' already defined at (string):1:5
+
+#
+"let in \"\""
+==>
+(let in "")
