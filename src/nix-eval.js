@@ -241,20 +241,20 @@ export class NixEval {
     const valueCache = new Map();
 
     const evalNode = (node, state, env) => {
+      const debug = true
       //debug && console.log("evalNode"); console.dir(node);
       //const cacheKey = node; // fail. no cache hits
       const cacheKey = this.normalNode(node, state.source);
-      //throw new Error('todo')
-      debug && console.log(`cacheKey: ${cacheKey}`);
       if (valueCache.has(cacheKey)) {
         // cache hit -> read cache
-        debug && console.log("cache hit");
+        debug && console.log(`cache hit : ${cacheKey}`);
         return valueCache.get(cacheKey);
       }
       // cache miss
-      debug && console.log("cache miss");
+      debug && console.log(`cache miss: ${cacheKey}`);
       // compute value
-      const value = node.type.thunk(node, state, env);
+      //const value = node.type.thunk(node, state, env);
+      const value = node.type.thunkHidden(node, state, env);
       // write cache
       valueCache.set(cacheKey, value);
       return value;
@@ -408,10 +408,10 @@ export class NixEval {
     });
 
     // add thunks to types
-    for (const nodeType of parser.nodeSet.types) {
-      nodeType.thunk = thunkOfNodeType[nodeType.name];
-      nodeType.format = formatOfNodeType[nodeType.name];
-      nodeType.normal = normalOfNodeType[nodeType.name];
+    for (const type of parser.nodeSet.types) {
+      type.thunkHidden = thunkOfNodeType[type.name];
+      type.format = formatOfNodeType[type.name];
+      type.normal = normalOfNodeType[type.name];
     }
 
     return parser
