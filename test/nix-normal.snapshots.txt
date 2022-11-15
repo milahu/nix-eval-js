@@ -93,6 +93,11 @@
 ==>
 /a/b/c
 
+# empty set
+"{}"
+==>
+{ }
+
 # sort set keys
 "{b=2;a=1;}"
 ==>
