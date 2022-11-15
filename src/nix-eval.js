@@ -400,6 +400,20 @@ export class NixEval {
   }
 
   /**
+  * normalize the nix expression in file
+  *
+  * @param {string} filePath
+  * @param {Options} options
+  * @return {any}
+  */
+  normalFile(filePath, options) {
+    if (!options) options = {}
+    if (!options.workdir) options.workdir = path.dirname(filePath)
+    const source = fs.readFileSync(filePath, 'utf8');
+    return this.normal(source, options)
+  }
+
+  /**
   * normalize a parsed nix expression to its normal form
   *
   * @param {Tree} tree
