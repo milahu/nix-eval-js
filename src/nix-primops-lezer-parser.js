@@ -284,16 +284,23 @@ export const NixPrimops = {
 
 
 
+// nix/src/libexpr/eval.cc
+// std::string_view showType(ValueType type)
+
 export function nixTypeWithArticle(value) {
   const typeName = NixPrimops.__typeOf(value);
   const resultOfType = {
+    'int': 'an integer',
+    'bool': 'a Boolean',
+    'string': 'a string',
+    //'path': 'a path', // TODO
     'null': 'null',
     'set': 'a set',
     'list': 'a list',
-    'int': 'an integer',
+    //'function': 'a function', // TODO
+    //'external': 'an external value', // TODO
     'float': 'a float',
-    'bool': 'a Boolean',
-    'string': 'a string',
+    //'thunk': 'a thunk', // TODO
   };
   return resultOfType[typeName];
 }
