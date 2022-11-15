@@ -744,9 +744,11 @@ export const PathRelative = (node, state, env) => {
 * @return {Env}
 */
 
+const debugSet = debugAllThunks || debugCallStack || false
+
 export const Set = (node, state, env) => {
 
-  const debugSet = debugAllThunks || debugCallStack || false
+  //const debugSet = true
 
   checkInfiniteLoop();
 
@@ -806,9 +808,10 @@ export const Set = (node, state, env) => {
         : setEnv // RecSet
       );
 
-      const getValue = () => (
-        valueNode.type.eval(valueNode, state, valueEnv)
-      );
+      const getValue = () => {
+        debugSet && printNode(valueNode, state, env, { label: 'valueNode.getValue' });
+        return valueNode.type.eval(valueNode, state, valueEnv)
+      };
 
       Object.defineProperty(finalSetEnv.data, key, {
         get: getValue,
@@ -1114,8 +1117,11 @@ export const With = (node, state, env) => {
 
 const debugVar = debugAllThunks || false
 
+// note: Var is *not* called from Set or RecSet
+
 /** @return {any} */
 export const Var = (node, state, env) => {
+  //const debugVar = true
   // input: a
   // tree:
   // Nix: a
@@ -1133,6 +1139,8 @@ export const Var = (node, state, env) => {
   //console.log(`Var: key`, key);
 
   const value = env.get(key)
+
+  debugVar && console.log(`Var: ${key} = ${value}`)
 
   if (value === undefined) {
     throw new NixEvalError(`undefined variable '${key}'`);

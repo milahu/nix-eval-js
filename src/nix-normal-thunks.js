@@ -41,13 +41,20 @@ const stringifyValue = getStringifyResult({
 
 
 
+/** @type {Record<string, any>} */
+const normal = {};
+export default normal;
+
+
+
 /** @return {string} */
 // TODO ignore typescript error: 'state' is declared but its value is never read. ts(6133)
 // @ts-ignore
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 // not working
-//export const ⚠ = (node, _state, _env) => {
-export const SyntaxError = (node, _state, _env) => {
+//normal.⚠ = (node, _state, _env) => {
+//normal.SyntaxError = (node, _state, _env) => {
+normal['⚠'] = (node, _state, _env) => {
   checkInfiniteLoop();
   //console.log('Error: node', node);
   // add context from _source? mostly not needed -> on demand or debounced
@@ -55,7 +62,7 @@ export const SyntaxError = (node, _state, _env) => {
 };
 
 /** @return {string} */
-export const Nix = (node, state, env) => {
+normal.Nix = (node, state, env) => {
   resetInfiniteLoopCounter();
   //console.log('Nix: node', node);
   const childNode = firstChild(node);
@@ -73,28 +80,28 @@ export const Nix = (node, state, env) => {
 // constants
 
 /** @return {string} */
-export const NULL = () => 'null';
+normal.NULL = () => 'null';
 
 /** @return {string} */
-export const TRUE = () => 'true';
+normal.TRUE = () => 'true';
 
 /** @return {string} */
-export const FALSE = () => 'false';
+normal.FALSE = () => 'false';
 
 
 
 // trivial
 
 /** @return {string} */
-export const Identifier = nodeText;
+normal.Identifier = nodeText;
 
 /** @return {string} */
-export const Primop = nodeText;
+normal.Primop = nodeText;
 
 
 
 /** @return {string} */
-export const Int = (node, state, env) => {
+normal.Int = (node, state, env) => {
   // TODO int overflow
   // javascript limitation:
   // (9223372036854775808 > 9223372036854775807) == false
@@ -113,7 +120,7 @@ export const Int = (node, state, env) => {
 }
 
 /** @return {string} */
-export const Float = (node, state, env) => {
+normal.Float = (node, state, env) => {
   //console.log('Int: node', node);
   const n = parseFloat(nodeText(node, state))
   if ((n | 0) == n) {
@@ -131,7 +138,7 @@ export const Float = (node, state, env) => {
 
 
 /** @return {string} */
-export const Parens = (node, state, env) => {
+normal.Parens = (node, state, env) => {
   //console.log('Parens: node', node);
   const childNode = firstChild(node);
   //console.log('Parens: childNode', childNode);
@@ -148,7 +155,7 @@ export const Parens = (node, state, env) => {
 
 
 /** @return {string} */
-export const Add = (node, state, env) => {
+normal.Add = (node, state, env) => {
   // arithmetic addition or string concat
   checkInfiniteLoop();
   const [value1, value2] = get2Values(node, state, env, { caller: 'Add' })
@@ -202,25 +209,25 @@ function get2Values(node, state, env, options) {
 
 
 /*
-export const Add = (node, state, env) => {
+normal.Add = (node, state, env) => {
   const [value1, value2] = get2Values(node, state, { caller: 'Add' });
   return value1 + value2;
 };
 */
 
-export const Sub = (node, state, env) => {
+normal.Sub = (node, state, env) => {
   const [value1, value2] = get2Values(node, state, env, { caller: 'Sub' });
   //return value1 + space + '-' + space + value2;
   return `(__sub ${value1} ${value2})`;
 
 };
 
-export const Mul = (node, state, env) => {
+normal.Mul = (node, state, env) => {
   const [value1, value2] = get2Values(node, state, env, { caller: 'Mul' });
   return `(__mul ${value1} ${value2})`;
 };
 
-export const Div = (node, state, env) => {
+normal.Div = (node, state, env) => {
   const [value1, value2] = get2Values(node, state, env, { caller: 'Div' });
   return `(__div ${value1} ${value2})`;
 };
@@ -228,7 +235,7 @@ export const Div = (node, state, env) => {
 
 
 /** @return {string} */
-export const Not = (node, state, env) => {
+normal.Not = (node, state, env) => {
   checkInfiniteLoop();
   //console.log('Add: node', node);
   let childNode = firstChild(node);
@@ -242,7 +249,7 @@ export const Not = (node, state, env) => {
 
 
 /** @return {string} */
-export const Neg = (node, state, env) => {
+normal.Neg = (node, state, env) => {
   checkInfiniteLoop();
   //console.log('Neg: node', node);
   let childNode = firstChild(node);
@@ -262,7 +269,7 @@ export const Neg = (node, state, env) => {
 const debugCall = debugAllThunks || debugCallStack || false
 
 /** @return {string} */
-export const Call = (node, state, env) => {
+normal.Call = (node, state, env) => {
 
   debugVar && console.log(`Call: stack`, new Error().stack);
 
@@ -308,13 +315,13 @@ export const Call = (node, state, env) => {
   // nix.cc does this in EvalState::callFunction
   // Env & env2(allocEnv(size));
 
-  return `${functionValue} ${argumentValue}`;
+  return `(${functionValue} ${argumentValue})`;
 };
 
 
 
 /** @return {string} */
-export const If = (node, state, env) => {
+normal.If = (node, state, env) => {
 
   // if condition then expression else alternative
 
@@ -343,76 +350,76 @@ export const If = (node, state, env) => {
 
   const elseValue = elseNode.type.normal(elseNode, state, env);
 
-  return `if ${ifValue} then ${thenValue} else ${elseValue}`;
+  return `(if ${ifValue} then ${thenValue} else ${elseValue})`;
 };
 
 
 
 /** @return {string} */
-export const Eq = (node, state, env) => {
+normal.Eq = (node, state, env) => {
   let [value1, value2] = get2Values(node, state, env, { caller: 'Eq' })
-  return `${value1} == ${value2}`;
+  return `(${value1} == ${value2})`;
 };
 
 
 
 /** @return {string} */
-export const And = (node, state, env) => {
+normal.And = (node, state, env) => {
   const [value1, value2] = get2Values(node, state, env, { caller: 'And' })
-  return `${value1} && ${value2}`;
+  return `(${value1} && ${value2})`;
 };
 
 /** @return {string} */
-export const Or = (node, state, env) => {
+normal.Or = (node, state, env) => {
   const [value1, value2] = get2Values(node, state, env, { caller: 'Or' })
-  return `${value1} || ${value2}`;
+  return `(${value1} || ${value2})`;
 };
 
 /** @return {string} */
-export const Imply = (node, state, env) => {
+normal.Imply = (node, state, env) => {
   // Logical implication
   // (a -> b) == (!a || b)
   const [value1, value2] = get2Values(node, state, env, { caller: 'Imply' })
-  return `${value1} -> ${value2}`;
+  return `(${value1} -> ${value2})`;
 };
 
 
 
 /** @return {string} */
-export const NEq = (node, state, env) => {
+normal.NEq = (node, state, env) => {
   let [value1, value2] = get2Values(node, state, env, { caller: 'NEq' })
-  return `${value1} != ${value2}`;
+  return `(${value1} != ${value2})`;
 };
 
 /** @return {string} */
-export const GT = (node, state, env) => {
+normal.GT = (node, state, env) => {
   let [value1, value2] = get2Values(node, state, env, { caller: 'GT' })
-  return `${value1} > ${value2}`;
+  return `(__lessThan ${value2} ${value1})`;
 };
 
 /** @return {string} */
-export const GE = (node, state, env) => {
+normal.GE = (node, state, env) => {
   let [value1, value2] = get2Values(node, state, env, { caller: 'GE' })
-  return `${value1} >= ${value2}`;
+  return `(! (__lessThan ${value1} ${value2}))`;
 };
 
 /** @return {string} */
-export const LT = (node, state, env) => {
+normal.LT = (node, state, env) => {
   let [value1, value2] = get2Values(node, state, env, { caller: 'LT' })
-  return `${value1} < ${value2}`;
+  return `(__lessThan ${value1} ${value2})`;
 };
 
 /** @return {string} */
-export const LE = (node, state, env) => {
+normal.LE = (node, state, env) => {
   let [value1, value2] = get2Values(node, state, env, { caller: 'LE' })
-  return `${value1} <= ${value2}`;
+  return `(! (__lessThan ${value2} ${value1}))`;
 };
 
 
 
 /** @typedef {any[]} LazyArray */
 /** @return {string} */
-export const List = (node, state, env) => {
+normal.List = (node, state, env) => {
   checkInfiniteLoop();
   let childNode;
   if (!(childNode = firstChild(node))) {
@@ -434,7 +441,7 @@ export const List = (node, state, env) => {
 
 
 /** @return {string} */
-export const Concat = (node, state, env) => {
+normal.Concat = (node, state, env) => {
   // list concat
   checkInfiniteLoop();
   const [list1, list2] = get2Values(node, state, env, { caller: 'Concat' })
@@ -444,7 +451,7 @@ export const Concat = (node, state, env) => {
 
 
 /** @return {string} */
-export const String = (node, state, env) => {
+normal.String = (node, state, env) => {
   // similar to list: zero or more childNodes
 
   checkInfiniteLoop();
@@ -481,7 +488,7 @@ export const String = (node, state, env) => {
 // TODO remove indent
 // see also stripIndentation in nix-utils.js
 /** @return {string} */
-export const IndentedString = (node, state, env) => {
+normal.IndentedString = (node, state, env) => {
   // similar to list: zero or more childNodes
 
   checkInfiniteLoop();
@@ -524,7 +531,7 @@ export const IndentedString = (node, state, env) => {
     }
   }
 
-  console.dir(stringParts); throw new Error('todo'); // debug
+  //console.dir(stringParts); throw new Error('todo'); // debug
 
   // based on: "function stripIndentation" in nix-utils.js
 
@@ -565,7 +572,7 @@ export const IndentedString = (node, state, env) => {
     );
   }
 
-  console.dir(stringParts); throw new Error('todo'); // debug
+  //console.dir(stringParts); throw new Error('todo'); // debug
 
   if (stringParts.length == 1) {
     return stringParts[0][1];
@@ -577,7 +584,7 @@ export const IndentedString = (node, state, env) => {
 
 
 /** @return {string} */
-export const StringInterpolation = (node, state, env) => {
+normal.StringInterpolation = (node, state, env) => {
 
   /*
 
@@ -614,12 +621,12 @@ export const StringInterpolation = (node, state, env) => {
 
 
 /** @return {string} */
-export const IndentedStringInterpolation = StringInterpolation;
+normal.IndentedStringInterpolation = normal.StringInterpolation;
 
 
 
 /** @return {string} */
-export const StringContent = (node, state, env) => {
+normal.StringContent = (node, state, env) => {
   return JSON.stringify(nodeText(node, state));
 }
 
@@ -628,9 +635,9 @@ export const StringContent = (node, state, env) => {
 /** @return {string} */
 // FIXME remove indent
 // note: not called from IndentedString
-export const IndentedStringContent = nodeText;
+normal.IndentedStringContent = nodeText;
 /*
-export const IndentedStringContent = (node, state, env) => {
+normal.IndentedStringContent = (node, state, env) => {
   return JSON.stringify(nodeText(node, state));
 }
 */
@@ -638,7 +645,7 @@ export const IndentedStringContent = (node, state, env) => {
 
 
 /** @return {string} */
-export const PathAbsolute = (node, state, env) => {
+normal.PathAbsolute = (node, state, env) => {
   return '(TODO PathAbsolute)'
 
   const absolutePath = nodeText(node, state);
@@ -648,7 +655,7 @@ export const PathAbsolute = (node, state, env) => {
 
 
 /** @return {string} */
-export const PathRelative = (node, state, env) => {
+normal.PathRelative = (node, state, env) => {
   return '(TODO PathRelative)'
   const relativePath = nodeText(node, state);
   const absolutePath = resolvePath(state.options.workdir, relativePath);
@@ -669,7 +676,7 @@ export const PathRelative = (node, state, env) => {
 * @return {Env}
 */
 
-const _Set = (node, state, env) => {
+normal.Set = (node, state, env) => {
   const debugSet = debugAllThunks || debugCallStack || false
   let attrNode;
   if (!(attrNode = firstChild(node))) {
@@ -811,20 +818,9 @@ const _Set = (node, state, env) => {
 
 
 
-// TODO put all handlers into an object
-/*
-const handlers = {};
-handlers['Set'] = (node, state, env) => { ... };
-export default handlers
-*/
-
-export { _Set as Set }
-
-
-
 /** @return {string} */
 
-export const RecSet = Set
+normal.RecSet = normal.Set;
 
 
 
@@ -832,7 +828,7 @@ const debugSelect = debugAllThunks || false
 
 // void ExprSelect::eval(EvalState & state, Env & env, Value & v)
 /** @return {string} */
-export const Select = (node, state, env) => {
+normal.Select = (node, state, env) => {
   return '(TODO Select)'
   // first child: Set
   // other children: attr keys
@@ -888,7 +884,7 @@ export const Select = (node, state, env) => {
 const debugHasAttr = debugAllThunks || false
 
 /** @return {string} */
-export const HasAttr = (node, state, env) => {
+normal.HasAttr = (node, state, env) => {
   return '(TODO HasAttr)'
   // similar to Select, but dont return the value
   checkInfiniteLoop();
@@ -952,7 +948,7 @@ export const HasAttr = (node, state, env) => {
 const debugUpdate = debugAllThunks || false
 
 /** @return {string} */
-export const Update = (node, state, env) => {
+normal.Update = (node, state, env) => {
   return '(TODO Update)'
 
   // list concat
@@ -1002,7 +998,7 @@ export const Update = (node, state, env) => {
 * @return {any}
 */
 
-export const With = (node, state, env) => {
+normal.With = (node, state, env) => {
   return '(TODO With)'
 
   const debugWith = debugAllThunks || false;
@@ -1043,7 +1039,7 @@ export const With = (node, state, env) => {
 const debugVar = debugAllThunks || false
 
 /** @return {string} */
-export const Var = (node, state, env) => {
+normal.Var = (node, state, env) => {
   const keyNode = firstChild(node);
   const key = nodeText(keyNode, state);
   return key;
@@ -1052,7 +1048,7 @@ export const Var = (node, state, env) => {
 
 
 /** @return {string} */
-export const Lambda = (node, state, env) => {
+normal.Lambda = (node, state, env) => {
   checkInfiniteLoop();
   let argumentNode = firstChild(node);
   if (!argumentNode) {
@@ -1071,7 +1067,7 @@ export const Lambda = (node, state, env) => {
     // simple function: f = x: (x + 1)
     const argument = nodeText(argumentNode, state);
     const body = bodyNode.type.normal(bodyNode, state);
-    return `${argument}: ${body}`
+    return `(${argument}: ${body})`
   }
 
   return 'TODO Lambda'
@@ -1225,7 +1221,7 @@ export const Lambda = (node, state, env) => {
  * @return {any}
  */
 
-export const Let = (node, state, env) => {
+normal.Let = (node, state, env) => {
 
   /*
 
@@ -1304,7 +1300,7 @@ export const Let = (node, state, env) => {
  * @return {any}
  */
 
-export const LetOld = (node, state, env) => {
+normal.LetOld = (node, state, env) => {
   return '(TODO LetOld)'
 
   // let { a=1; body=a; } == rec {a=1;body=a;}.body

@@ -9,9 +9,10 @@ import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
 //import { parser as LezerParserNix } from "../demo/src/codemirror-lang-nix/src/lezer-parser-nix/dist/index.js"
 //import { parser as LezerParserNix } from "../demo/src/codemirror-lang-nix/dist/index.js"
 
+// TODO rename to evalOfNodeType
 import * as thunkOfNodeType from './nix-thunks-lezer-parser.js';
 import * as formatOfNodeType from "./lezer-parser-nix/src/nix-format-thunks.js"
-import * as normalOfNodeType from "./nix-normal-thunks.js"
+import normalThunks from "./nix-normal-thunks.js"
 
 import {
   callThunk,
@@ -48,6 +49,11 @@ export {
   NixEvalNotImplemented,
   stringifyTree,
 }
+
+
+
+// TODO rename "result" to "value"
+const stringifyValue = getStringifyResult()
 
 
 
@@ -239,29 +245,47 @@ export class NixEval {
     */
 
     const valueCache = new Map();
+    const debugCache = false
 
     const evalNode = (node, state, env) => {
-      const debug = true
-      //debug && console.log("evalNode"); console.dir(node);
+      // dont cache
+      //return node.type.evalHidden(node, state, env);
+      // cache
+      //const debugCache = true
+      //debugCache && console.log("evalNode"); console.dir(node);
       //const cacheKey = node; // fail. no cache hits
       const cacheKey = this.normalNode(node, state.source);
       if (valueCache.has(cacheKey)) {
         // cache hit -> read cache
-        debug && console.log(`cache hit : ${cacheKey}`);
-        return valueCache.get(cacheKey);
+        // FIXME valueCache must be scoped -> move to Env
+        const value = valueCache.get(cacheKey);
+        debugCache && console.log(`cache read : ${node.type.name}: ${cacheKey} -> ${stringifyValue(value)}`);
+        return value;
       }
       // cache miss
-      debug && console.log(`cache miss: ${cacheKey}`);
       // compute value
       //const value = node.type.thunk(node, state, env);
-      const value = node.type.thunkHidden(node, state, env);
+      const value = node.type.evalHidden(node, state, env);
+      //debugCache && console.log(`cache miss: ${cacheKey} -> ${stringifyValue(value)}`);
+      //debugCache && console.dir({f: "cache miss", cacheKey, value, type: node.type.name });
       // write cache
-      valueCache.set(cacheKey, value);
+      // FIXME only store constants ("trivial" values), dont store variables
+      //if (isTrivialValue(value)) {
+      if (!(
+        node.type.name == "Identifier" ||
+        node.type.name == "Int" ||
+        node.type.name == "Nix" ||
+        // TODO more. see isTrivialValue
+        false
+      )) {
+        debugCache && console.log(`cache write: ${node.type.name}: ${cacheKey} -> ${stringifyValue(value)}`);
+        valueCache.set(cacheKey, value);
+      }
       return value;
     };
 
-    for (const nodeType of parser.nodeSet.types) {
-      nodeType.eval = evalNode;
+    for (const type of parser.nodeSet.types) {
+      type.eval = evalNode;
     }
 
     const tree = this.getTree(source, {parser});
@@ -409,9 +433,11 @@ export class NixEval {
 
     // add thunks to types
     for (const type of parser.nodeSet.types) {
-      type.thunkHidden = thunkOfNodeType[type.name];
+      //type.eval = evalNode; // calls evalHidden
+      // eval is cached, evalHidden is not cached
+      type.evalHidden = thunkOfNodeType[type.name];
       type.format = formatOfNodeType[type.name];
-      type.normal = normalOfNodeType[type.name];
+      type.normal = normalThunks[type.name];
     }
 
     return parser

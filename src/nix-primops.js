@@ -35,8 +35,8 @@ export const NixPrimOps = {
     node.thunk = () => {
       //printNode(node, "__typeOf.thunk");
         return (arg) => {
-          const javascriptType = typeof(arg);
-          if ('bigint') {
+          const javascriptType = typeof arg;
+          if (javascriptType == 'bigint') {
             return 'int';
           }
           if (javascriptType == 'number') {
@@ -45,7 +45,7 @@ export const NixPrimOps = {
           if (arg === null) return 'null'; // js: typeof(null) == 'object'
           if (arg === true || arg === false) return 'bool';
           if (Symbol.iterator in arg) return 'list';
-          if (arg instanceof Object) return 'set'; // AttrSet
+          if (arg instanceof Object) return 'set';
           // TODO handle more cases?
           return javascriptType; // string
         };
