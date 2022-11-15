@@ -683,6 +683,7 @@ normal.Set = (node, state, env) => {
     return "{ }";
   }
   const setObj = {};
+  const inheritKeys = [];
   while (attrNode) {
     if (attrNode.type.name == 'Attr') {
       let childNode = firstChild(attrNode);
@@ -723,26 +724,8 @@ normal.Set = (node, state, env) => {
       // loop inherit keys. zero or more
       let inheritKeyNode = firstChild(attrNode);
       while (inheritKeyNode) {
-        // TODO callThunk
-        // TODO loop keys
         const inheritKey = nodeText(inheritKeyNode, state);
-        // greedy eval of unused value:
-        // nix-repl> (let a=1; in { inherit a z; }).a
-        // error: undefined variable 'z'
-        // greedy eval
-        const inheritValue = env.get(inheritKey);
-        if (inheritValue === undefined) {
-          throw new NixEvalError(`undefined variable '${inheritKey}'`)
-        }
-        const getInheritValue = () => inheritValue;
-        // lazy eval
-        //const getValue = () => env.get(inheritKey);
-        Object.defineProperty(setObj.data, inheritKey, {
-          get: getInheritValue,
-          enumerable: true,
-          configurable: true,
-        });
-
+        inheritKeys.push(inheritKey);
         inheritKeyNode = nextSibling(inheritKeyNode);
       }
     }
@@ -794,13 +777,17 @@ normal.Set = (node, state, env) => {
     attrNode = nextSibling(attrNode);
   }
 
-  function stringifyObject(obj) {
+  function stringifyObject(setObj, inheritKeys) {
     let result = "{ ";
+    for (const key of inheritKeys.sort()) {
+      // note: space after key
+      result += `inherit ${key} ; `;
+    }
     // sort keys
-    for (const key of Object.keys(obj).sort()) {
-      let value = obj[key];
+    for (const key of Object.keys(setObj).sort()) {
+      let value = setObj[key];
       if (typeof value == "object") {
-        // recursion
+        // recursion. dont pass inheritKeys
         value = stringifyObject(value);
       }
       else if (typeof value != "string") {
@@ -812,7 +799,7 @@ normal.Set = (node, state, env) => {
     return result;
   }
 
-  return stringifyObject(setObj);
+  return stringifyObject(setObj, inheritKeys);
 };
 
 
