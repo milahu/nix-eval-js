@@ -8,6 +8,18 @@ caching
 
 "Nix is a database query language"
 
+## query-intensive applications
+
+few writes, many reads
+
+### MonetDB
+
+https://github.com/MonetDB/MonetDB
+
+> The MonetDB database system is a high-performance database kernel for query-intensive applications
+
+via https://wiki.openstreetmap.org/wiki/MonetDB
+
 ## simple graph database
 
 ### jseg
