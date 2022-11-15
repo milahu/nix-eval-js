@@ -47,6 +47,10 @@ for (let file of fs.readdirSync(caseDir)) {
       }
     })();
 
+    const nixOptions = {
+      workdir: "/tmp/nix-eval-js/home/work",
+    };
+
     if (expected.startsWith('ERROR ')) {
       const expectedParts = expected.split(' ');
       const expectedErrorName = expectedParts[1];
@@ -56,7 +60,7 @@ for (let file of fs.readdirSync(caseDir)) {
         let result;
         let actual;
         const error = t.throws(() => {
-          result = nix.eval(text);
+          result = nix.eval(text, nixOptions);
           // not done yet
           // some errors are triggered by stringify, because lazy eval
           // example: "{a=1;b=a;}"
@@ -93,11 +97,11 @@ for (let file of fs.readdirSync(caseDir)) {
         let result;
         let actual;
         if (fileBase == 'nix-eval') {
-          result = nix.eval(text);
+          result = nix.eval(text, nixOptions);
           actual = String(stringify(result));
         }
         else if (fileBase == 'nix-normal') {
-          result = nix.normal(text);
+          result = nix.normal(text, nixOptions);
           actual = String(result);
         }
         else {}
