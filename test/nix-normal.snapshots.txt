@@ -68,6 +68,26 @@
 ==>
 (__div (__div (__div 1 1) 1) 1)
 
+# compare
+"1<2"
+==>
+(__lessThan 1 2)
+
+#
+"1>2"
+==>
+(__lessThan 2 1)
+
+#
+"1<=2"
+==>
+(! (__lessThan 2 1))
+
+#
+"1>=2"
+==>
+(! (__lessThan 1 2))
+
 # relative path: resolve absolute path
 "a/b/c"
 ==>
