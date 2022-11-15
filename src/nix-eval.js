@@ -11,7 +11,11 @@ import { parser as LezerParserNix } from "./lezer-parser-nix/dist/index.js"
 
 // TODO rename to evalOfNodeType
 import * as thunkOfNodeType from './nix-thunks-lezer-parser.js';
-import * as formatOfNodeType from "./lezer-parser-nix/src/nix-format-thunks.js"
+
+// TODO remove?
+//import * as formatOfNodeType from "./lezer-parser-nix/src/nix-format-thunks.js"
+// different from src/lezer-parser-nix/src/nix-format.js
+
 import normalThunks from "./nix-normal-thunks.js"
 
 import {
@@ -458,7 +462,7 @@ export class NixEval {
       //type.eval = evalNode; // calls evalHidden
       // eval is cached, evalHidden is not cached
       type.evalHidden = thunkOfNodeType[type.name];
-      type.format = formatOfNodeType[type.name];
+      //type.format = formatOfNodeType[type.name];
       type.normal = normalThunks[type.name];
     }
 
