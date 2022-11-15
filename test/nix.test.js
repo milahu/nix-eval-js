@@ -17,6 +17,7 @@ let caseDir = path.dirname(fileURLToPath(import.meta.url))
 
 for (let file of fs.readdirSync(caseDir)) {
   if (!/\.snapshots.txt$/.test(file)) continue
+  const fileBase = file.slice(0, -1*'.snapshots.txt'.length)
   let filePath = path.join(caseDir, file)
   let fileContent = fs.readFileSync(filePath, "utf8")
   const newTests = []
@@ -24,6 +25,8 @@ for (let file of fs.readdirSync(caseDir)) {
   for (let testData of fileTests(fileContent, file)) {
     let { name, text: textJson, expected, configStr, strict } = testData;
     //console.dir(testData); // debug
+
+    console.log(`test: textJson: ${textJson}`)
 
     if (name) {
       name = `${name}: ${textJson} ==> ${expected}`
@@ -57,7 +60,10 @@ for (let file of fs.readdirSync(caseDir)) {
           // not done yet
           // some errors are triggered by stringify, because lazy eval
           // example: "{a=1;b=a;}"
-          actual = stringify(result);
+          actual = result;
+          if (fileBase == 'nix-eval') {
+            actual = stringify(actual);
+          }
           actual = String(actual);
         }, { instanceOf: Error });
         if (!error) {
@@ -82,10 +88,24 @@ for (let file of fs.readdirSync(caseDir)) {
     }
 
     test(name, t => {
-      const nix = new NixEval();
-      const result = nix.eval(text);
-      const actual = String(stringify(result));
-      t.is(actual.trim(), expected.trim());
+      if (fileBase == 'nix-eval' || fileBase == 'nix-normal') {
+        const nix = new NixEval();
+        let result;
+        let actual;
+        if (fileBase == 'nix-eval') {
+          result = nix.eval(text);
+          actual = String(stringify(result));
+        }
+        else if (fileBase == 'nix-normal') {
+          result = nix.normal(text);
+          actual = String(result);
+        }
+        else {}
+        t.is(actual.trim(), expected.trim());
+      }
+      else {
+        throw new Error(`internal test error: unknown fileBase: ${fileBase}`)
+      }
     });
   }
 }
