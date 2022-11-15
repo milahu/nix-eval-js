@@ -656,10 +656,9 @@ normal.PathAbsolute = (node, state, env) => {
 
 /** @return {string} */
 normal.PathRelative = (node, state, env) => {
-  return '(TODO PathRelative)'
   const relativePath = nodeText(node, state);
   const absolutePath = resolvePath(state.options.workdir, relativePath);
-  return new Path(absolutePath);
+  return absolutePath;
 };
 
 

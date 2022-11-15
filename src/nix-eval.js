@@ -420,7 +420,9 @@ export class NixEval {
   * @return {string}
   */
   normalNode(node, source, options) {
-    const state = { source };
+    if (!options) options = {}
+    if (!options.workdir) options.workdir = path.dirname(filePath)
+    const state = { source, options };
     // note: env ist not passed to format
     return node.type.normal(node, state);
   }
