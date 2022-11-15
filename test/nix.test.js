@@ -13,6 +13,11 @@ const stringify = getStringifyResult({
 
 process.env.NIX_EVAL_JS_TEST_ENV = "hello"
 
+const nixOptions = {
+  homedir: "/tmp/nix-eval-js/home",
+  workdir: "/tmp/nix-eval-js/home/work",
+};
+
 let caseDir = path.dirname(fileURLToPath(import.meta.url))
 
 for (let file of fs.readdirSync(caseDir)) {
@@ -46,10 +51,6 @@ for (let file of fs.readdirSync(caseDir)) {
         throw error;
       }
     })();
-
-    const nixOptions = {
-      workdir: "/tmp/nix-eval-js/home/work",
-    };
 
     if (expected.startsWith('ERROR ')) {
       const expectedParts = expected.split(' ');
