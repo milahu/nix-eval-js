@@ -149,15 +149,10 @@ export const Parens = (node, state, env) => {
 
 /** @return {string} */
 export const Add = (node, state, env) => {
-
   // arithmetic addition or string concat
-
   checkInfiniteLoop();
-
   const [value1, value2] = get2Values(node, state, env, { caller: 'Add' })
-
-  //return value1 + space + '+' + space + value2;
-  return '(' + value1 + space + '+' + space + value2 + ')';
+  return `(${value1} + ${value2})`;
 };
 
 
@@ -222,13 +217,12 @@ export const Sub = (node, state, env) => {
 
 export const Mul = (node, state, env) => {
   const [value1, value2] = get2Values(node, state, env, { caller: 'Mul' });
-  return value1 + space + '*' + space + value2;
+  return `(__mul ${value1} ${value2})`;
 };
 
 export const Div = (node, state, env) => {
   const [value1, value2] = get2Values(node, state, env, { caller: 'Div' });
-  // NOTE if values are Int or Float, space is required after /
-  return value1 + space + '/' + space + value2;
+  return `(__div ${value1} ${value2})`;
 };
 
 
@@ -270,14 +264,7 @@ const debugCall = debugAllThunks || debugCallStack || false
 /** @return {string} */
 export const Call = (node, state, env) => {
 
-  state.stack.push(node)
-
-  //debugCall && console.log(`Call: state.stack:\n${state.stack}`)
-  debugCall && console.log(`Call: stack size: ${state.stack.stack.length}`);
   debugVar && console.log(`Call: stack`, new Error().stack);
-  if (debugCall && state.stack.stack.length > 5) {
-    throw new Error('stack size')
-  }
 
   // call a function
   // TODO check types
@@ -684,40 +671,22 @@ export const PathRelative = (node, state, env) => {
 
 const _Set = (node, state, env) => {
   const debugSet = debugAllThunks || debugCallStack || false
-
-  checkInfiniteLoop();
-
-  const setEnv = env.newChild(node);
-
-  debugSet && printNode(node, state, env, { label: 'node' });
-
   let attrNode;
-
   if (!(attrNode = firstChild(node))) {
     // empty set
-    return setEnv;
+    return "{ }";
   }
-
+  const setObj = {};
   while (attrNode) {
-    //checkInfiniteLoop();
-    debugSet && printNode(attrNode, state, env, { label: 'attrNode' });
-
     if (attrNode.type.name == 'Attr') {
-
-      // 2 or more children. last child = value
-      // similar to Let
-
       let childNode = firstChild(attrNode);
       let nextNode = nextSibling(childNode);
       let nextNextNode = nextSibling(nextNode);
-
       if (!childNode) {
         throw new NixEvalError('Set Attr: no key');
       }
-
-      let finalSetEnv = setEnv;
+      let finalSetEnv = setObj;
       let key;
-
       // keys: all but the last child node
       while (nextNode) {
         let keyNode = childNode;
@@ -725,34 +694,23 @@ const _Set = (node, state, env) => {
         key = keyNode.type.normal(keyNode, state, env);
         debugSet && console.log(`${node.type.name}: key`, key);
         if (nextNextNode) {
-          finalSetEnv.data[key] = finalSetEnv.newChild();
-          finalSetEnv = finalSetEnv.data[key];
+          if (!(key in finalSetEnv)) {
+            finalSetEnv[key] = {};
+          }
+          finalSetEnv = finalSetEnv[key];
         }
-
         childNode = nextNode;
         nextNode = nextNextNode;
         nextNextNode = nextSibling(nextNode);
       }
-
       // value: last child node
       const valueNode = childNode;
-      debugSet && printNode(valueNode, state, env, { label: 'valueNode' });
-
+      // TODO Set vs RecSet
       const valueEnv = (node.type.name == 'Set'
         ? env // Set
-        : setEnv // RecSet
+        : setObj // RecSet
       );
-
-      const getValue = () => (
-        valueNode.type.normal(valueNode, state, valueEnv)
-      );
-
-      Object.defineProperty(finalSetEnv.data, key, {
-        get: getValue,
-        enumerable: true,
-        // fix: TypeError: Cannot redefine property: a
-        configurable: true,
-      });
+      finalSetEnv[key] = valueNode.type.normal(valueNode, state, valueEnv);
     }
 
     else if (attrNode.type.name == 'AttrInherit') {
@@ -773,7 +731,7 @@ const _Set = (node, state, env) => {
         const getInheritValue = () => inheritValue;
         // lazy eval
         //const getValue = () => env.get(inheritKey);
-        Object.defineProperty(setEnv.data, inheritKey, {
+        Object.defineProperty(setObj.data, inheritKey, {
           get: getInheritValue,
           enumerable: true,
           configurable: true,
@@ -813,7 +771,7 @@ const _Set = (node, state, env) => {
         const getInheritValue = () => inheritValue;
         // lazy eval
         //const getValue = () => env.get(inheritKey);
-        Object.defineProperty(setEnv.data, inheritKey, {
+        Object.defineProperty(setObj.data, inheritKey, {
           get: getInheritValue,
           enumerable: true,
           configurable: true,
@@ -830,7 +788,25 @@ const _Set = (node, state, env) => {
     attrNode = nextSibling(attrNode);
   }
 
-  return setEnv;
+  function stringifyObject(obj) {
+    let result = "{ ";
+    // sort keys
+    for (const key of Object.keys(obj).sort()) {
+      let value = obj[key];
+      if (typeof value == "object") {
+        // recursion
+        value = stringifyObject(value);
+      }
+      else if (typeof value != "string") {
+        throw new Error(`expected string, got ${typeof value}`)
+      }
+      result += `${key} = ${value}; `;
+    }
+    result += "}";
+    return result;
+  }
+
+  return stringifyObject(setObj);
 };
 
 
