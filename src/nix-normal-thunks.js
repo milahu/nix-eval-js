@@ -61,8 +61,10 @@ normal['⚠'] = (node, _state, _env) => {
   throw new NixSyntaxError(`error at position ${node.from}`);
 };
 
+const debugExpr = false;
 /** @return {string} */
 normal.Nix = (node, state, env) => {
+  //const debugExpr = true;
   resetInfiniteLoopCounter();
   //console.log('Nix: node', node);
   const childNode = firstChild(node);
@@ -72,6 +74,7 @@ normal.Nix = (node, state, env) => {
     return;
   }
   //console.log(`Nix: call thunk of node`, childNode);
+  debugExpr && printNode(childNode, state, env, { label: 'normal.Nix: childNode' });
   return childNode.type.normal(childNode, state, env);
 };
 
@@ -660,6 +663,19 @@ normal.PathRelative = (node, state, env) => {
   const absolutePath = resolvePath(state.options.workdir, relativePath);
   return absolutePath;
 };
+
+
+
+const debugPathHome = false;
+/** @return {string} */
+normal.PathHome = (node, state, env) => {
+  //const debugPathHome = true;
+  const relativePath = nodeText(node, state).slice(2); // remove ~/ prefix
+  debugPathHome && console.dir({f: "normal.PathHome", options: state.options, relativePath})
+  const absolutePath = resolvePath(state.options.homedir, relativePath);
+  return absolutePath;
+};
+
 
 
 // ReferenceError: Cannot access 'Set' before initialization

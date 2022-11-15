@@ -201,7 +201,7 @@ function nodeToString(depth = 0, maxDepth = 5, indent = "  ", extraDepth = 0) {
   return thisString;
 };
 
-
+const debugEval = false;
 
 export class NixEval {
 
@@ -217,10 +217,14 @@ export class NixEval {
   * @param {Options} options
   * @return {any}
   */
-  eval(source, options) {
+  eval(source, options = {}) {
 
-    if (!options) options = {}
+    //const debugEval = true;
+
     if (!options.workdir) options.workdir = process.cwd();
+    if (!options.homedir) options.homedir = process.env.HOME;
+
+    debugEval && console.dir({f: "eval", options});
 
     // default: strict is false
     //tree = LezerParserNix.parse(source);
@@ -254,7 +258,7 @@ export class NixEval {
       //const debugCache = true
       //debugCache && console.log("evalNode"); console.dir(node);
       //const cacheKey = node; // fail. no cache hits
-      const cacheKey = this.normalNode(node, state.source);
+      const cacheKey = this.normalNode(node, state.source, options);
       if (valueCache.has(cacheKey)) {
         // cache hit -> read cache
         // FIXME valueCache must be scoped -> move to Env
@@ -300,7 +304,7 @@ export class NixEval {
   * @param {Options} options
   * @return {any}
   */
-  evalFile(filePath, options) {
+  evalFile(filePath, options = {}) {
     if (!options) options = {}
     if (!options.workdir) options.workdir = path.dirname(filePath)
     const source = fs.readFileSync(filePath, 'utf8');
@@ -315,7 +319,7 @@ export class NixEval {
   * @param {Options} options
   * @return {any}
   */
-  evalTree(tree, source, options) {
+  evalTree(tree, source, options = {}) {
     if (!options) options = {}
     // multicall hack ... todo refactor?
     if (options.normal) {
@@ -394,7 +398,9 @@ export class NixEval {
   * @param {Options} options
   * @return {string}
   */
-  normal(source, options) {
+  normal(source, options = {}) {
+    if (!options.workdir) options.workdir = process.cwd();
+    if (!options.homedir) options.homedir = process.env.HOME;
     const tree = this.getTree(source);
     return this.normalTree(tree, source, options);
   }
@@ -406,7 +412,7 @@ export class NixEval {
   * @param {Options} options
   * @return {any}
   */
-  normalFile(filePath, options) {
+  normalFile(filePath, options = {}) {
     if (!options) options = {}
     if (!options.workdir) options.workdir = path.dirname(filePath)
     const source = fs.readFileSync(filePath, 'utf8');
@@ -421,7 +427,7 @@ export class NixEval {
   * @param {Options} options
   * @return {string}
   */
-  normalTree(tree, source, options) {
+  normalTree(tree, source, options = {}) {
     return this.normalNode(tree.topNode, source, options)
   }
 
@@ -433,9 +439,9 @@ export class NixEval {
   * @param {Options} options
   * @return {string}
   */
-  normalNode(node, source, options) {
-    if (!options) options = {}
+  normalNode(node, source, options = {}) {
     if (!options.workdir) options.workdir = process.cwd();
+    if (!options.homedir) options.homedir = process.env.HOME;
     const state = { source, options };
     // note: env ist not passed to format
     return node.type.normal(node, state);
@@ -460,7 +466,7 @@ export class NixEval {
   }
 
   /** @return {Tree} */
-  getTree(source, options) {
+  getTree(source, options = {}) {
     if (!options) options = {};
     const parser = options.parser || this.getParser();
     try {

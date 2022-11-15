@@ -736,6 +736,15 @@ export const PathRelative = (node, state, env) => {
 
 
 
+/** @return {string} */
+export const PathHome = (node, state, env) => {
+  const relativePath = nodeText(node, state).slice(2); // remove ~/ prefix
+  const absolutePath = resolvePath(state.options.homedir, relativePath);
+  return new Path(absolutePath);
+};
+
+
+
 /** @typedef {Record<string, any>} LazyObject */
 
 /**
