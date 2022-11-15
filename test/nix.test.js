@@ -26,7 +26,7 @@ for (let file of fs.readdirSync(caseDir)) {
     let { name, text: textJson, expected, configStr, strict } = testData;
     //console.dir(testData); // debug
 
-    console.log(`test: textJson: ${textJson}`)
+    //console.log(`test: textJson: ${textJson}`)
 
     if (name) {
       name = `${name}: ${textJson} ==> ${expected}`
