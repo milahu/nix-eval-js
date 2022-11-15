@@ -779,9 +779,11 @@ normal.Set = (node, state, env) => {
 
   function stringifyObject(setObj, inheritKeys) {
     let result = "{ ";
-    for (const key of inheritKeys.sort()) {
-      // note: space after key
-      result += `inherit ${key} ; `;
+    if (inheritKeys) {
+      for (const key of inheritKeys.sort()) {
+        // note: space after key
+        result += `inherit ${key} ; `;
+      }
     }
     // sort keys
     for (const key of Object.keys(setObj).sort()) {
