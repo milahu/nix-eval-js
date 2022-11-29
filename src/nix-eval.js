@@ -35,8 +35,16 @@ import { resetInfiniteLoopCounter, } from './infinite-loop-counter.js';
 
 import { stringifyTree } from './lezer-parser-nix/src/nix-format.js'
 
+/*
+// TODO make this work in node and browser
+// node
 import fs from 'node:fs'
+// browser
+import LightningFS from '@isomorphic-git/lightning-fs';
+const fs = new LightningFS("fs");
+
 import path from 'node:path'
+*/
 
 // "export { ... } from '...'" is not working in vite
 export {
@@ -207,6 +215,11 @@ function nodeToString(depth = 0, maxDepth = 5, indent = "  ", extraDepth = 0) {
 
 const debugEval = false;
 
+// TODO move to Env's
+const valueCache = new Map();
+
+const debugCache = false
+
 export class NixEval {
 
   constructor() {
@@ -252,50 +265,6 @@ export class NixEval {
     );
     */
 
-    const valueCache = new Map();
-    const debugCache = false
-
-    const evalNode = (node, state, env) => {
-      // dont cache
-      //return node.type.evalHidden(node, state, env);
-      // cache
-      //const debugCache = true
-      //debugCache && console.log("evalNode"); console.dir(node);
-      //const cacheKey = node; // fail. no cache hits
-      const cacheKey = this.normalNode(node, state.source, options);
-      if (valueCache.has(cacheKey)) {
-        // cache hit -> read cache
-        // FIXME valueCache must be scoped -> move to Env
-        const value = valueCache.get(cacheKey);
-        debugCache && console.log(`cache read : ${node.type.name}: ${cacheKey} -> ${stringifyValue(value)}`);
-        return value;
-      }
-      // cache miss
-      // compute value
-      //const value = node.type.thunk(node, state, env);
-      const value = node.type.evalHidden(node, state, env);
-      //debugCache && console.log(`cache miss: ${cacheKey} -> ${stringifyValue(value)}`);
-      //debugCache && console.dir({f: "cache miss", cacheKey, value, type: node.type.name });
-      // write cache
-      // FIXME only store constants ("trivial" values), dont store variables
-      //if (isTrivialValue(value)) {
-      if (!(
-        node.type.name == "Identifier" ||
-        node.type.name == "Int" ||
-        node.type.name == "Nix" ||
-        // TODO more. see isTrivialValue
-        false
-      )) {
-        debugCache && console.log(`cache write: ${node.type.name}: ${cacheKey} -> ${stringifyValue(value)}`);
-        valueCache.set(cacheKey, value);
-      }
-      return value;
-    };
-
-    for (const type of parser.nodeSet.types) {
-      type.eval = evalNode;
-    }
-
     const tree = this.getTree(source, {parser});
 
     return this.evalTree(tree, source, options);
@@ -308,12 +277,15 @@ export class NixEval {
   * @param {Options} options
   * @return {any}
   */
+  /*
+  // TODO restore with "fs" for browser
   evalFile(filePath, options = {}) {
     if (!options) options = {}
     if (!options.workdir) options.workdir = path.dirname(filePath)
     const source = fs.readFileSync(filePath, 'utf8');
     return this.eval(source, options)
   }
+  */
 
   /**
   * evalute a nix expression from a parse tree
@@ -340,7 +312,7 @@ export class NixEval {
       // import is just a global function, which can be shadowed
       // nix-repl> let import = x: "shadow"; in import 1
       // "shadow"
-      /** @type {function(Path): any} */
+      /** @type {function(Path | string): any} */
       import: (filePath) => {
         const debug = true
         if (filePath instanceof Path) {
@@ -400,12 +372,13 @@ export class NixEval {
   *
   * @param {string} source
   * @param {Options} options
-  * @return {string}
+  * @return {string | undefined}
   */
   normal(source, options = {}) {
     if (!options.workdir) options.workdir = process.cwd();
     if (!options.homedir) options.homedir = process.env.HOME;
     const tree = this.getTree(source);
+    if (!tree) return;
     return this.normalTree(tree, source, options);
   }
 
@@ -416,12 +389,15 @@ export class NixEval {
   * @param {Options} options
   * @return {any}
   */
+  /*
+  // TODO restore with "fs" for browser
   normalFile(filePath, options = {}) {
     if (!options) options = {}
     if (!options.workdir) options.workdir = path.dirname(filePath)
     const source = fs.readFileSync(filePath, 'utf8');
     return this.normal(source, options)
   }
+  */
 
   /**
   * normalize a parsed nix expression to its normal form
@@ -432,7 +408,7 @@ export class NixEval {
   * @return {string}
   */
   normalTree(tree, source, options = {}) {
-    return this.normalNode(tree.topNode, source, options)
+    return NixEval.normalNode(tree.topNode, source, options)
   }
 
   /**
@@ -443,9 +419,9 @@ export class NixEval {
   * @param {Options} options
   * @return {string}
   */
-  normalNode(node, source, options = {}) {
-    if (!options.workdir) options.workdir = process.cwd();
-    if (!options.homedir) options.homedir = process.env.HOME;
+  static normalNode(node, source, options = {}) {
+    if (!options.workdir) options.workdir = (typeof process == "undefined") ? "/" : process.cwd();
+    if (!options.homedir) options.homedir = (typeof process == "undefined") ? "/" : process?.env.HOME;
     const state = { source, options };
     // note: env ist not passed to format
     return node.type.normal(node, state);
@@ -456,20 +432,64 @@ export class NixEval {
     const parser = LezerParserNix.configure({
       strict: true, // throw on parse error
     });
+    NixEval.addEvalToParser(parser);
+    return parser
+  }
 
+  static addEvalToParser(parser) {
     // add thunks to types
     for (const type of parser.nodeSet.types) {
+      // type.eval calls type.evalHidden
       //type.eval = evalNode; // calls evalHidden
+      //type.eval = (node, state, env) => this.evalNode(node, state, env);
+      type.eval = this.evalNode;
       // eval is cached, evalHidden is not cached
       type.evalHidden = thunkOfNodeType[type.name];
       //type.format = formatOfNodeType[type.name];
       type.normal = normalThunks[type.name];
     }
-
-    return parser
   }
 
-  /** @return {Tree} */
+  static evalNode(node, state, env) {
+    const debugCache = false;
+    // dont cache
+    //return node.type.evalHidden(node, state, env);
+    // cache
+    //const debugCache = true
+    //debugCache && console.log("evalNode"); console.dir(node);
+    //const cacheKey = node; // fail. no cache hits
+    const options = {};
+    const cacheKey = NixEval.normalNode(node, state.source, options);
+    if (valueCache.has(cacheKey)) {
+      // cache hit -> read cache
+      // FIXME valueCache must be scoped -> move to Env
+      const value = valueCache.get(cacheKey);
+      debugCache && console.log(`cache read : ${node.type.name}: ${cacheKey} -> ${stringifyValue(value)}`);
+      return value;
+    }
+    // cache miss
+    // compute value
+    //const value = node.type.thunk(node, state, env);
+    const value = node.type.evalHidden(node, state, env);
+    //debugCache && console.log(`cache miss: ${cacheKey} -> ${stringifyValue(value)}`);
+    //debugCache && console.dir({f: "cache miss", cacheKey, value, type: node.type.name });
+    // write cache
+    // FIXME only store constants ("trivial" values), dont store variables
+    //if (isTrivialValue(value)) {
+    if (!(
+      node.type.name == "Identifier" ||
+      node.type.name == "Int" ||
+      node.type.name == "Nix" ||
+      // TODO more. see isTrivialValue
+      false
+    )) {
+      debugCache && console.log(`cache write: ${node.type.name}: ${cacheKey} -> ${stringifyValue(value)}`);
+      valueCache.set(cacheKey, value);
+    }
+    return value;
+  }
+
+  /** @return {Tree | undefined} */
   getTree(source, options = {}) {
     if (!options) options = {};
     const parser = options.parser || this.getParser();

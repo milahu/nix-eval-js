@@ -224,7 +224,7 @@ export default function App() {
 
       const topNode = editorState.tree.topNode;
 
-      evalResult = topNode.type.thunk(topNode, evalState, evalEnv);
+      evalResult = topNode.type.eval(topNode, evalState, evalEnv);
     }
     catch (error) {
       if (error instanceof NixEval.NixSyntaxError || error instanceof NixEval.NixEvalError) {

@@ -1,5 +1,6 @@
 import { createSignal, onMount, For, createEffect, on } from "solid-js";
 import { createStore } from "solid-js/store";
+import * as NixEval from "../../src/nix-eval.js";
 
 //import 'codemirror/lib/codemirror.css';
 //import 'codemirror/theme/monokai.css';
@@ -205,15 +206,8 @@ export function CodeMirror(props) {
 
     // add thunks to types
     const parser = codeMirrorExtensions.codemirrorLangNix.extension.language.parser;
-    for (const nodeType of parser.nodeSet.types) {
-      nodeType.thunk = thunkOfNodeType[nodeType.name];
-      if (!nodeType.thunk) {
-        // not found in thunkOfNodeType
-        if (nodeType.name == '⚠') {
-          nodeType.thunk = thunkOfNodeType['SyntaxError'];
-        }
-      }
-    }
+
+    NixEval.NixEval.addEvalToParser(parser);
 
     // https://github.com/JedWatson/react-codemirror/blob/c3ae528465bcdc4f20780892f8a9111e785fa577/src/Codemirror.js#L49
 		/*
