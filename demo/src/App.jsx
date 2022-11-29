@@ -582,6 +582,12 @@ export default function App() {
       onEditorStateChange={debounce(onEditorState, 100)}
       onEditorMount={(view) => {
         // initial state
+
+        // FIXME sometimes this is wrong:
+        // multiple parse errors at end of tree
+        // bug in lezer or codemirror?
+        // seems like parser returns too early
+
         // workaround for solidjs
         //onEditorState(view.state);
         setTimeout(() => {
