@@ -104,9 +104,29 @@ at this cursor, i want the autocompletion `hello`
 
 this should also work with `callPackage` and `makeScope`
 
+## Nix Interpreters
+
+aka: Nix Evaluators
+
+status = how much of "the perfect nix" is implemented
+
+* [nix](https://github.com/NixOS/nix) - the original nix interpreter in C++. aka `nix.cc`. Status: 90%
+* [tour of nix](https://github.com/nixcloud/tour_of_nix) - nix interpreter in javascript. aka `nix.js`.  
+the original nix interpreter, compiled to asm.js. Status: `nix-instantiate`
+  * https://nixcloud.io/tour/
+  * https://lastlog.de/blog/posts/tour_of_nix.html
+  * https://github.com/NixOS/nixpkgs/pull/16208 - emscripten based toolchain for nix
+* [hnix](https://github.com/haskell-nix/hnix) - nix interpreter in haskell. aka `nix.hs`. Status: 50%
+* [rnix-lsp](https://github.com/nix-community/rnix-lsp) - nix interpreter in rust. error-tolerant interpreter for intellisense. based on the [rnix-parser](https://github.com/nix-community/rnix-parser). aka `nix.rs`. Status: 20%
+* [Toros](https://github.com/kamadorueda/toros) - Nix implementation in Rust. Based on the [NixEL](https://github.com/kamadorueda/nixel) parser. aka `nix.rs`. Status: 10%
+* [nix-eval-js](https://github.com/milahu/nix-eval-js) - Nix interpreter in pure JavaScript. Proof of concept. Based on the [lezer-parser-nix](https://github.com/milahu/lezer-parser-nix) parser. aka `nix.js`. Status: 5%
+
+in a distant future, nickel can interpret nix https://github.com/tweag/nickel/issues/93
+
+see also https://github.com/nix-community/awesome-nix/pull/133
+
 ## related
 
-* [rnix-lsp](https://github.com/nix-community/rnix-lsp) - language server for nix
 * [lezer-parser-nix](https://github.com/milahu/lezer-parser-nix) - nix parser in javascript
 * [nixos-config-webui](https://github.com/milahu/nixos-config-webui) - old project
 * [nijs](https://github.com/svanderburg/nijs) - Nix bindings for JavaScript
