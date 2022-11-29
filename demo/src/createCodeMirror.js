@@ -69,7 +69,9 @@ export function createCodeMirror(props, ref) {
                 state.__lastTransactionTime = Date.now();
                 */
 
-                // blame codemirror plugins?
+                // blame codemirror plugins? no
+
+                // blame solidjs store.editorText?
 
                 debugDispatch && console.log(`createCodeMirror.dispatch: tr`, tr);
                 //console.log(`createCodeMirror.dispatch: tr.changes`, tr.changes);
