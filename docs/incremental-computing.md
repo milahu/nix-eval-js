@@ -8,7 +8,7 @@ https://github.com/adapton/adapton.rust - General-purpose abstractions for incre
 
 https://github.com/carlssonia/adaptive - Library for incremental computing, in Haskell
 
-Delta ML - Self-adjusting Computation with Delta ML
+https://doi.org/10.1007/978-3-642-04652-0_1 at https://sci-hub.ru/ - Delta ML - Self-adjusting Computation with Delta ML
 
 https://github.com/MetaBorgCube/IceDust - A language for data modeling and incremental computing of derived values, with Java backend
 
