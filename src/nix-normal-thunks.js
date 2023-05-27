@@ -63,18 +63,18 @@ normal['⚠'] = (node, _state, _env) => {
 
 const debugExpr = false;
 /** @return {string} */
-normal.Nix = (node, state, env) => {
+normal.Expr = (node, state, env) => {
   //const debugExpr = true;
   resetInfiniteLoopCounter();
-  //console.log('Nix: node', node);
+  //console.log('Expr: node', node);
   const childNode = firstChild(node);
   //console.dir({node, childNode}); throw new Error("todo")
   if (!childNode) {
     // input is empty
     return;
   }
-  //console.log(`Nix: call thunk of node`, childNode);
-  debugExpr && printNode(childNode, state, env, { label: 'normal.Nix: childNode' });
+  //console.log(`Expr: call thunk of node`, childNode);
+  debugExpr && printNode(childNode, state, env, { label: 'normal.Expr: childNode' });
   return childNode.type.normal(childNode, state, env);
 };
 

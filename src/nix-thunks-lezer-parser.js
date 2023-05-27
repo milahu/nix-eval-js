@@ -46,15 +46,15 @@ export const SyntaxError = (node, _state, _env) => {
 };
 
 /** @return {any} */
-export const Nix = (node, state, env) => {
+export const Expr = (node, state, env) => {
   resetInfiniteLoopCounter();
-  //console.log('Nix: node', node);
+  //console.log('Expr: node', node);
   const childNode = firstChild(node);
   if (!childNode) {
     // input is empty
     return;
   }
-  //console.log(`Nix: call thunk of node`, childNode);
+  //console.log(`Expr: call thunk of node`, childNode);
   return childNode.type.eval(childNode, state, env);
 };
 
@@ -1133,7 +1133,7 @@ export const Var = (node, state, env) => {
   //const debugVar = true
   // input: a
   // tree:
-  // Nix: a
+  // Expr: a
   //   Var: a
   //     Identifier: a
   checkInfiniteLoop();

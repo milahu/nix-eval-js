@@ -479,7 +479,7 @@ export class NixEval {
     if (!(
       node.type.name == "Identifier" ||
       node.type.name == "Int" ||
-      node.type.name == "Nix" ||
+      node.type.name == "Expr" ||
       // TODO more. see isTrivialValue
       false
     )) {

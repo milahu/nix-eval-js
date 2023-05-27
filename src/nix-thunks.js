@@ -15,7 +15,7 @@ export function printNode(node, label = '') {
 
 
 export const setThunkOfNodeType = {
-  'Nix': (node) => (node.thunk = () => node.children[0].thunk()), // identity // TODO remove
+  'Expr': (node) => (node.thunk = () => node.children[0].thunk()), // identity // TODO remove
   'TRUE': (node) => (node.thunk = () => true),
   'FALSE': (node) => (node.thunk = () => false),
   'NULL': (node) => (node.thunk = () => null),
@@ -39,7 +39,7 @@ export const setThunkOfNodeType = {
   /*
     node ./src/lezer-parser-nix/test/manual-test.js "__add 1 2"
 
-    Nix
+    Expr
       Call "__add 1 2"
         Call "__add 1"
           Primop "__add"
@@ -72,7 +72,7 @@ export const setThunkOfNodeType = {
   // SubExpr is not used
   // lezer-parser-nix/src/nix.grammar
   // NegativeExpr has higher precedence than SubExpr, so 1-2 -> (1) (-2) -> ApplyExpr
-  // nix parser/interpreter: Nix(ApplyExpr(__sub,Int,Int))
+  // nix parser/interpreter: Expr(ApplyExpr(__sub,Int,Int))
   //'SubExpr': (node) => (node.thunk = () => (node.children[0].thunk() - node.children[2].thunk())),
   //'Sub': null, // '-' // not used? - is parsed as Negative. bug in parser grammar?
   'NegativeExpr': (node) => (node.thunk = () => (- node.children[1].thunk())),
