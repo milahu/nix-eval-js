@@ -946,6 +946,7 @@ export const Select = (node, state, env) => {
   // for (auto & i : attrPath) {
   while (keyNode) {
     // auto name = getName(i, state, env);
+    debugSelect && printNode(keyNode, state, env, { label: 'Select: keyNode' });
     const keyValue = keyNode.type.eval(keyNode, state, env);
 
     // state.forceAttrs(*vAttrs, pos);
@@ -1351,6 +1352,7 @@ export const Let = (node, state, env) => {
   checkInfiniteLoop();
 
   const childEnv = env.newChild(node);
+  debugLet && console.log(`Let: env`, env);
 
   debugLet && printNode(node, state, env);
 

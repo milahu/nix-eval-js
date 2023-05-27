@@ -19,7 +19,7 @@ import * as thunkOfNodeType from './nix-thunks-lezer-parser.js';
 import normalThunks from "./nix-normal-thunks.js"
 
 import {
-  callThunk,
+  callEval,
   firstChild,
   nextSibling,
   nodeText,
@@ -50,7 +50,7 @@ import path from 'node:path'
 export {
   LezerParserNix,
   thunkOfNodeType,
-  callThunk,
+  callEval,
   firstChild,
   nextSibling,
   nodeText,
@@ -442,9 +442,22 @@ export class NixEval {
       // type.eval calls type.evalHidden
       //type.eval = evalNode; // calls evalHidden
       //type.eval = (node, state, env) => this.evalNode(node, state, env);
-      type.eval = this.evalNode;
-      // eval is cached, evalHidden is not cached
+
+      // TODO rename to type.evalUncached
       type.evalHidden = thunkOfNodeType[type.name];
+
+      if (type.name == "⚠") {
+        type.evalHidden = thunkOfNodeType["SyntaxError"];
+      }
+
+      // uncached eval
+      type.eval = type.evalHidden
+      //console.log(`addEvalToParser: type.name ${type.name}, eval`, type.eval)
+
+      // cached eval
+      // FIXME: autocomplete example is broken. evalEnv is not modified
+      //type.eval = this.evalNode;
+
       //type.format = formatOfNodeType[type.name];
       type.normal = normalThunks[type.name];
     }

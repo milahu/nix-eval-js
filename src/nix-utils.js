@@ -1,3 +1,5 @@
+import { NixEvalNotImplemented } from "./nix-errors.js"
+
 export function getSourceProp(node, state) {
   const source = {
     file: '(string)', // TODO nix file path
@@ -118,15 +120,16 @@ export function nodeText(node, state) {
 
 
 /** @type {function(SyntaxNode, State, Env): any} */
-export function callThunk(node, state, env) {
-  if (!node.type.thunk) {
-    throw new NixEvalNotImplemented(`thunk is undefined for type ${node.type.name}`);
+export function callEval(node, state, env) {
+  if (!node.type.eval) {
+    console.error(`eval is undefined for type ${node.type.name}`);
+    throw new NixEvalNotImplemented(`eval is undefined for type ${node.type.name}`);
   }
-  return node.type.thunk(node, state, env);
+  return node.type.eval(node, state, env);
 }
-// regex to inline callThunk:
-// a: callThunk\((.*?), (.*?), (.*?)\)
-// b: $1.type.thunk($1, $2, $3)
+// regex to inline callEval:
+// a: callEval\((.*?), (.*?), (.*?)\)
+// b: $1.type.eval($1, $2, $3)
 
 
 
