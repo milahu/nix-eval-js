@@ -200,6 +200,7 @@ export default function App() {
 
     // eval
     const debugEval = true
+    const debugEvalEnv = false
 
     //console.log(`App: eval. stack:`, new Error().stack)
     const source = editorState.doc.sliceString(0, editorState.doc.length);
@@ -223,7 +224,13 @@ export default function App() {
       debugEval && console.log(`eval source`, evalState.source)
 
       const topNode = editorState.tree.topNode;
+      //debugEval && console.log(`App: eval. topNode`, topNode)
+      //debugEval && console.log(`App: eval. topNode.type.name`, topNode.type.name)
+      //debugEval && console.log(`App: eval. topNode.type.eval`, topNode.type.eval)
 
+      debugEvalEnv && console.log(`App: eval. evalEnv before`, evalEnv)
+
+      // FIXME evalEnv is not modified with cached eval
       evalResult = topNode.type.eval(topNode, evalState, evalEnv);
     }
     catch (error) {
@@ -234,7 +241,7 @@ export default function App() {
           // pretty syntax error
           const pos = parseInt(error.message.match(/error at position ([0-9]+)/)[1]);
           const contextLines = 5;
-          console.log(formatErrorContext(evalState.source, pos, contextLines))
+          console.log(`SyntaxError context at position ${pos}:\n` + formatErrorContext(evalState.source, pos, contextLines))
         }
 
         evalError = (
@@ -252,6 +259,7 @@ export default function App() {
         );
       }
     }
+    debugEvalEnv && console.log(`App: eval. evalEnv after`, evalEnv)
     debugEval && console.log(`App: eval. result:`, evalResult)
     //setStore('evalResult', evalResult); // set store.evalResult
     // hide evalResult in thunk, so solid does not call Nix Lambda
@@ -265,11 +273,24 @@ export default function App() {
     setStore('evalState', evalState); // set store.evalEnv
 
     // set store.evalResultString
-    try {
-      setStore('evalResultString', stringifyEvalResult(evalResult))
+    if (evalResult === undefined) {
+      setStore('evalResultString', "")
     }
-    catch (error) {
-      setStore('evalResultString', `FIXME error in stringifyEvalResult: ${error.name} ${error.message}`)
+    else {
+      try {
+        // FIXME some expr's produce wrong result strings
+        // (x: y: x + y) 1 2 # call lambda nested
+        // actual  : 3.0
+        // expected: 3
+        // FIXME some expr's produce wrong results
+        // let a=2; in a # let
+        // actual  : 1.0
+        // expected: 2
+        setStore('evalResultString', stringifyEvalResult(evalResult))
+      }
+      catch (error) {
+        setStore('evalResultString', `FIXME error in stringifyEvalResult: ${error.name} ${error.message}`)
+      }
     }
     setStore('evalError', evalError); // set store.evalError
   }
@@ -298,7 +319,6 @@ export default function App() {
   /** @type {function(CompletionContext)} */
   // https://codemirror.net/examples/autocompletion/#completing-from-syntax
   function onAutoComplete(context) {
-
     const debugAutoComplete = false
 
     if (debugAutoComplete) {
@@ -363,6 +383,7 @@ export default function App() {
     */
 
     let evalResult = store.evalResult;
+    // nix-eval.js: const evalEnv = new Env();
     let evalEnv = store.evalEnv;
     let evalState = store.evalState;
 
@@ -383,7 +404,9 @@ export default function App() {
     if (debugAutoComplete) {
       console.log(`onAutoComplete: lastNodeBefore ${lastNodeBefore.name}:${lastNodeBefore.from}`)
       console.log(`onAutoComplete: lastNodeBefore.parent ${lastNodeBefore.parent.name}:${lastNodeBefore.parent.from}`)
-      console.log(`onAutoComplete: lastNodeBefore.parent.parent ${lastNodeBefore.parent.parent.name}:${lastNodeBefore.parent.parent.from}`)
+      if (lastNodeBefore.parent.parent) {
+        console.log(`onAutoComplete: lastNodeBefore.parent.parent ${lastNodeBefore.parent.parent.name}:${lastNodeBefore.parent.parent.from}`)
+      }
 
       console.log(`onAutoComplete: nodeBefore ${nodeBefore.name}:${nodeBefore.from}`)
       console.log(`onAutoComplete: nodeBefore.parent ${nodeBefore.parent.name}:${nodeBefore.parent.from}`)
@@ -400,7 +423,9 @@ export default function App() {
     // example: pkgs.
     // -> lookup "pkgs" in the nearest envs
 
+    // TODO handle other nodeBefore.name values
     if (nodeBefore.name == "Select") {
+      console.log(`onAutoComplete: nodeBefore is Select`)
       const selectNode = nodeBefore;
       // find nearest env
       // find parent node with env: Let, RecSet, Call
@@ -446,21 +471,37 @@ export default function App() {
       for (const node of envNodeList) {
         const envList = [];
         const pos = node.from;
+        console.log(`envNodeList[i]: pos = node.from: ${pos}`);
         envsOfPosition[pos] = envList;
       }
 
+      // FIXME envsOfPosition is not populated
+      // how do we find all env's?
+      // does Env#newChild add a reference from parent to child env?
+      // - yes, child envs are in env.children
       function setEnvOfNode(env) {
         // FAIL no pointer equality. different trees?
         // TODO lookup by position
         const pos = (env.node?.from || 0); // node is null in env==evalEnv
+        console.log(`setEnvOfNode: env`, env)
+        console.log(`setEnvOfNode: env.node`, env.node);
+        console.log(`setEnvOfNode: pos`, pos);
         if (pos in envsOfPosition) {
           envsOfPosition[pos].push(env);
         }
+        else {
+          envsOfPosition[pos] = [env];
+        }
+        console.log(`setEnvOfNode: env.children`, env.children)
         for (const childEnv of env.children) {
+          // recurse
+          // TODO use non-recursive function?
           setEnvOfNode(childEnv);
         }
       }
+      //console.log(`setEnvOfNode ...`);
       setEnvOfNode(evalEnv);
+      //console.log(`setEnvOfNode done`);
 
       const complete = {
         from: context.pos,
@@ -472,11 +513,15 @@ export default function App() {
         validFor: /.*/,
       }
 
+      debugAutoComplete && console.log(`envNodeList: envsOfPosition`, envsOfPosition);
+      debugAutoComplete && console.log(`envNodeList: loop ...`);
       for (const node of envNodeList) {
         //const envList = envsOfNode.get(node);
+        console.log(`envNodeList[i]: node: ${node}`);
+        console.log(`envNodeList[i]: node.from: ${node.from}`);
         const envList = envsOfPosition[node.from];
+        console.log(`envNodeList[i]: envList:`, envList);
         for (const env of envList) {
-          /*
           if (node === null) {
             console.log(`RootNode:0: ${stringifyEvalResult(env.data)}`);
             console.log(`RootNode:0: env.get pkgs: ${stringifyEvalResult(env.get('pkgs'))}`);
@@ -485,7 +530,6 @@ export default function App() {
             console.log(`${node.type.name}:${node.from}: ${stringifyEvalResult(env.data)}`);
             console.log(`${node.type.name}:${node.from}: env.get pkgs: ${stringifyEvalResult(env.get('pkgs'))}`);
           }
-          */
           // TODO also get keys from parent envs
           // env.get is recursive
           // FIXME this should return ["hello", "test"], not ["pkgs"]
@@ -499,16 +543,16 @@ export default function App() {
           */
           // eval Select
           // no. calling the normal thunk throws syntax error
-          //const selectValue = NixEval.callThunk(selectNode, evalState, env);
+          //const selectValue = NixEval.callEval(selectNode, evalState, env);
           //console.log(`onAutoComplete: selectValue`, selectValue)
           const setNode = NixEval.firstChild(selectNode);
           NixEval.printNode(setNode, evalState, env, {label: 'onAutoComplete: select setNode'});
-          let resultValue = NixEval.callThunk(setNode, evalState, env);
+          let resultValue = NixEval.callEval(setNode, evalState, env);
           if (!setNode || setNode.type.name == '⚠') return null; // TODO return env?
           let keyNode = NixEval.nextSibling(setNode);
           while (keyNode && keyNode.type.name != '⚠') {
             NixEval.printNode(keyNode, evalState, env, {label: 'onAutoComplete: select keyNode'});
-            const key = NixEval.callThunk(keyNode, evalState, env);
+            const key = NixEval.callEval(keyNode, evalState, env);
             debugAutoComplete && console.log(`onAutoComplete: select key`, key)
             resultValue = resultValue.data[key];
             keyNode = NixEval.nextSibling(keyNode);
@@ -522,6 +566,7 @@ export default function App() {
           }
         }
       }
+      debugAutoComplete && console.log(`envNodeList: loop done`);
       /*
       for (const node of envOfNode.keys()) {
         const env = envOfNode.get(node);
