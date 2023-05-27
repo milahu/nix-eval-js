@@ -1,14 +1,26 @@
 import { onCleanup, onMount, on, createEffect } from "solid-js";
 import { EditorView } from "@codemirror/view";
 import { Compartment, EditorState, StateEffect, } from "@codemirror/state";
+
 /**
  * Creates a CodeMirror editor view instance (the editor's user interface).
  * @param props See {@link CodeMirrorProps} for details.
  * @param ref the element to attach the editor to on creation.
  */
 export function createCodeMirror(props, ref) {
+    // FIXME createCodeMirror is called FOUR times
+    console.log(new Error("trace createCodeMirror"))
+
     let view;
+
+    console.log(`createCodeMirror`)
+
     onMount(() => {
+        if (view) return; // no effect, still called FOUR times
+
+        // FIXME this is called FOUR times
+        console.log(`createCodeMirror: onMount`)
+
         const state = EditorState.create({
             doc: props.value,
         });
@@ -22,7 +34,12 @@ export function createCodeMirror(props, ref) {
 
         const debugDispatch = false
 
+        // debounce/throttle dispatch of events
+        let lastDispatchTime = 0;
+
         // Construct a new EditorView instance
+        // FIXME this is called FOUR times
+        console.log(`createCodeMirror: onMount: view = ...`)
         view = new EditorView({
             state,
             parent: ref(),
@@ -50,7 +67,19 @@ export function createCodeMirror(props, ref) {
                 }
 
                 // FIXME dispatch is called FOUR times on every change
-                console.log(`createCodeMirror.dispatch`, Date.now())
+                const dispatchTime = Date.now();
+                const dt = dispatchTime - lastDispatchTime;
+                //console.log(`createCodeMirror.dispatch: lastDispatchTime`, lastDispatchTime)
+                //console.log(`createCodeMirror.dispatch: dispatchTime`, dispatchTime)
+                //console.log(`createCodeMirror.dispatch: dt`, dt)
+                const dtMin = 500; // 0.5 seconds
+                if (dt < dtMin) {
+                    // ignore this event
+                    return;
+                }
+                // FIXME we have FOUR views, so FOUR different lastDispatchTime
+                lastDispatchTime = dispatchTime;
+                //console.log(`createCodeMirror.dispatch: lastDispatchTime2`, lastDispatchTime)
 
                 /* no
                 if (tr.__seen) {
