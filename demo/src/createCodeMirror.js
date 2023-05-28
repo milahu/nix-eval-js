@@ -66,6 +66,8 @@ export function createCodeMirror(props, ref) {
                     return;
                 }
 
+                /*
+                // no! this swallows events we need for eval -> eval result is not updated
                 // FIXME dispatch is called FOUR times on every change
                 const dispatchTime = Date.now();
                 const dt = dispatchTime - lastDispatchTime;
@@ -80,6 +82,7 @@ export function createCodeMirror(props, ref) {
                 // FIXME we have FOUR views, so FOUR different lastDispatchTime
                 lastDispatchTime = dispatchTime;
                 //console.log(`createCodeMirror.dispatch: lastDispatchTime2`, lastDispatchTime)
+                */
 
                 /* no
                 if (tr.__seen) {
