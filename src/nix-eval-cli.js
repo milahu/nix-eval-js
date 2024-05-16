@@ -3,6 +3,10 @@
 import { NixEval, getStringifyResult } from "./nix-eval.js";
 import process from "node:process";
 import { readFileSync } from 'node:fs';
+import fs from 'node:fs'
+import path from 'node:path'
+
+
 
 const stringify = getStringifyResult({
   maximumDepth: 2,
@@ -28,6 +32,8 @@ function main(argv) {
 
   if (argv[1] == '-f' || argv[1] == '--file') {
     const nix = new NixEval();
+    options.fs = fs;
+    options.path = path;
     const result = nix.evalFile(argv[2], options);
     console.log(stringify(result));
     return

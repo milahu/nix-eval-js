@@ -277,15 +277,14 @@ export class NixEval {
   * @param {Options} options
   * @return {any}
   */
-  /*
-  // TODO restore with "fs" for browser
   evalFile(filePath, options = {}) {
     if (!options) options = {}
+    const fs = options.fs;
+    const path = options.path;
     if (!options.workdir) options.workdir = path.dirname(filePath)
     const source = fs.readFileSync(filePath, 'utf8');
     return this.eval(source, options)
   }
-  */
 
   /**
   * evalute a nix expression from a parse tree
@@ -389,15 +388,14 @@ export class NixEval {
   * @param {Options} options
   * @return {any}
   */
-  /*
-  // TODO restore with "fs" for browser
   normalFile(filePath, options = {}) {
     if (!options) options = {}
+    const fs = options.fs;
+    const path = options.path;
     if (!options.workdir) options.workdir = path.dirname(filePath)
     const source = fs.readFileSync(filePath, 'utf8');
     return this.normal(source, options)
   }
-  */
 
   /**
   * normalize a parsed nix expression to its normal form
